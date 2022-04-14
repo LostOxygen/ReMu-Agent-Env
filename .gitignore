@@ -1,8 +1,5 @@
 # Project individual ignores
-*.pdf
-*.jpeg
-*.jpg
-*.png
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
