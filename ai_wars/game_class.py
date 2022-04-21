@@ -59,7 +59,8 @@ class GameClass:
 		self.screen.blit(self.background, (0, 0))
 		self.spaceship.draw(self.screen)
 
-		print(len(self.bullets))
+		# Debugging:
+		# print(len(self.bullets))
 		for bullet in self.bullets:
 			if (bullet.x > self.screen.get_width() or
 				bullet.x < 0 or
