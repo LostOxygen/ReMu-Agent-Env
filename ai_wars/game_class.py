@@ -59,10 +59,17 @@ class GameClass:
 		self.screen.blit(self.background, (0, 0))
 		self.spaceship.draw(self.screen)
 
+		print(len(self.bullets))
 		for bullet in self.bullets:
-			bullet.draw(self.screen)
+			if (bullet.x > self.screen.get_width() or
+				bullet.x < 0 or
+				bullet.y > self.screen.get_height() or
+				bullet.y < 0):
+				self.bullets.remove(bullet)
+				del bullet
+			else:
+				bullet.draw(self.screen)
 
-		print("spacehshit drawn")
 		pygame.display.flip()
 		self.clock.tick(75)
 
