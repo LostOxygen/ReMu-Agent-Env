@@ -1,23 +1,23 @@
 import pygame
-from Utils import get_random_velocity, load_sprite, wrap_position, get_random_position
-from models import Asteroid, Spaceship
 from pygame.math import Vector2
-from Spaceship import Spaceship
-from Bullet import Bullet
-from Action import Action
+
+from .Utils import get_random_velocity, load_sprite, wrap_position, get_random_position
+from .Spaceship import Spaceship
+from .Bullet import Bullet
+from .Action import EnumAction
 
 
-class AI_Wars:
+class GameClass:
 
     def __init__(self):
 
         pygame.init()
         self.screen = pygame.display.set_mode((800, 600))
         self.clock = pygame.time.Clock()
-        self.background = load_sprite("space", False)
+        self.background = load_sprite("ai_wars/img/space.png", False)
         self.bullets = []
         self.spaceship = Spaceship(400, 300, 40, 40, load_sprite(
-            "spaceship"), self.bullets.append, self.screen)
+            "ai_wars/img/spaceship.png"), self.bullets.append, self.screen)
         #BORDER = pygame.Rect(800, 600)
 
     def main_loop(self):
@@ -40,16 +40,16 @@ class AI_Wars:
         is_key_pressed = pygame.key.get_pressed()
 
         if is_key_pressed[pygame.K_UP]:
-            self.spaceship.move(Action.FORWARD)
+            self.spaceship.move(EnumAction.FORWARD)
 
         if is_key_pressed[pygame.K_DOWN]:
-            self.spaceship.move(Action.BACKWARDS)
+            self.spaceship.move(EnumAction.BACKWARDS)
 
         if is_key_pressed[pygame.K_RIGHT]:
-            self.spaceship.move(Action.RIGHT)
+            self.spaceship.move(EnumAction.RIGHT)
 
         if is_key_pressed[pygame.K_LEFT]:
-            self.spaceship.move(Action.LEFT)
+            self.spaceship.move(EnumAction.LEFT)
 
     def _draw(self):
         self.screen.blit(self.background, (0, 0))
@@ -65,8 +65,3 @@ class AI_Wars:
     def _process_game_logic(self):
         for bullet in self.bullets:
             bullet.move()
-
-
-if __name__ == "__main__":
-    AI_WARS = AI_Wars()
-    AI_WARS.main_loop()

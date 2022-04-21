@@ -1,6 +1,7 @@
 import pygame
 from pygame.math import Vector2
-from Utils import load_sprite
+
+from .Utils import load_sprite
 
 
 class Bullet():

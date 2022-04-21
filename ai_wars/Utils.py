@@ -3,8 +3,7 @@ from pygame.math import Vector2
 import random
 
 
-def load_sprite(name, with_alpha=True):
-    path = f"/Users/ibrahimmahameed/Desktop/AI Wars/{name}.png"
+def load_sprite(path, with_alpha=True):
     loaded_sprite = load(path)
 
     if with_alpha:
