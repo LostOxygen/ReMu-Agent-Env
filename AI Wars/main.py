@@ -1,6 +1,5 @@
 import pygame
 from Utils import get_random_velocity, load_sprite, wrap_position, get_random_position
-from models import Asteroid, Spaceship
 from pygame.math import Vector2
 from Spaceship import Spaceship
 from Bullet import Bullet

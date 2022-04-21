@@ -21,8 +21,18 @@ class Spaceship():
         self.velocity = 2
 
     def draw(self, surface) -> None:
-        player_rec = pygame.Rect(self.x, self.y, self.height, self.width)
-        surface.blit(self.sprite, (self.x, self.y))
+        #player_rec = pygame.Rect(self.x, self.y, self.height, self.width)
+        #surface.blit(self.sprite, (self.x, self.y))
+        angle = self.direction.angle_to(UP)
+        rotated_surface = pygame.transform.rotozoom(self.sprite, angle, 1.0)
+        rotated_surface_size = Vector2(rotated_surface.get_size())
+        blit_position = Vector2(self.x, self.y) - rotated_surface_size * 0.5
+        surface.blit(rotated_surface, blit_position)
+
+    def rotate(self, clockwise=True):
+        sign = 1 if clockwise else -1
+        angle = 3 * sign
+        self.direction.rotate_ip(angle)
 
     def move(self, action):
         if action == Action.FORWARD and self.y - self.velocity > 0:
@@ -34,10 +44,11 @@ class Spaceship():
 
         if action == Action.RIGHT and self.x + self.velocity < \
                 (self.surface.get_width() - self.width):
-            self.x += self.velocity
+
+            self.rotate(clockwise=True)
 
         if action == Action.LEFT and self.x - self.velocity > 0:
-            self.x -= self.velocity
+            self.rotate(clockwise=False)
 
     def shoot(self):
         bullet_velocity = self.direction * 3
