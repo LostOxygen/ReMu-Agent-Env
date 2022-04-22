@@ -1,5 +1,6 @@
 """enum class for several enum implementations"""
 from enum import Enum
+import pygame
 
 
 class EnumAction(Enum):
@@ -9,3 +10,4 @@ class EnumAction(Enum):
 	RIGHT = 2
 	BACKWARDS = 3
 	SHOOT = 4
+
