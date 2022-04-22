@@ -3,4 +3,12 @@
     "python.linting.enabled": true,
     // The number of spaces a tab is equal to.
     "editor.tabSize": 4,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.unittestEnabled": true,
 }
