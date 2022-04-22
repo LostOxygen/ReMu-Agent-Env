@@ -11,7 +11,8 @@ Server transmits the game state to each client containing the players score and 
 ```json
 {
 	"players": [Player],
-	"projectiles": [Projectile]
+	"projectiles": [Projectile],
+	"scores": [Score]
 }
 ```
 
@@ -21,7 +22,6 @@ Representation of a player.
 ```json
 {
 	"name": string,
-	"score": int,
 	"position": Coordinate,
 	"direction": Coordinate
 }
@@ -48,6 +48,16 @@ Representation of a 2D-Vector
 }
 ```
 
+#### Score
+Representation of a score entry
+
+```json
+{
+	"name": string,
+	"value": int
+}
+```
+
 ### Example
 
 ```json
@@ -55,13 +65,11 @@ Representation of a 2D-Vector
 	"players": [
 		{
 			"name": "gandalf",
-			"score": 10000,
 			"position": { "x": 20, "y": 100 },
 			"direction": { "x": 1, "y": 10 }
 		},
 		{
 			"name": "dumbledore",
-			"score": -100,
 			"position": { "x": 100, "y": 200 },
 			"direction": { "x": 0, "y": 50 }
 		}
@@ -76,6 +84,16 @@ Representation of a 2D-Vector
 			"owner": "dumbledore",
 			"position": { "x": 11, "y": 155 },
 			"direction": { "x": 100, "y": -10 }
+		}
+	],
+	"scoreboard": [
+		{
+			"name": "gandalf",
+			"value": 100
+		},
+		{
+			"name": "dumbledore",
+			"value": -50
 		}
 	]
 }

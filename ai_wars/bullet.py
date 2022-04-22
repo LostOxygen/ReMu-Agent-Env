@@ -5,8 +5,9 @@ from pygame.math import Vector2
 
 class Bullet():
 	"""Bullet class with functions for moving and drawing"""
-	def __init__(self, x: int, y: int, height: int, width: int, \
+	def __init__(self, owner: str, x: int, y: int, height: int, width: int,
 				 sprite: pygame.Surface, velocity: Vector2):
+		self.owner = owner
 		self.x = x
 		self.y = y
 		self.height = height

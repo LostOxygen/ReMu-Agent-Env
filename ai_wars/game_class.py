@@ -20,6 +20,7 @@ class GameClass:
 		self.screen = pygame.display.set_mode((800, 600))
 		self.clock = pygame.time.Clock()
 		self.background = load_sprite("ai_wars/img/space.png", False)
+		
 		self.bullets = [] # list with all bullets in the game
 		self.spaceships = [] # list with every spaceship in the game
 		self.spaceship = Spaceship(400, 300, 40, 40, \
