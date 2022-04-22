@@ -16,8 +16,9 @@ class GameClass:
 		self.clock = pygame.time.Clock()
 		self.background = load_sprite("ai_wars/img/space.png", False)
 		self.bullets = []
-		self.spaceship = Spaceship(400, 300, 40, 40, load_sprite(
-			"ai_wars/img/spaceship.png"), self.bullets.append, self.screen)
+		self.spaceship = Spaceship(400, 300, 40, 40,
+								   load_sprite("ai_wars/img/spaceship.png"),
+								   self.bullets.append, self.screen)
 
 	def main_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
@@ -35,9 +36,9 @@ class GameClass:
 				and event.key == pygame.K_ESCAPE):
 				sys.exit()
 			elif (
-				self.spaceship
-				and event.type == pygame.KEYDOWN
-				and event.key == pygame.K_SPACE
+					self.spaceship
+					and event.type == pygame.KEYDOWN
+					and event.key == pygame.K_SPACE
 			):
 				self.spaceship.shoot()
 
