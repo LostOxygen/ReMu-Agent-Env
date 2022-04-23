@@ -7,6 +7,7 @@ from ai_wars.spaceship import Spaceship
 from ai_wars.enums import EnumAction
 
 DECREASE_SCORE_EVENT = pygame.USEREVENT + 0
+FRAMERATE = 144
 
 class GameClass:
 	"""MainGameClass"""
@@ -42,7 +43,7 @@ class GameClass:
 	def main_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
 		while True:
-			self.delta_time = self.clock.tick(75)
+			self.delta_time = self.clock.tick(FRAMERATE)
 			self.time_elapsed_since_last_action += self.delta_time
 
 			self._handle_events()
@@ -98,7 +99,8 @@ class GameClass:
 		self.screen.blit(self.background, (0, 0))
 
 		# draw the spaceship
-		self.screen.blit(self.spaceship.sprite, (self.spaceship.x, self.spaceship.y))
+		for spaceship in self.spaceships:
+			spaceship.draw(self.screen)
 
 		# rendering loop to draw all bullets
 		for bullet in self.bullets:
@@ -110,8 +112,7 @@ class GameClass:
 				self.bullets.remove(bullet)
 				del bullet
 			else:
-				self.screen.blit(bullet.sprite, (bullet.x, bullet.y))
-
+				bullet.draw(self.screen)
 
 		# draw leaderboard
 		self._draw_leaderboard(self.screen)
