@@ -60,11 +60,6 @@ class GameClass:
 					 (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 					sys.exit()
 
-				# check if the space bar got pressed -> shoot
-				case _ if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-					if self.spaceship:
-						self.spaceship.shoot()
-
 				# decrease the score of the players (event gets fired every second)
 				case _ if event.type == pygame.USEREVENT+0:
 					for spaceship in self.spaceships:
@@ -74,14 +69,16 @@ class GameClass:
 		is_key_pressed = pygame.key.get_pressed()
 
 		match is_key_pressed:
+			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
+				self.spaceship.action(EnumAction.SHOOT)
 			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
-				self.spaceship.move(EnumAction.LEFT)
+				self.spaceship.action(EnumAction.LEFT)
 			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
-				self.spaceship.move(EnumAction.RIGHT)
+				self.spaceship.action(EnumAction.RIGHT)
 			case is_key_pressed if is_key_pressed[pygame.K_UP]:
-				self.spaceship.move(EnumAction.FORWARD)
+				self.spaceship.action(EnumAction.FORWARD)
 			case is_key_pressed if is_key_pressed[pygame.K_DOWN]:
-				self.spaceship.move(EnumAction.BACKWARDS)
+				self.spaceship.action(EnumAction.BACKWARD)
 
 	def _draw_leaderboard(self, screen) -> None:
 		"""private method to draw the leaderboard on the given screen"""
