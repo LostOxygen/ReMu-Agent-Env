@@ -57,7 +57,6 @@ class AI_Wars:
         for bullet in self.bullets:
             bullet.draw(self.screen)
 
-        print("spacehshit drawn")
         pygame.display.flip()
         self.clock.tick(75)
 

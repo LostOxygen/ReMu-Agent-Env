@@ -60,4 +60,3 @@ class Spaceship():
         bullet = Bullet(self.x, self.y, self.height, self.width,
                         load_sprite("bullet"), bullet_velocity)
         self.bullet_append(bullet)
-        print("shots fired")
