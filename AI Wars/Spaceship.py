@@ -19,10 +19,12 @@ class Spaceship():
         self.direction = Vector2(UP)
         self.surface = surface
         self.velocity = 2
+        self.position = Vector2(self.x, self.y)
+        self.ACCELERATION = 0.9
 
     def draw(self, surface) -> None:
-        #player_rec = pygame.Rect(self.x, self.y, self.height, self.width)
-        #surface.blit(self.sprite, (self.x, self.y))
+        # player_rec = pygame.Rect(self.x, self.y, self.height, self.width)
+        # surface.blit(self.sprite, (self.x, self.y))
         angle = self.direction.angle_to(UP)
         rotated_surface = pygame.transform.rotozoom(self.sprite, angle, 1.0)
         rotated_surface_size = Vector2(rotated_surface.get_size())
@@ -35,16 +37,19 @@ class Spaceship():
         self.direction.rotate_ip(angle)
 
     def move(self, action):
+
         if action == Action.FORWARD and self.y - self.velocity > 0:
-            self.y -= self.velocity
+            #self.y -= self.velocity
+            self.y += self.direction.y * self.ACCELERATION
+            self.x += self.direction.x * self.ACCELERATION
 
         if action == Action.BACKWARDS and self.y + self.velocity < \
                 (self.surface.get_height() - self.height):
-            self.y += self.velocity
+            self.y -= self.direction.y * self.ACCELERATION
+            self.x -= self.direction.x * self.ACCELERATION
 
         if action == Action.RIGHT and self.x + self.velocity < \
                 (self.surface.get_width() - self.width):
-
             self.rotate(clockwise=True)
 
         if action == Action.LEFT and self.x - self.velocity > 0:
