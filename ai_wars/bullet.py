@@ -19,3 +19,5 @@ class Bullet():
 		self.x = self.x + self.velocity.x
 		self.y = self.y + self.velocity.y
 
+	def draw(self, surface: pygame.Surface) -> None:
+		surface.blit(self.sprite, (self.x, self.y))

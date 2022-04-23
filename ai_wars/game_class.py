@@ -42,21 +42,18 @@ class GameClass:
 	def main_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
 		while True:
-			self.delta_time = self.clock.tick()
+			self.delta_time = self.clock.tick(144)
 			self.time_elapsed_since_last_action += self.delta_time
 
 			self._handle_events()
 			self._process_game_logic()
 			self._draw()
 
-			self.clock.tick(75)
-
 	def _handle_events(self) -> None:
 		"""Private helper method to listen for and process input via
 			pygame events
 		"""
 		for event in pygame.event.get():
-			print(event)
 			match event:
 				# check if the game should be closed
 				case event if event.type == pygame.QUIT or \
@@ -70,7 +67,6 @@ class GameClass:
 
 				# decrease the score of the players (event gets fired every second)
 				case _ if event.type == pygame.USEREVENT+0:
-					print("hello")
 					for spaceship in self.spaceships:
 						spaceship.score -= 1
 
@@ -102,7 +98,8 @@ class GameClass:
 		self.screen.blit(self.background, (0, 0))
 
 		# draw the spaceship
-		self.screen.blit(self.spaceship.sprite, (self.spaceship.x, self.spaceship.y))
+		for spaceship in self.spaceships:
+			spaceship.draw(self.screen)
 
 		# rendering loop to draw all bullets
 		for bullet in self.bullets:
@@ -114,8 +111,7 @@ class GameClass:
 				self.bullets.remove(bullet)
 				del bullet
 			else:
-				self.screen.blit(bullet.sprite, (bullet.x, bullet.y))
-
+				bullet.draw(self.screen)
 
 		# draw leaderboard
 		self._draw_leaderboard(self.screen)
