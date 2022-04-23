@@ -30,32 +30,29 @@ class Spaceship():
 		self.name = name # name is equivalent to an player ID
 		self.acceleration = 0.9
 		self.draw_position = Vector2() # position where the spaceship gets drawn
-		self.spaceship_rect = pygame.Surface(
-			(self.width, self.height)).get_rect(center=(self.x, self.y))
-		self.screen_rect = self.screen.get_rect(center=(self.x, self.y))
 
 	def action(self, action: EnumAction) -> None:
 		"""public method to move the ship in the direction of the action"""
 		match action:
 			case EnumAction.FORWARD:
-				if self.spaceship_rect.top > 0 and \
-				   self.spaceship_rect.right < self.screen_rect.right and \
-				   self.spaceship_rect.bottom < self.screen_rect.bottom and \
-				   self.spaceship_rect.left > 0:
-					self.y += self.direction.y * self.acceleration
-					self.x += self.direction.x * self.acceleration
-					self.spaceship_rect.centerx = self.x
-					self.spaceship_rect.centery = self.y
+				new_position_x = self.x + self.direction.x * self.acceleration
+				new_position_y = self.y + self.direction.y * self.acceleration
+				# correct the position at the end of an action to stay within the screen bounds
+				valid_pos_x = np.clip(new_position_x, 0, self.screen.get_width())
+				valid_pos_y = np.clip(new_position_y, 0, self.screen.get_height())
+
+				self.x = valid_pos_x
+				self.y = valid_pos_y
 
 			case EnumAction.BACKWARD:
-				if self.spaceship_rect.top > 0 and \
-                   self.spaceship_rect.right < self.screen_rect.right and \
-                   self.spaceship_rect.bottom < self.screen_rect.bottom and \
-                   self.spaceship_rect.left > 0:
-					self.y -= self.direction.y * self.acceleration
-					self.x -= self.direction.x * self.acceleration
-					self.spaceship_rect.centerx = self.x
-					self.spaceship_rect.centery = self.y
+				new_position_x = self.x - self.direction.x * self.acceleration
+				new_position_y = self.y - self.direction.y * self.acceleration
+				# correct the position at the end of an action to stay within the screen bounds
+				valid_pos_x = np.clip(new_position_x, 0, self.screen.get_width())
+				valid_pos_y = np.clip(new_position_y, 0, self.screen.get_height())
+
+				self.x = valid_pos_x
+				self.y = valid_pos_y
 
 			case EnumAction.RIGHT:
 				self._rotate(clockwise=True)
