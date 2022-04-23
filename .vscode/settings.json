@@ -1,4 +1,5 @@
 {
+    "editor.rulers": [100],
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     // The number of spaces a tab is equal to.
