@@ -45,14 +45,33 @@ class GameClass:
 			self.delta_time = self.clock.tick(144)
 			self.time_elapsed_since_last_action += self.delta_time
 
+			self._handle_inputs()
 			self._handle_events()
 			self._process_game_logic()
 			self._draw()
 
+	def _handle_inputs(self) -> None:
+		"""private method to process inputs and limit the bullet frequency"""
+		# check whick keys eare pressed
+		is_key_pressed = pygame.key.get_pressed()
+
+		match is_key_pressed:
+			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
+				# limit the frequency of bullets
+				if self.time_elapsed_since_last_action > 100:
+					self.spaceship.action(EnumAction.SHOOT)
+					self.time_elapsed_since_last_action = 0
+			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
+				self.spaceship.action(EnumAction.LEFT)
+			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
+				self.spaceship.action(EnumAction.RIGHT)
+			case is_key_pressed if is_key_pressed[pygame.K_UP]:
+				self.spaceship.action(EnumAction.FORWARD)
+			case is_key_pressed if is_key_pressed[pygame.K_DOWN]:
+				self.spaceship.action(EnumAction.BACKWARD)
+
 	def _handle_events(self) -> None:
-		"""Private helper method to listen for and process input via
-			pygame events
-		"""
+		"""Private helper method to listen and process pygame events"""
 		for event in pygame.event.get():
 			match event:
 				# check if the game should be closed
@@ -64,21 +83,6 @@ class GameClass:
 				case _ if event.type == pygame.USEREVENT+0:
 					for spaceship in self.spaceships:
 						spaceship.score -= 1
-
-		# check whick keys eare pressed
-		is_key_pressed = pygame.key.get_pressed()
-
-		match is_key_pressed:
-			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
-				self.spaceship.action(EnumAction.SHOOT)
-			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
-				self.spaceship.action(EnumAction.LEFT)
-			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
-				self.spaceship.action(EnumAction.RIGHT)
-			case is_key_pressed if is_key_pressed[pygame.K_UP]:
-				self.spaceship.action(EnumAction.FORWARD)
-			case is_key_pressed if is_key_pressed[pygame.K_DOWN]:
-				self.spaceship.action(EnumAction.BACKWARD)
 
 	def _draw_leaderboard(self, screen) -> None:
 		"""private method to draw the leaderboard on the given screen"""
