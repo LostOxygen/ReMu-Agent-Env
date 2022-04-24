@@ -6,10 +6,15 @@ from ai_wars.utils import load_sprite
 from ai_wars.spaceship import Spaceship
 from ai_wars.enums import EnumAction
 
-DECREASE_SCORE_EVENT = pygame.USEREVENT + 0
 
 class GameClass:
 	"""MainGameClass"""
+
+	# some constants
+	# pygame userevents use codes from 24 to 35, so the first user event will be 24
+	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0 # event code 24
+	SHOOT_COOLDOWN = 200 # specifies the cooldown for shooting in ms
+
 	def __init__(self):
 
 		pygame.init()
@@ -36,7 +41,8 @@ class GameClass:
 		self.time_elapsed_since_last_action = 0
 
 		# initialize custom event timer
-		self.decrease_score_event = pygame.event.Event(DECREASE_SCORE_EVENT, message="decrease score")
+		self.decrease_score_event = pygame.event.Event(self.DECREASE_SCORE_EVENT,
+													   message="decrease score")
 		pygame.time.set_timer(self.decrease_score_event, 1000)
 
 	def main_loop(self) -> None:
@@ -58,7 +64,7 @@ class GameClass:
 		match is_key_pressed:
 			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
 				# limit the frequency of bullets
-				if self.time_elapsed_since_last_action > 100:
+				if self.time_elapsed_since_last_action > self.SHOOT_COOLDOWN:
 					self.spaceship.action(EnumAction.SHOOT)
 					self.time_elapsed_since_last_action = 0
 			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
