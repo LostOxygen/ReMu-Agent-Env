@@ -53,7 +53,7 @@ class Spaceship():
 	def shoot(self) -> None:
 		"""public method to create a bullet and append it to the bullet list"""
 		bullet_velocity = self.direction * 3
-		bullet = Bullet(self.x+np.floor(self.width/2)-5, self.y, self.height, self.width, \
+		bullet = Bullet(self.name, self.x+np.floor(self.width/2)-5, self.y, self.height, self.width, \
 						load_sprite("ai_wars/img/bullet.png"), bullet_velocity)
 		self.bullet_append(bullet)
 
