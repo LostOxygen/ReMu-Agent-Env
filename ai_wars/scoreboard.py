@@ -63,21 +63,21 @@ class Scoreboard(Subject):
 		self._scoreboard_dict[player_name] = new_score
 		# re-sort the scoreboard
 		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
-									 key=lambda x: x[1], reverse=False))
+									 key=lambda x: x[1], reverse=True))
 		self.notify()
 
 	def decrease_score(self, player_name: str, decrease: int) -> None:
 		self._scoreboard_dict[player_name] = self._scoreboard_dict[player_name] - decrease
 		# re-sort the scoreboard
 		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
-                                      key=lambda x: x[1], reverse=False))
+                                      key=lambda x: x[1], reverse=True))
 		self.notify()
 
 	def increase_score(self, player_name: str, increase: int) -> None:
 		self._scoreboard_dict[player_name] = self._scoreboard_dict[player_name] + increase
 		# re-sort the scoreboard
 		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
-                                      key=lambda x: x[1], reverse=False))
+                                      key=lambda x: x[1], reverse=True))
 		self.notify()
 
 	def draw_scoreboard(self, screen: pygame.Surface) -> None:

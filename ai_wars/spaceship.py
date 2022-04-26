@@ -31,6 +31,10 @@ class Spaceship(Observer):
 		self.name = name # name is equivalent to an player ID
 		self.acceleration = 0.9
 		self.draw_position = Vector2() # position where the spaceship gets drawn
+		
+		#Hitbox
+		self.hitbox = self.sprite.get_rect()
+		self.refresh_Hitbox_Coordinates()
 
 	def action(self, action: EnumAction) -> None:
 		"""public method to move the ship in the direction of the action"""
@@ -42,8 +46,11 @@ class Spaceship(Observer):
 				valid_pos_x = np.clip(new_position_x, 0, self.screen.get_width())
 				valid_pos_y = np.clip(new_position_y, 0, self.screen.get_height())
 
+				# move sprite
 				self.x = valid_pos_x
 				self.y = valid_pos_y
+
+				self.refresh_Hitbox_Coordinates()
 
 			case EnumAction.BACKWARD:
 				new_position_x = self.x - self.direction.x * self.acceleration
@@ -54,6 +61,8 @@ class Spaceship(Observer):
 
 				self.x = valid_pos_x
 				self.y = valid_pos_y
+
+				self.refresh_Hitbox_Coordinates()
 
 			case EnumAction.RIGHT:
 				self._rotate(clockwise=True)
@@ -67,8 +76,10 @@ class Spaceship(Observer):
 	def _shoot(self) -> None:
 		"""public method to create a bullet and append it to the bullet list"""
 		bullet_velocity = self.direction * 3
+		#TODO We are passing here the wrong height and width (that of the ship), the bullet class
+		# can get it itself using the img
 		bullet = Bullet(self.x, self.y - np.floor(self.height/2), self.height, self.width, \
-						load_sprite("ai_wars/img/bullet.png"), bullet_velocity)
+						load_sprite("ai_wars/img/bullet.png"), bullet_velocity, self)
 		self.bullet_append(bullet)
 
 	def _rotate(self, clockwise: bool) -> None:
@@ -85,7 +96,17 @@ class Spaceship(Observer):
 		rotated_surface_size = Vector2(rotated_surface.get_size())
 		blit_position = Vector2(self.x, self.y) - rotated_surface_size * 0.5
 		screen.blit(rotated_surface, blit_position)
+		
+		#Debugging - Draw Hitbox
+		#pygame.draw.rect(screen, (0,255,0), self.hitbox)
 
 	def update(self, subject: Subject) -> None:
 		"""Receive update from subject."""
 		pass
+
+	def refresh_Hitbox_Coordinates(self) -> None:
+		#TODO This is currently only a hotfix. For some reason self.x and self.y are not in the top
+		# left corner as it normally in pygame (and e.g. bullet class) but self.x and self.y give 
+		# the center of the sprite. Therefore assigning the hitbox center the coordinates, the 
+		# hitbox aligns with the sprite
+		self.hitbox.center = self.x, self.y
