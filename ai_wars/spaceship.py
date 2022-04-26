@@ -19,11 +19,9 @@ class Spaceship(Observer):
 				 sprite: pygame.sprite.Sprite, \
 				 bullet_append_func: Callable[[Bullet], None], \
               	 screen: pygame.Surface,
-				 scoreboard: Scoreboard,
 				 name: str):
 		self.x = x
 		self.y = y
-		self.scoreboard = scoreboard
 		self.height = height
 		self.width = width
 		self.sprite = sprite
@@ -72,10 +70,6 @@ class Spaceship(Observer):
 		bullet = Bullet(self.x, self.y - np.floor(self.height/2), self.height, self.width, \
 						load_sprite("ai_wars/img/bullet.png"), bullet_velocity)
 		self.bullet_append(bullet)
-
-	def got_hit(self) -> None:
-		"""public method to decrease the score, everytime the ship got hit"""
-		self.scoreboard.decrease_score(self.name, 100)
 
 	def _rotate(self, clockwise: bool) -> None:
 		"""public method to rotate the ship in clockwise direction"""

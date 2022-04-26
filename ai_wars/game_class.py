@@ -30,12 +30,10 @@ class GameClass:
 		self.spaceships = [] # list with every spaceship in the game
 		self.spaceship = Spaceship(400, 300, 40, 40, \
 								   load_sprite("ai_wars/img/spaceship.png"), \
-								   self.bullets.append, self.screen,
-								   self.scoreboard, "Player 1")
+								   self.bullets.append, self.screen, "Player 1")
 		self.spaceship2 = Spaceship(400, 300, 40, 40,
                              load_sprite("ai_wars/img/spaceship.png"),
-                             self.bullets.append, self.screen,
-							 self.scoreboard, "Player 2")
+                             self.bullets.append, self.screen, "Player 2")
 		# append the spaceship to the list of spaceships, later the game will append the
 		# spaceships of every player to this list
 		self.spaceships.append(self.spaceship)
@@ -133,3 +131,7 @@ class GameClass:
 		# loop over every bullet and update its position
 		for bullet in self.bullets:
 			bullet.move()
+
+		# TODO
+		# check for Kollisions of ships and bullets
+		# self.scoreboard.decrease_score(ship.name, 100)
