@@ -5,6 +5,7 @@ import pygame
 from ai_wars.utils import load_sprite
 from ai_wars.spaceship import Spaceship
 from ai_wars.enums import EnumAction
+from ai_wars.scoreboard import Scoreboard
 
 
 class GameClass:
@@ -18,22 +19,31 @@ class GameClass:
 	def __init__(self):
 
 		pygame.init()
-		pygame.font.init()
-		self.font = pygame.font.SysFont("consolas", 15)
-		self.font_width = self.font.size("X")[0]
-		self.font_height = self.font.size("X")[1]
 		self.screen = pygame.display.set_mode((800, 600))
 		self.clock = pygame.time.Clock()
 		self.background = load_sprite("ai_wars/img/space.png", False)
+
+		# initialize the scoreboard and attach all players as observers
+		self.scoreboard = Scoreboard()
+
 		self.bullets = [] # list with all bullets in the game
 		self.spaceships = [] # list with every spaceship in the game
 		self.spaceship = Spaceship(400, 300, 40, 40, \
 								   load_sprite("ai_wars/img/spaceship.png"), \
-								   self.bullets.append, self.screen, "Player 1")
+								   self.bullets.append, self.screen,
+								   self.scoreboard, "Player 1")
+		self.spaceship2 = Spaceship(400, 300, 40, 40,
+                             load_sprite("ai_wars/img/spaceship.png"),
+                             self.bullets.append, self.screen,
+							 self.scoreboard, "Player 2")
 		# append the spaceship to the list of spaceships, later the game will append the
 		# spaceships of every player to this list
 		self.spaceships.append(self.spaceship)
-		self.leaderboard = {}
+		self.spaceships.append(self.spaceship2)
+
+		# attach all players to the scoreboard
+		for ship in self.spaceships:
+			self.scoreboard.attach(ship)
 
 		# initialize timer and delta_time
 		self.clock = pygame.time.Clock()
@@ -87,16 +97,8 @@ class GameClass:
 
 				# decrease the score of the players (event gets fired every second)
 				case _ if event.type == pygame.USEREVENT+0:
-					for spaceship in self.spaceships:
-						spaceship.score -= 1
-
-	def _draw_leaderboard(self, screen) -> None:
-		"""private method to draw the leaderboard on the given screen"""
-		for pos, (player, score) in enumerate(self.leaderboard.items()):
-			score_string = f"{player} : {score}"
-			text_surface = self.font.render(score_string, False, (255, 255, 255))
-			screen.blit(text_surface, (0, self.font_height*pos))
-
+					for ship in self.spaceships:
+						self.scoreboard.decrease_score(ship.name, 1)
 
 	def _draw(self) -> None:
 		"""private method to draw the game"""
@@ -120,8 +122,8 @@ class GameClass:
 			else:
 				bullet.draw(self.screen)
 
-		# draw leaderboard
-		self._draw_leaderboard(self.screen)
+		# draw scoreboard
+		self.scoreboard.draw_scoreboard(self.screen)
 
 		pygame.display.flip()
 
@@ -131,11 +133,3 @@ class GameClass:
 		# loop over every bullet and update its position
 		for bullet in self.bullets:
 			bullet.move()
-
-		# update the leaderboard
-		for ship in self.spaceships:
-			self.leaderboard[ship.name] = ship.score
-			self.leaderboard["Player 1337"] = 69
-			self.leaderboard["Player 69"] = 42
-			self.leaderboard["Player 42"] = 1337
-		self.leaderboard = dict(sorted(self.leaderboard.items(), key=lambda x: x[1], reverse=False))

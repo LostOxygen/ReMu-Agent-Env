@@ -7,26 +7,29 @@ import numpy as np
 from ai_wars.enums import EnumAction
 from ai_wars.bullet import Bullet
 from ai_wars.utils import load_sprite
+from ai_wars.scoreboard import Observer, Subject, Scoreboard
 
 UP = Vector2(0, -1)
 
 
-class Spaceship():
+class Spaceship(Observer):
 	"""spaceship class with functions for moving, drawing and shooting"""
 
 	def __init__(self, x: int, y: int, height: int, width: int, \
 				 sprite: pygame.sprite.Sprite, \
 				 bullet_append_func: Callable[[Bullet], None], \
-              	 screen: pygame.Surface, name: str):
+              	 screen: pygame.Surface,
+				 scoreboard: Scoreboard,
+				 name: str):
 		self.x = x
 		self.y = y
+		self.scoreboard = scoreboard
 		self.height = height
 		self.width = width
 		self.sprite = sprite
 		self.bullet_append = bullet_append_func
 		self.direction = Vector2(UP)
 		self.screen = screen # the screen where everything gets drawn on
-		self.score = 1000 # start with a score of 1000 and reduce over time and per hit
 		self.name = name # name is equivalent to an player ID
 		self.acceleration = 0.9
 		self.draw_position = Vector2() # position where the spaceship gets drawn
@@ -72,7 +75,7 @@ class Spaceship():
 
 	def got_hit(self) -> None:
 		"""public method to decrease the score, everytime the ship got hit"""
-		self.score -= 10
+		self.scoreboard.decrease_score(self.name, 100)
 
 	def _rotate(self, clockwise: bool) -> None:
 		"""public method to rotate the ship in clockwise direction"""
@@ -88,3 +91,7 @@ class Spaceship():
 		rotated_surface_size = Vector2(rotated_surface.get_size())
 		blit_position = Vector2(self.x, self.y) - rotated_surface_size * 0.5
 		screen.blit(rotated_surface, blit_position)
+
+	def update(self, subject: Subject) -> None:
+		"""Receive update from subject."""
+		pass
