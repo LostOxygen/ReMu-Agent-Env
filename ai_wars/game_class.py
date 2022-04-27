@@ -1,6 +1,7 @@
 """Main GameClass"""
 import sys
 import pygame
+from ai_wars import spaceship
 
 from ai_wars.utils import load_sprite
 from ai_wars.spaceship import Spaceship
@@ -17,15 +18,13 @@ class GameClass:
 	# some constants
 	# pygame userevents use codes from 24 to 35, so the first user event will be 24
 	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0 # event code 24
-	SHOOT_COOLDOWN = 200 # specifies the cooldown for shooting in ms
-	POINTS_LOST_AFTER_BEING_HIT = 100
+	POINTS_LOST_AFTER_GETTING_HIT = 100
 	POINTS_GAINED_AFTER_HITTING = 200
 
 	def __init__(self):
 
 		pygame.init()
 		self.screen = pygame.display.set_mode((800, 600))
-		self.clock = pygame.time.Clock()
 		self.background = load_sprite("ai_wars/img/space.png", False)
 
 		# initialize the scoreboard and attach all players as observers
@@ -48,13 +47,6 @@ class GameClass:
 		for ship in self.spaceships:
 			self.scoreboard.attach(ship)
 
-		#TODO: This needs to be in the spaceship and not in the game_class. Every ship has its own
-		#cooldown which it has to manage on its own
-		# initialize timer and delta_time
-		self.clock = pygame.time.Clock()
-		self.delta_time = 0
-		self.time_elapsed_since_last_action = 0
-
 		# initialize custom event timer
 		self.decrease_score_event = pygame.event.Event(self.DECREASE_SCORE_EVENT,
 													   message="decrease score")
@@ -63,9 +55,6 @@ class GameClass:
 	def main_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
 		while True:
-			self.delta_time = self.clock.tick(FRAMERATE)
-			self.time_elapsed_since_last_action += self.delta_time
-
 			self._handle_inputs()
 			self._handle_events()
 			self._process_game_logic()
@@ -78,10 +67,7 @@ class GameClass:
 
 		match is_key_pressed:
 			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
-				# limit the frequency of bullets
-				if self.time_elapsed_since_last_action > self.SHOOT_COOLDOWN:
 					self.spaceship1.action(EnumAction.SHOOT)
-					self.time_elapsed_since_last_action = 0
 			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
 				self.spaceship1.action(EnumAction.LEFT)
 			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
@@ -126,6 +112,11 @@ class GameClass:
 
 	def _process_game_logic(self) -> None:
 		"""private method to process game logic"""
+		# update the times of every spaceship
+		for spaceship in self.spaceships:
+			spaceship.delta_time = spaceship.clock.tick(FRAMERATE)
+			spaceship.time_elapsed_since_last_action += spaceship.delta_time
+		
 		# loop over every bullet and update its position
 		for bullet in self.bullets:
 			bullet.move()
@@ -150,7 +141,7 @@ class GameClass:
 					# remove points from ship that got hit
 					shooter_name = bullet.shooter.name
 					shot_name = ship.name
-					self.scoreboard.decrease_score(shot_name, self.POINTS_LOST_AFTER_BEING_HIT)
+					self.scoreboard.decrease_score(shot_name, self.POINTS_LOST_AFTER_GETTING_HIT)
 					self.scoreboard.increase_score(shooter_name, self.POINTS_GAINED_AFTER_HITTING)
 
 	def delete_bullet(self, bullet) -> None:

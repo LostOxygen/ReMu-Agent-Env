@@ -14,6 +14,8 @@ UP = Vector2(0, -1)
 
 class Spaceship(Observer):
 	"""spaceship class with functions for moving, drawing and shooting"""
+	# constants
+	SHOOT_COOLDOWN = 200 # specifies the cooldown for shooting in ms
 
 	def __init__(self, x: int, y: int, height: int, width: int, \
 				 sprite: pygame.sprite.Sprite, \
@@ -35,6 +37,10 @@ class Spaceship(Observer):
 		# hitbox stuff
 		self.hitbox = self.sprite.get_rect()
 		self.refresh_hitbox_coordinates()
+
+		self.clock = pygame.time.Clock()
+		self.delta_time = 0
+		self.time_elapsed_since_last_action = 0
 
 	def action(self, action: EnumAction) -> None:
 		"""public method to move the ship in the direction of the action"""
@@ -71,7 +77,10 @@ class Spaceship(Observer):
 				self._rotate(clockwise=False)
 
 			case EnumAction.SHOOT:
-				self._shoot()
+				# implementiation of shooting cooldown, hence limits the bullets that can be shot
+				if self.time_elapsed_since_last_action > self.SHOOT_COOLDOWN:
+					self._shoot()
+					self.time_elapsed_since_last_action = 0
 
 	def _shoot(self) -> None:
 		"""public method to create a bullet and append it to the bullet list"""
