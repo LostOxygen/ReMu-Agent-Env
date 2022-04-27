@@ -7,7 +7,7 @@ import numpy as np
 from ai_wars.enums import EnumAction
 from ai_wars.bullet import Bullet
 from ai_wars.utils import load_sprite
-from ai_wars.scoreboard import Observer, Subject, Scoreboard
+from ai_wars.scoreboard import Observer, Subject
 
 UP = Vector2(0, -1)
 
@@ -18,7 +18,7 @@ class Spaceship(Observer):
 	def __init__(self, x: int, y: int, height: int, width: int, \
 				 sprite: pygame.sprite.Sprite, \
 				 bullet_append_func: Callable[[Bullet], None], \
-              	 screen: pygame.Surface,
+				 screen: pygame.Surface,
 				 name: str):
 		self.x = x
 		self.y = y
@@ -31,7 +31,7 @@ class Spaceship(Observer):
 		self.name = name # name is equivalent to an player ID
 		self.acceleration = 0.9
 		self.draw_position = Vector2() # position where the spaceship gets drawn
-		
+
 		# hitbox stuff
 		self.hitbox = self.sprite.get_rect()
 		self.refresh_hitbox_coordinates()
@@ -97,7 +97,7 @@ class Spaceship(Observer):
 		rotated_surface_size = Vector2(rotated_surface.get_size())
 		blit_position = Vector2(self.x, self.y) - rotated_surface_size * 0.5
 		screen.blit(rotated_surface, blit_position)
-		
+
 		#Debugging - Draw Hitbox
 		#pygame.draw.rect(screen, (0,255,0), self.hitbox)
 
@@ -107,7 +107,7 @@ class Spaceship(Observer):
 
 	def refresh_hitbox_coordinates(self) -> None:
 		# this is currently only a hotfix. For some reason self.x and self.y are not in the top
-		# left corner as it normally in pygame (and e.g. bullet class) but self.x and self.y give 
-		# the center of the sprite. Therefore assigning the hitbox center the coordinates, the 
+		# left corner as it normally in pygame (and e.g. bullet class) but self.x and self.y give
+		# the center of the sprite. Therefore assigning the hitbox center the coordinates, the
 		# hitbox aligns with the sprite
 		self.hitbox.center = self.x, self.y

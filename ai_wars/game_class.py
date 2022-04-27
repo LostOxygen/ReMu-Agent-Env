@@ -37,8 +37,8 @@ class GameClass:
 								   load_sprite("ai_wars/img/spaceship.png"), \
 								   self.bullets.append, self.screen, "Player 1")
 		self.spaceship2 = Spaceship(400, 300, 40, 40,
-                             load_sprite("ai_wars/img/spaceship.png"),
-                             self.bullets.append, self.screen, "Player 2")
+									load_sprite("ai_wars/img/spaceship.png"),
+									self.bullets.append, self.screen, "Player 2")
 		# append the spaceship to the list of spaceships, later the game will append the
 		# spaceships of every player to this list
 		self.spaceships.append(self.spaceship1)
@@ -136,7 +136,6 @@ class GameClass:
 			   bullet.y < 0:
 				self.delete_bullet(bullet)
 
-		
 		# check for collisions of ships and bullets
 		# self.scoreboard.decrease_score(ship.name, 100)
 		# check if any ships are hit by any bullets
@@ -144,7 +143,7 @@ class GameClass:
 			for bullet in self.bullets:
 				if ship.hitbox.colliderect(bullet.hitbox):
 					# check if bullet hit the shooter of the bullet itself
-					if(bullet.shooter == ship):
+					if bullet.shooter == ship:
 						continue
 					# destroy bullet
 					self.delete_bullet(bullet)
@@ -153,7 +152,7 @@ class GameClass:
 					shot_name = ship.name
 					self.scoreboard.decrease_score(shot_name, self.POINTS_LOST_AFTER_BEING_HIT)
 					self.scoreboard.increase_score(shooter_name, self.POINTS_GAINED_AFTER_HITTING)
-					
+
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
 		del bullet
