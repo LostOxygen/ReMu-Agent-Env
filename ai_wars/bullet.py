@@ -15,10 +15,10 @@ class Bullet():
 		self.velocity = velocity
 		#Hitbox
 		self.hitbox = self.sprite.get_rect()
-		self.refreshHitboxCoordinates()
+		self.refresh_hitbox_coordinates()
 		#Shooter of the bullet
 		self.shooter = shooter
-		
+
 
 	def move(self) -> None:
 		"""public method to move the bullet"""
@@ -26,14 +26,14 @@ class Bullet():
 		self.x = self.x + self.velocity.x
 		self.y = self.y + self.velocity.y
 
-		self.refreshHitboxCoordinates()
+		self.refresh_hitbox_coordinates()
 
 	def draw(self, surface: pygame.Surface) -> None:
 		surface.blit(self.sprite, (self.x, self.y))
-		
+
 		#Debugging - Draw Hitbox
 		#pygame.draw.rect(surface, (0,255,0), self.hitbox)
 
-	def refreshHitboxCoordinates(self):
+	def refresh_hitbox_coordinates(self):
 		self.hitbox.x = self.x
 		self.hitbox.y = self.y

@@ -32,9 +32,9 @@ class Spaceship(Observer):
 		self.acceleration = 0.9
 		self.draw_position = Vector2() # position where the spaceship gets drawn
 		
-		#Hitbox
+		# hitbox stuff
 		self.hitbox = self.sprite.get_rect()
-		self.refresh_Hitbox_Coordinates()
+		self.refresh_hitbox_coordinates()
 
 	def action(self, action: EnumAction) -> None:
 		"""public method to move the ship in the direction of the action"""
@@ -50,7 +50,7 @@ class Spaceship(Observer):
 				self.x = valid_pos_x
 				self.y = valid_pos_y
 
-				self.refresh_Hitbox_Coordinates()
+				self.refresh_hitbox_coordinates()
 
 			case EnumAction.BACKWARD:
 				new_position_x = self.x - self.direction.x * self.acceleration
@@ -62,7 +62,7 @@ class Spaceship(Observer):
 				self.x = valid_pos_x
 				self.y = valid_pos_y
 
-				self.refresh_Hitbox_Coordinates()
+				self.refresh_hitbox_coordinates()
 
 			case EnumAction.RIGHT:
 				self._rotate(clockwise=True)
@@ -104,8 +104,8 @@ class Spaceship(Observer):
 		"""Receive update from subject."""
 		pass
 
-	def refresh_Hitbox_Coordinates(self) -> None:
-		#TODO This is currently only a hotfix. For some reason self.x and self.y are not in the top
+	def refresh_hitbox_coordinates(self) -> None:
+		# this is currently only a hotfix. For some reason self.x and self.y are not in the top
 		# left corner as it normally in pygame (and e.g. bullet class) but self.x and self.y give 
 		# the center of the sprite. Therefore assigning the hitbox center the coordinates, the 
 		# hitbox aligns with the sprite

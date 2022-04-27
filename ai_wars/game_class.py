@@ -1,8 +1,6 @@
 """Main GameClass"""
 import sys
-from numpy import delete
 import pygame
-from ai_wars import spaceship
 
 from ai_wars.utils import load_sprite
 from ai_wars.spaceship import Spaceship
@@ -136,19 +134,18 @@ class GameClass:
 				self.delete_bullet(bullet)
 
 		
-		# TODO
 		# check for collisions of ships and bullets
 		# self.scoreboard.decrease_score(ship.name, 100)
-		#Check if any ships are hit by any bullets
+		# check if any ships are hit by any bullets
 		for ship in self.spaceships:
 			for bullet in self.bullets:
 				if ship.hitbox.colliderect(bullet.hitbox):
-					#Check if bullet hit the shooter of the bullet itself
+					# check if bullet hit the shooter of the bullet itself
 					if(bullet.shooter == ship):
 						continue
-					#Destroy bullet
+					# destroy bullet
 					self.delete_bullet(bullet)
-					#Remove points from ship that got hit
+					# remove points from ship that got hit
 					shooter_name = bullet.shooter.name
 					shot_name = ship.name
 					self.scoreboard.decrease_score(shot_name, self.POINTS_LOST_AFTER_BEING_HIT)
