@@ -7,8 +7,7 @@ from ai_wars.spaceship import Spaceship
 class Bullet():
 	"""Bullet class with functions for moving and drawing"""
 	def __init__(self, x: int, y: int, height: int, width: int, \
-				 sprite: pygame.Surface, velocity: Vector2, \
-         shooter: Spaceship):
+				 sprite: pygame.Surface, velocity: Vector2, shooter):
 		self.x = x
 		self.y = y
 		self.height = height
