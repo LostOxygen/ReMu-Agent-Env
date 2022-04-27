@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List, Dict
 
+import numpy as np
 import pygame
 
 
@@ -67,14 +68,16 @@ class Scoreboard(Subject):
 		self.notify()
 
 	def decrease_score(self, player_name: str, decrease: int) -> None:
-		self._scoreboard_dict[player_name] = self._scoreboard_dict[player_name] - decrease
+		new_score_val = np.clip(self._scoreboard_dict[player_name] - decrease, 0, None)
+		self._scoreboard_dict[player_name] = new_score_val
 		# re-sort the scoreboard
 		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
                                       key=lambda x: x[1], reverse=True))
 		self.notify()
 
 	def increase_score(self, player_name: str, increase: int) -> None:
-		self._scoreboard_dict[player_name] = self._scoreboard_dict[player_name] + increase
+		new_score_val = np.clip(self._scoreboard_dict[player_name] + increase, 0, None)
+		self._scoreboard_dict[player_name] = new_score_val
 		# re-sort the scoreboard
 		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
                                       key=lambda x: x[1], reverse=True))
