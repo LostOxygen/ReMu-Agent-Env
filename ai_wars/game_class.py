@@ -5,40 +5,59 @@ import pygame
 from ai_wars.utils import load_sprite
 from ai_wars.spaceship import Spaceship
 from ai_wars.enums import EnumAction
+from ai_wars.scoreboard import Scoreboard
 
 DECREASE_SCORE_EVENT = pygame.USEREVENT + 0
 FRAMERATE = 144
 
+
 class GameClass:
 	"""MainGameClass"""
+
+	# some constants
+	# pygame userevents use codes from 24 to 35, so the first user event will be 24
+	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0 # event code 24
+	SHOOT_COOLDOWN = 200 # specifies the cooldown for shooting in ms
+	POINTS_LOST_AFTER_BEING_HIT = 100
+	POINTS_GAINED_AFTER_HITTING = 200
+
 	def __init__(self):
 
 		pygame.init()
-		pygame.font.init()
-		self.font = pygame.font.SysFont("consolas", 15)
-		self.font_width = self.font.size("X")[0]
-		self.font_height = self.font.size("X")[1]
 		self.screen = pygame.display.set_mode((800, 600))
 		self.clock = pygame.time.Clock()
 		self.background = load_sprite("ai_wars/img/space.png", False)
-		
+
+		# initialize the scoreboard and attach all players as observers
+		self.scoreboard = Scoreboard()
+
 		self.bullets = [] # list with all bullets in the game
 		self.spaceships = [] # list with every spaceship in the game
-		self.spaceship = Spaceship(400, 300, 40, 40, \
+		self.spaceship1 = Spaceship(100, 300, 40, 40, \
 								   load_sprite("ai_wars/img/spaceship.png"), \
 								   self.bullets.append, self.screen, "Player 1")
+		self.spaceship2 = Spaceship(400, 300, 40, 40,
+									load_sprite("ai_wars/img/spaceship.png"),
+									self.bullets.append, self.screen, "Player 2")
 		# append the spaceship to the list of spaceships, later the game will append the
 		# spaceships of every player to this list
-		self.spaceships.append(self.spaceship)
-		self.leaderboard = {}
+		self.spaceships.append(self.spaceship1)
+		self.spaceships.append(self.spaceship2)
 
+		# attach all players to the scoreboard
+		for ship in self.spaceships:
+			self.scoreboard.attach(ship)
+
+		#TODO: This needs to be in the spaceship and not in the game_class. Every ship has its own
+		#cooldown which it has to manage on its own
 		# initialize timer and delta_time
 		self.clock = pygame.time.Clock()
 		self.delta_time = 0
 		self.time_elapsed_since_last_action = 0
 
 		# initialize custom event timer
-		self.decrease_score_event = pygame.event.Event(DECREASE_SCORE_EVENT, message="decrease score")
+		self.decrease_score_event = pygame.event.Event(self.DECREASE_SCORE_EVENT,
+													   message="decrease score")
 		pygame.time.set_timer(self.decrease_score_event, 1000)
 
 	def main_loop(self) -> None:
@@ -47,14 +66,33 @@ class GameClass:
 			self.delta_time = self.clock.tick(FRAMERATE)
 			self.time_elapsed_since_last_action += self.delta_time
 
+			self._handle_inputs()
 			self._handle_events()
 			self._process_game_logic()
 			self._draw()
 
+	def _handle_inputs(self) -> None:
+		"""private method to process inputs and limit the bullet frequency"""
+		# check which keys are pressed
+		is_key_pressed = pygame.key.get_pressed()
+
+		match is_key_pressed:
+			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
+				# limit the frequency of bullets
+				if self.time_elapsed_since_last_action > self.SHOOT_COOLDOWN:
+					self.spaceship1.action(EnumAction.SHOOT)
+					self.time_elapsed_since_last_action = 0
+			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
+				self.spaceship1.action(EnumAction.LEFT)
+			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
+				self.spaceship1.action(EnumAction.RIGHT)
+			case is_key_pressed if is_key_pressed[pygame.K_UP]:
+				self.spaceship1.action(EnumAction.FORWARD)
+			case is_key_pressed if is_key_pressed[pygame.K_DOWN]:
+				self.spaceship1.action(EnumAction.BACKWARD)
+
 	def _handle_events(self) -> None:
-		"""Private helper method to listen for and process input via
-			pygame events
-		"""
+		"""Private helper method to listen and process pygame events"""
 		for event in pygame.event.get():
 			match event:
 				# check if the game should be closed
@@ -62,36 +100,10 @@ class GameClass:
 					 (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 					sys.exit()
 
-				# check if the space bar got pressed -> shoot
-				case _ if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-					if self.spaceship:
-						self.spaceship.shoot()
-
 				# decrease the score of the players (event gets fired every second)
-				case _ if event.type == pygame.USEREVENT+0:
-					for spaceship in self.spaceships:
-						spaceship.score -= 1
-
-		# check whick keys eare pressed
-		is_key_pressed = pygame.key.get_pressed()
-
-		match is_key_pressed:
-			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
-				self.spaceship.move(EnumAction.LEFT)
-			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
-				self.spaceship.move(EnumAction.RIGHT)
-			case is_key_pressed if is_key_pressed[pygame.K_UP]:
-				self.spaceship.move(EnumAction.FORWARD)
-			case is_key_pressed if is_key_pressed[pygame.K_DOWN]:
-				self.spaceship.move(EnumAction.BACKWARDS)
-
-	def _draw_leaderboard(self, screen) -> None:
-		"""private method to draw the leaderboard on the given screen"""
-		for pos, (player, score) in enumerate(self.leaderboard.items()):
-			score_string = f"{player} : {score}"
-			text_surface = self.font.render(score_string, False, (255, 255, 255))
-			screen.blit(text_surface, (0, self.font_height*pos))
-
+				case _ if event.type == DECREASE_SCORE_EVENT:
+					for ship in self.spaceships:
+						self.scoreboard.decrease_score(ship.name, 1)
 
 	def _draw(self) -> None:
 		"""private method to draw the game"""
@@ -105,32 +117,42 @@ class GameClass:
 
 		# rendering loop to draw all bullets
 		for bullet in self.bullets:
-			# if the bullet is out of the screen, let it despawn
-			if bullet.x > self.screen.get_width() or \
-			   bullet.x < 0 or \
-			   bullet.y > self.screen.get_height() or \
-			   bullet.y < 0:
-				self.bullets.remove(bullet)
-				del bullet
-			else:
-				bullet.draw(self.screen)
+			bullet.draw(self.screen)
 
-		# draw leaderboard
-		self._draw_leaderboard(self.screen)
+		# draw scoreboard
+		self.scoreboard.draw_scoreboard(self.screen)
 
 		pygame.display.flip()
 
 	def _process_game_logic(self) -> None:
 		"""private method to process game logic"""
-
 		# loop over every bullet and update its position
 		for bullet in self.bullets:
 			bullet.move()
+			#If bullet get out of bound then delete it
+			if bullet.x > self.screen.get_width() or \
+			   bullet.x < 0 or \
+			   bullet.y > self.screen.get_height() or \
+			   bullet.y < 0:
+				self.delete_bullet(bullet)
 
-		# update the leaderboard
+		# check for collisions of ships and bullets
+		# self.scoreboard.decrease_score(ship.name, 100)
+		# check if any ships are hit by any bullets
 		for ship in self.spaceships:
-			self.leaderboard[ship.name] = ship.score
-			self.leaderboard["Player 1337"] = 69
-			self.leaderboard["Player 69"] = 42
-			self.leaderboard["Player 42"] = 1337
-		self.leaderboard = dict(sorted(self.leaderboard.items(), key=lambda x: x[1], reverse=False))
+			for bullet in self.bullets:
+				if ship.hitbox.colliderect(bullet.hitbox):
+					# check if bullet hit the shooter of the bullet itself
+					if bullet.shooter == ship:
+						continue
+					# destroy bullet
+					self.delete_bullet(bullet)
+					# remove points from ship that got hit
+					shooter_name = bullet.shooter.name
+					shot_name = ship.name
+					self.scoreboard.decrease_score(shot_name, self.POINTS_LOST_AFTER_BEING_HIT)
+					self.scoreboard.increase_score(shooter_name, self.POINTS_GAINED_AFTER_HITTING)
+
+	def delete_bullet(self, bullet) -> None:
+		self.bullets.remove(bullet)
+		del bullet

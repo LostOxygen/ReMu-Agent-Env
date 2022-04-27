@@ -2,11 +2,18 @@ import unittest
 
 import json
 
+from pygame import Rect
+from pygame.sprite import Sprite
 from pygame.math import Vector2
 from ai_wars.spaceship import Spaceship
 from ai_wars.bullet import Bullet
 
 from ai_wars.api import serializer_server
+
+class DummySprite(Sprite):
+
+	def get_rect(self):
+		return Rect(0, 0, 100, 100)
 
 class TestSerializer(unittest.TestCase):
 
@@ -27,7 +34,7 @@ class TestSerializer(unittest.TestCase):
 			"direction": "todo"
 		}
 
-		ship = Spaceship(5.0, 6.0, 100, 100, None, None, None, "Dieter")
+		ship = Spaceship(5.0, 6.0, 100, 100, DummySprite(), None, None, "Dieter")
 		actual = serializer_server._spaceship_as_dict(ship)
 
 		self.assertEqual(expected, actual)
@@ -39,7 +46,8 @@ class TestSerializer(unittest.TestCase):
 			"direction": {"x": -1.0, "y": -2.0}
 		}
 
-		bullet = Bullet("Dieter", 5.0, 6.0, 100, 100, None, Vector2(-1.0, -2.0))
+		shooter = Spaceship(0, 0, 0, 0, DummySprite(), None, None, "Dieter")
+		bullet = Bullet(5.0, 6.0, 100, 100, DummySprite(), Vector2(-1.0, -2.0), shooter)
 		actual = serializer_server._bullet_as_dict(bullet)
 
 		self.assertEqual(expected, actual)
@@ -102,13 +110,14 @@ class TestSerializer(unittest.TestCase):
 			]
 		})
 
+		ship_dieter = Spaceship(5.0, 6.0, 0, 0, DummySprite(), None, None, "Dieter")
 		spaceships = [
-			Spaceship(5.0, 6.0, 100, 100, None, None, None, "Dieter"),
-			Spaceship(2.0, 8.0, 100, 100, None, None, None, "Bernd")
+			ship_dieter,
+			Spaceship(2.0, 8.0, 100, 100, DummySprite(), None, None, "Bernd")
 		]
 		bullets = [
-			Bullet("Dieter", 5.0, 6.0, 100, 100, None, Vector2(-1.0, -2.0)),
-			Bullet("Dieter", 8.0, 8.0, 100, 100, None, Vector2(-5.0, -2.0)),
+			Bullet(5.0, 6.0, 100, 100, DummySprite(), Vector2(-1.0, -2.0), ship_dieter),
+			Bullet(8.0, 8.0, 100, 100, DummySprite(), Vector2(-5.0, -2.0), ship_dieter),
 		]
 		scoreboard = {
 			"Dieter": 100,

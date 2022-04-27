@@ -49,7 +49,7 @@ def _spaceship_as_dict(spaceship: Spaceship) -> dict[str, any]:
 
 def _bullet_as_dict(bullet: Bullet) -> dict[str, any]:
 	return {
-		"owner": bullet.owner,
+		"owner": bullet.shooter.name,
 		"position": _vector_as_dict(Vector2(bullet.x, bullet.y)),
 		"direction": _vector_as_dict(bullet.velocity)
 	}
