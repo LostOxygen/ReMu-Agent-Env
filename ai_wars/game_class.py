@@ -2,11 +2,13 @@
 import sys
 import pygame
 from ai_wars import spaceship
+from typing import Callable
 
 from ai_wars.utils import load_sprite
 from ai_wars.spaceship import Spaceship
 from ai_wars.enums import EnumAction
 from ai_wars.scoreboard import Scoreboard
+from ai_wars.bullet import Bullet
 
 DECREASE_SCORE_EVENT = pygame.USEREVENT + 0
 FRAMERATE = 144
@@ -26,25 +28,14 @@ class GameClass:
 		pygame.init()
 		self.screen = pygame.display.set_mode((800, 600))
 		self.background = load_sprite("ai_wars/img/space.png", False)
-
 		# initialize the scoreboard and attach all players as observers
 		self.scoreboard = Scoreboard()
-
 		self.bullets = [] # list with all bullets in the game
 		self.spaceships = [] # list with every spaceship in the game
-		self.spaceship1 = Spaceship(100, 300, load_sprite("ai_wars/img/spaceship.png"), \
-								   self.bullets.append, self.screen, "Player 1")
-		self.spaceship2 = Spaceship(400, 300, load_sprite("ai_wars/img/spaceship.png"), \
-									self.bullets.append, self.screen, "Player 2")
-		# append the spaceship to the list of spaceships, later the game will append the
-		# spaceships of every player to this list
-		self.spaceships.append(self.spaceship1)
-		self.spaceships.append(self.spaceship2)
-
-		# attach all players to the scoreboard
-		for ship in self.spaceships:
-			self.scoreboard.attach(ship)
-
+		self.spaceship1 = self.spawn_spaceship(100, 300, load_sprite("ai_wars/img/spaceship.png"),\
+												self.bullets.append, self.screen, "Player 1")
+		self.spaceship2 = self.spawn_spaceship(400, 300, load_sprite("ai_wars/img/spaceship.png"),\
+												self.bullets.append, self.screen, "Player 2")
 		# initialize custom event timer
 		self.decrease_score_event = pygame.event.Event(self.DECREASE_SCORE_EVENT,
 													   message="decrease score")
@@ -145,3 +136,12 @@ class GameClass:
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
 		del bullet
+
+	def spawn_spaceship(self, x: int, y: int, sprite: pygame.sprite.Sprite, \
+						bullet_append_func: Callable[[Bullet], None], \
+						screen: pygame.Surface,
+				 		name: str) -> Spaceship:	
+		spaceship = Spaceship(x, y, sprite, bullet_append_func, screen, name)
+		self.spaceships.append(spaceship)
+		self.scoreboard.attach(spaceship)
+		return spaceship
