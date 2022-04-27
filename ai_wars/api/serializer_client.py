@@ -21,7 +21,7 @@ def _enum_action_as_dict(action: EnumAction) -> EnumAction:
 			case EnumAction.LEFT: return "left"
 			case EnumAction.FORWARD: return "forward"
 			case EnumAction.RIGHT: return "right"
-			case EnumAction.BAKCWARDS: return "backwards"
-			case EnumAction.shoot: return "shoot"
+			case EnumAction.BACKWARD: return "backwards"
+			case EnumAction.SHOOT: return "shoot"
 
 	return list(map(_action_as_dict, action))
