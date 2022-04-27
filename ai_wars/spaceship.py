@@ -80,6 +80,7 @@ class Spaceship(Observer):
 		# can get it itself using the img
 		bullet = Bullet(self.x, self.y - np.floor(self.height/2), self.height, self.width, \
 						load_sprite("ai_wars/img/bullet.png"), bullet_velocity, self)
+
 		self.bullet_append(bullet)
 
 	def _rotate(self, clockwise: bool) -> None:

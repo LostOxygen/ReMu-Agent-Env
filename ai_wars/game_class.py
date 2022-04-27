@@ -7,6 +7,9 @@ from ai_wars.spaceship import Spaceship
 from ai_wars.enums import EnumAction
 from ai_wars.scoreboard import Scoreboard
 
+DECREASE_SCORE_EVENT = pygame.USEREVENT + 0
+FRAMERATE = 144
+
 
 class GameClass:
 	"""MainGameClass"""
@@ -60,7 +63,7 @@ class GameClass:
 	def main_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
 		while True:
-			self.delta_time = self.clock.tick(144)
+			self.delta_time = self.clock.tick(FRAMERATE)
 			self.time_elapsed_since_last_action += self.delta_time
 
 			self._handle_inputs()
