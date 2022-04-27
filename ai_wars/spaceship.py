@@ -1,4 +1,5 @@
 """spacehip class file"""
+from turtle import width
 from typing import Callable
 import pygame
 from pygame.math import Vector2
@@ -17,16 +18,15 @@ class Spaceship(Observer):
 	# constants
 	SHOOT_COOLDOWN = 200 # specifies the cooldown for shooting in ms
 
-	def __init__(self, x: int, y: int, height: int, width: int, \
-				 sprite: pygame.sprite.Sprite, \
+	def __init__(self, x: int, y: int, sprite: pygame.sprite.Sprite, \
 				 bullet_append_func: Callable[[Bullet], None], \
 				 screen: pygame.Surface,
 				 name: str):
 		self.x = x
 		self.y = y
-		self.height = height
-		self.width = width
 		self.sprite = sprite
+		self.height = sprite.get_rect().height
+		self.width = sprite.get_rect().width
 		self.bullet_append = bullet_append_func
 		self.direction = Vector2(UP)
 		self.screen = screen # the screen where everything gets drawn on
@@ -87,7 +87,7 @@ class Spaceship(Observer):
 		bullet_velocity = self.direction * 3
 		#TODO We are passing here the wrong height and width (that of the ship), the bullet class
 		# can get it itself using the img
-		bullet = Bullet(self.x, self.y - np.floor(self.height/2), self.height, self.width, \
+		bullet = Bullet(self.x, self.y - np.floor(self.height/2), \
 						load_sprite("ai_wars/img/bullet.png"), bullet_velocity, self)
 
 		self.bullet_append(bullet)

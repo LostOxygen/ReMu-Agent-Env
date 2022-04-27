@@ -5,13 +5,12 @@ from pygame.math import Vector2
 
 class Bullet():
 	"""Bullet class with functions for moving and drawing"""
-	def __init__(self, x: int, y: int, height: int, width: int, \
-				 sprite: pygame.Surface, velocity: Vector2, shooter):
+	def __init__(self, x: int, y: int, sprite: pygame.Surface, velocity: Vector2, shooter):
 		self.x = x
 		self.y = y
-		self.height = height
-		self.width = width
 		self.sprite = sprite
+		self.height = sprite.get_rect().height
+		self.width = sprite.get_rect().width
 		self.velocity = velocity
 		# hitbox
 		self.hitbox = self.sprite.get_rect()
