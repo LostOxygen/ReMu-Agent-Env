@@ -1,7 +1,6 @@
 """Bullet class file"""
 import pygame
 from pygame.math import Vector2
-from ai_wars.spaceship import Spaceship
 
 
 class Bullet():
