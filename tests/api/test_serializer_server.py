@@ -31,10 +31,11 @@ class TestSerializer(unittest.TestCase):
 		expected = {
 			"name": "Dieter",
 			"position": {"x": 5.0, "y": 6.0},
-			"direction": "todo"
+			"direction": {"x": 1.5, "y": 0.1}
 		}
 
 		ship = Spaceship(5.0, 6.0, 100, 100, DummySprite(), None, None, "Dieter")
+		ship.direction = Vector2(1.5, 0.1)
 		actual = serializer_server._spaceship_as_dict(ship)
 
 		self.assertEqual(expected, actual)
@@ -78,12 +79,12 @@ class TestSerializer(unittest.TestCase):
 				{
 					"name": "Dieter",
 					"position": {"x": 5.0, "y": 6.0},
-					"direction": "todo"
+					"direction": {"x": 1.5, "y": 0.1}
 				},
 				{
 					"name": "Bernd",
 					"position": {"x": 2.0, "y": 8.0},
-					"direction": "todo"
+					"direction": {"x": 0.5, "y": 12.0}
 				}
 			],
 			"projectiles": [
@@ -110,11 +111,11 @@ class TestSerializer(unittest.TestCase):
 			]
 		})
 
-		ship_dieter = Spaceship(5.0, 6.0, 0, 0, DummySprite(), None, None, "Dieter")
-		spaceships = [
-			ship_dieter,
-			Spaceship(2.0, 8.0, 100, 100, DummySprite(), None, None, "Bernd")
-		]
+		ship_dieter = Spaceship(5.0, 6.0, 100, 100, DummySprite(), None, None, "Dieter")
+		ship_dieter.direction = Vector2(1.5, 0.1)
+		ship_bernd = Spaceship(2.0, 8.0, 100, 100, DummySprite(), None, None, "Bernd")
+		ship_bernd.direction = Vector2(0.5, 12.0)
+		spaceships = [ship_dieter, ship_bernd]
 		bullets = [
 			Bullet(5.0, 6.0, 100, 100, DummySprite(), Vector2(-1.0, -2.0), ship_dieter),
 			Bullet(8.0, 8.0, 100, 100, DummySprite(), Vector2(-5.0, -2.0), ship_dieter),

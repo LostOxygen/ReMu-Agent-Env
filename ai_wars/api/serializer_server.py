@@ -44,7 +44,7 @@ def _spaceship_as_dict(spaceship: Spaceship) -> dict[str, any]:
 	return {
 		"name": spaceship.name,
 		"position": _vector_as_dict(Vector2(spaceship.x, spaceship.y)),
-		"direction": "todo"
+		"direction": _vector_as_dict(spaceship.direction)
 	}
 
 def _bullet_as_dict(bullet: Bullet) -> dict[str, any]:
