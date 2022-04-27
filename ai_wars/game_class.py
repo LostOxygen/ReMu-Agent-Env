@@ -73,7 +73,7 @@ class GameClass:
 
 	def _handle_inputs(self) -> None:
 		"""private method to process inputs and limit the bullet frequency"""
-		# check whick keys eare pressed
+		# check which keys are pressed
 		is_key_pressed = pygame.key.get_pressed()
 
 		match is_key_pressed:
