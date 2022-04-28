@@ -70,6 +70,7 @@ class ClientBuilder:
 
 	def with_buffer_size(self, size: int):
 		self.buffer_size = size
+		return self
 
 	def add_layer(self, layer: Layer):
 		'''
