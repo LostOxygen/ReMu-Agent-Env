@@ -15,15 +15,14 @@ from .deserializer import deserialize_action
 
 from ..utils import get_random_position, load_sprite
 
-FRAMERATE = 30
-POINTS_LOST_AFTER_GETTING_HIT = 100
-POINTS_GAINED_AFTER_HITTING = 200
-
 
 class GameClass:
 	"""MainGameClass"""
 
-	# some constants
+	# constants
+	FRAMERATE = 30
+	POINTS_LOST_AFTER_GETTING_HIT = 100
+	POINTS_GAINED_AFTER_HITTING = 200
 	# pygame userevents use codes from 24 to 35, so the first user event will be 24
 	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
 
@@ -56,7 +55,7 @@ class GameClass:
 
 		# loop over the game loop
 		while True:
-			self.clock.tick(FRAMERATE)
+			self.clock.tick(self.FRAMERATE)
 			self._handle_events()
 			self._process_game_logic()
 			self._apply_actions()

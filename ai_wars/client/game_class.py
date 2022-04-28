@@ -58,7 +58,6 @@ class GameClass:
 			# receive data from server
 			data = self.client.recv_next()
 			players, projectiles, scoreboard = deserialize_game_state(data.decode())
-			print(players, projectiles, scoreboard)
 			self._update_players(players)
 			self._update_scoreboard(scoreboard)
 			self._update_bullets(projectiles)
@@ -154,7 +153,6 @@ class GameClass:
 
 	def spawn_bullet(self, position: Vector2, direction: Vector2, shooter: str) -> None:
 		sprite = load_sprite("ai_wars/img/bullet.png")
-		bullet = Bullet(position.x, position.y, sprite, self.screen, shooter)
-		bullet.direction = direction
+		bullet = Bullet(position.x, position.y, sprite, direction, shooter)
 
 		self.bullets.append(bullet)

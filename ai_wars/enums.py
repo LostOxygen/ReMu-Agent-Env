@@ -1,6 +1,5 @@
 """enum class for several enum implementations"""
 from enum import Enum
-import pygame
 
 
 class EnumAction(Enum):
