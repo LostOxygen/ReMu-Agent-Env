@@ -9,7 +9,7 @@ from ..spaceship import Spaceship
 from ..scoreboard import Scoreboard
 from ..bullet import Bullet
 
-from ..networking.server import Server
+from ..networking.server import UdpServer
 from .serializer import serialize_game_state
 from .deserializer import deserialize_action
 
@@ -43,7 +43,7 @@ class GameClass:
 		pygame.time.set_timer(self.decrease_score_event, 1000)
 
 		# initialize server
-		self.server = Server.builder().build()
+		self.server = UdpServer.builder().build()
 		self.action_buffer = {}
 
 

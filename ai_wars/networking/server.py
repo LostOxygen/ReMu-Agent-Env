@@ -4,7 +4,7 @@ from typing import Tuple
 from .layers.layer import Layer
 from .client_entry import ClientEntry
 
-class Server:
+class UdpServer:
 	'''
 	Simple abstraction of a UDP server.
 	'''
@@ -27,7 +27,7 @@ class Server:
 			server builder
 		'''
 
-		return ServerBuilder()
+		return UdpServerBuilder()
 
 	def start(self, addr: str, port: int):
 		'''
@@ -73,7 +73,7 @@ class Server:
 
 		return data
 
-class ServerBuilder:
+class UdpServerBuilder:
 	'''
 	Builder for Server
 	'''
@@ -84,6 +84,7 @@ class ServerBuilder:
 
 	def with_buffer_size(self, size: int):
 		self.buffer_size = size
+		return self
 
 	def add_layer(self, layer: Layer):
 		'''
@@ -97,7 +98,7 @@ class ServerBuilder:
 		self.layers.append(layer)
 		return self
 
-	def build(self) -> Server:
+	def build(self) -> UdpServer:
 		'''
 		Builds the server with configured parameters.
 
@@ -105,4 +106,4 @@ class ServerBuilder:
 			the server object
 		'''
 
-		return Server(self.buffer_size, self.layers)
+		return UdpServer(self.buffer_size, self.layers)

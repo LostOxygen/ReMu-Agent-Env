@@ -10,7 +10,7 @@ from ..enums import EnumAction
 from ..scoreboard import Scoreboard
 from ..bullet import Bullet
 
-from ..networking.client import Client
+from ..networking.client import UdpClient
 from .serializer import serialize_action
 from .deserializer import deserialize_game_state
 
@@ -34,7 +34,7 @@ class GameClass:
 		self.player_name = player_name
 
 		# initialize server connection
-		self.client = Client.builder().with_buffer_size(10*1024).build()
+		self.client = UdpClient.builder().with_buffer_size(10*1024).build()
 
 
 	def main_loop(self) -> None:
