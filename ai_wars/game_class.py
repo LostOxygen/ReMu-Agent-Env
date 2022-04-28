@@ -25,6 +25,7 @@ class GameClass:
 	def __init__(self):
 
 		pygame.init()
+		self.clock = pygame.time.Clock()
 		self.screen = pygame.display.set_mode((800, 600))
 		self.background = load_sprite("ai_wars/img/space.png", False)
 		# initialize the scoreboard and attach all players as observers
@@ -43,10 +44,12 @@ class GameClass:
 	def main_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
 		while True:
+			self.clock.tick(FRAMERATE)
 			self._handle_inputs()
 			self._handle_events()
 			self._process_game_logic()
 			self._draw()
+
 
 	def _handle_inputs(self) -> None:
 		"""private method to process inputs and limit the bullet frequency"""
@@ -100,11 +103,6 @@ class GameClass:
 
 	def _process_game_logic(self) -> None:
 		"""private method to process game logic"""
-		# update the times of every spaceship
-		for spaceship in self.spaceships:
-			spaceship.delta_time = spaceship.clock.tick(FRAMERATE)
-			spaceship.time_elapsed_since_last_action += spaceship.delta_time
-		
 		# loop over every bullet and update its position
 		for bullet in self.bullets:
 			bullet.move()
