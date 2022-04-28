@@ -6,7 +6,7 @@ import numpy as np
 
 from ai_wars.enums import EnumAction
 from ai_wars.bullet import Bullet
-from ai_wars.utils import load_sprite
+from ai_wars.utils import load_sprite, clip_pos
 # from ai_wars.scoreboard import Observer, Subject
 
 UP = Vector2(0, -1)
@@ -30,7 +30,6 @@ class Spaceship():
 		self.screen = screen # the screen where everything gets drawn on
 		self.name = name # name is equivalent to an player ID
 		self.acceleration = 0.9
-		self.draw_position = Vector2() # position where the spaceship gets drawn
 
 		# hitbox stuff
 		self.hitbox = self.sprite.get_rect()
@@ -46,8 +45,8 @@ class Spaceship():
 				new_position_x = self.x + self.direction.x * self.acceleration
 				new_position_y = self.y + self.direction.y * self.acceleration
 				# correct the position at the end of an action to stay within the screen bounds
-				valid_pos_x = np.clip(new_position_x, 0, self.screen.get_width())
-				valid_pos_y = np.clip(new_position_y, 0, self.screen.get_height())
+				valid_pos_x = clip_pos(new_position_x, 0, self.screen.get_width())
+				valid_pos_y = clip_pos(new_position_y, 0, self.screen.get_height())
 
 				# move sprite
 				self.x = valid_pos_x
@@ -59,8 +58,8 @@ class Spaceship():
 				new_position_x = self.x - self.direction.x * self.acceleration
 				new_position_y = self.y - self.direction.y * self.acceleration
 				# correct the position at the end of an action to stay within the screen bounds
-				valid_pos_x = np.clip(new_position_x, 0, self.screen.get_width())
-				valid_pos_y = np.clip(new_position_y, 0, self.screen.get_height())
+				valid_pos_x = clip_pos(new_position_x, 0, self.screen.get_width())
+				valid_pos_y = clip_pos(new_position_y, 0, self.screen.get_height())
 
 				self.x = valid_pos_x
 				self.y = valid_pos_y

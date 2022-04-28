@@ -39,6 +39,7 @@ class Server:
 		'''
 
 		self.socket.bind((addr, port))
+		print(f"started server on addr:{addr} - port {port}")
 
 	def send_to_all(self, data: any):
 		'''
