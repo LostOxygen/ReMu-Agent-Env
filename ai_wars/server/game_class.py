@@ -10,6 +10,7 @@ from ..scoreboard import Scoreboard
 from ..bullet import Bullet
 
 from ..networking.server import UdpServer
+from ..networking.layers.compression import GzipCompression
 from .serializer import serialize_game_state
 from .deserializer import deserialize_action
 
@@ -43,7 +44,9 @@ class GameClass:
 		pygame.time.set_timer(self.decrease_score_event, 1000)
 
 		# initialize server
-		self.server = UdpServer.builder().build()
+		self.server = UdpServer.builder() \
+			.add_layer(GzipCompression()) \
+			.build()
 		self.action_buffer = {}
 
 

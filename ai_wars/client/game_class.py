@@ -11,6 +11,7 @@ from ..scoreboard import Scoreboard
 from ..bullet import Bullet
 
 from ..networking.client import UdpClient
+from ..networking.layers.compression import GzipCompression
 from .serializer import serialize_action
 from .deserializer import deserialize_game_state
 
@@ -34,7 +35,10 @@ class GameClass:
 		self.player_name = player_name
 
 		# initialize server connection
-		self.client = UdpClient.builder().with_buffer_size(10*1024).build()
+		self.client = UdpClient.builder() \
+			.with_buffer_size(10*1024) \
+			.add_layer(GzipCompression()) \
+			.build()
 
 
 	def main_loop(self) -> None:
