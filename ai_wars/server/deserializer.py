@@ -16,8 +16,8 @@ def deserialize_action(json_string: str) -> Tuple[str, list[EnumAction]]:
 
 	obj = json.loads(json_string)
 
-	player_name = obj["player_name"]
-	actions = list(map(_string_to_action, obj["action"]))
+	player_name = obj["name"]
+	actions = list(map(_string_to_action, obj["actions"]))
 
 	return (player_name, actions)
 
@@ -27,8 +27,10 @@ def _string_to_action(value: str) -> EnumAction:
 			return EnumAction.LEFT
 		case "forward":
 			return EnumAction.FORWARD
+		case "backward":
+			return EnumAction.BACKWARD
 		case "right":
-			return EnumAction.BACKWARDS
+			return EnumAction.RIGHT
 		case "shoot":
 			return EnumAction.SHOOT
 
