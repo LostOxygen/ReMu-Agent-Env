@@ -1,5 +1,4 @@
 """spacehip class file"""
-from turtle import width
 from typing import Callable
 import pygame
 from pygame.math import Vector2

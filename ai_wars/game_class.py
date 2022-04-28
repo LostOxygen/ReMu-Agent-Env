@@ -1,7 +1,6 @@
 """Main GameClass"""
 import sys
 import pygame
-from ai_wars import spaceship
 from typing import Callable
 
 from ai_wars.utils import load_sprite
