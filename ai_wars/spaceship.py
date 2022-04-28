@@ -7,20 +7,19 @@ import numpy as np
 from ai_wars.enums import EnumAction
 from ai_wars.bullet import Bullet
 from ai_wars.utils import load_sprite
-from ai_wars.scoreboard import Observer, Subject
+# from ai_wars.scoreboard import Observer, Subject
 
 UP = Vector2(0, -1)
 
 
-class Spaceship(Observer):
+class Spaceship():
 	"""spaceship class with functions for moving, drawing and shooting"""
 	# constants
 	SHOOT_COOLDOWN = 200 # specifies the cooldown for shooting in ms
 
 	def __init__(self, x: int, y: int, sprite: pygame.sprite.Sprite, \
 				 bullet_append_func: Callable[[Bullet], None], \
-				 screen: pygame.Surface,
-				 name: str):
+				 screen: pygame.Surface, name: str):
 		self.x = x
 		self.y = y
 		self.sprite = sprite
@@ -37,9 +36,8 @@ class Spaceship(Observer):
 		self.hitbox = self.sprite.get_rect()
 		self.refresh_hitbox_coordinates()
 
-		self.clock = pygame.time.Clock()
-		self.delta_time = 0
-		self.time_elapsed_since_last_action = 0
+		# bullet cooldown stuff
+		self.last_action_time = 0
 
 	def action(self, action: EnumAction) -> None:
 		"""public method to move the ship in the direction of the action"""
@@ -77,9 +75,9 @@ class Spaceship(Observer):
 
 			case EnumAction.SHOOT:
 				# implementiation of shooting cooldown, hence limits the bullets that can be shot
-				if self.time_elapsed_since_last_action > self.SHOOT_COOLDOWN:
+				if pygame.time.get_ticks()-self.last_action_time >= self.SHOOT_COOLDOWN:
 					self._shoot()
-					self.time_elapsed_since_last_action = 0
+					self.last_action_time = pygame.time.get_ticks()
 
 	def _shoot(self) -> None:
 		"""public method to create a bullet and append it to the bullet list"""
@@ -106,12 +104,8 @@ class Spaceship(Observer):
 		blit_position = Vector2(self.x, self.y) - rotated_surface_size * 0.5
 		screen.blit(rotated_surface, blit_position)
 
-		#Debugging - Draw Hitbox
+		# debug for drawing hitbox
 		#pygame.draw.rect(screen, (0,255,0), self.hitbox)
-
-	def update(self, subject: Subject) -> None:
-		"""Receive update from subject."""
-		pass
 
 	def refresh_hitbox_coordinates(self) -> None:
 		# this is currently only a hotfix. For some reason self.x and self.y are not in the top

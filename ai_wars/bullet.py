@@ -30,8 +30,8 @@ class Bullet():
 	def draw(self, surface: pygame.Surface) -> None:
 		surface.blit(self.sprite, (self.x, self.y))
 
-		#debugging - Draw Hitbox
-		#pygame.draw.rect(surface, (0,255,0), self.hitbox)
+		# debug command to draw the hitbox
+		# pygame.draw.rect(surface, (0,255,0), self.hitbox)
 
 	def refresh_hitbox_coordinates(self):
 		self.hitbox.x = self.x

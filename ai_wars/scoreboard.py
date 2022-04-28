@@ -7,39 +7,39 @@ import numpy as np
 import pygame
 
 
-class Subject(ABC):
-	"""The Subject interface."""
+# class Subject(ABC):
+# 	"""The Subject interface."""
 
-	@abstractmethod
-	def attach(self, observer: Observer) -> None:
-		"""Attach an observer to the subject."""
-		pass
+# 	@abstractmethod
+# 	def attach(self, observer: Observer) -> None:
+# 		"""Attach an observer to the subject."""
+# 		pass
 
-	@abstractmethod
-	def detach(self, observer: Observer) -> None:
-		"""Detach an observer from the subject."""
-		pass
+# 	@abstractmethod
+# 	def detach(self, observer: Observer) -> None:
+# 		"""Detach an observer from the subject."""
+# 		pass
 
-	@abstractmethod
-	def notify(self) -> None:
-		"""Notify all observers about an event."""
-		pass
-
-
-class Observer(ABC):
-	"""Observer interface."""
-
-	@abstractmethod
-	def update(self, subject: Subject) -> None:
-		"""Receive update from subject."""
-		pass
+# 	@abstractmethod
+# 	def notify(self) -> None:
+# 		"""Notify all observers about an event."""
+# 		pass
 
 
-class Scoreboard(Subject):
+# class Observer(ABC):
+# 	"""Observer interface."""
+
+# 	@abstractmethod
+# 	def update(self, subject: Subject) -> None:
+# 		"""Receive update from subject."""
+# 		pass
+
+
+class Scoreboard():
 	"""The Scoreboard subject notifies observers when the state changes."""
 
 	START_SCORE = 1000 # start score of every player
-	_observers: List[Observer] = []
+	_observers: List = []
 	_scoreboard_dict: Dict[str, int] = {}
 
 	def __init__(self):
@@ -48,17 +48,16 @@ class Scoreboard(Subject):
 		self.font_width = self.font.size("X")[0]
 		self.font_height = self.font.size("X")[1]
 
-	def attach(self, observer: Observer) -> None:
+	def attach(self, observer) -> None:
 		self._observers.append(observer)
 		self._scoreboard_dict[observer.name] = self.START_SCORE
 
-	def detach(self, observer: Observer) -> None:
+	def detach(self, observer) -> None:
 		self._observers.remove(observer)
 		del self._scoreboard_dict[observer.name]
 
 	def notify(self) -> None:
-		for observer in self._observers:
-			observer.update(self)
+		pass
 
 	def update_score(self, player_name: str, new_score: int) -> None:
 		self._scoreboard_dict[player_name] = new_score
