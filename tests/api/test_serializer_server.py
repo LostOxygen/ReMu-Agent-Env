@@ -34,7 +34,7 @@ class TestSerializer(unittest.TestCase):
 			"direction": {"x": 1.5, "y": 0.1}
 		}
 
-		ship = Spaceship(5.0, 6.0, 100, 100, DummySprite(), None, None, "Dieter")
+		ship = Spaceship(5.0, 6.0, DummySprite(), None, None, "Dieter")
 		ship.direction = Vector2(1.5, 0.1)
 		actual = serializer_server._spaceship_as_dict(ship)
 
@@ -47,8 +47,8 @@ class TestSerializer(unittest.TestCase):
 			"direction": {"x": -1.0, "y": -2.0}
 		}
 
-		shooter = Spaceship(0, 0, 0, 0, DummySprite(), None, None, "Dieter")
-		bullet = Bullet(5.0, 6.0, 100, 100, DummySprite(), Vector2(-1.0, -2.0), shooter)
+		shooter = Spaceship(0, 0, DummySprite(), None, None, "Dieter")
+		bullet = Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, -2.0), shooter)
 		actual = serializer_server._bullet_as_dict(bullet)
 
 		self.assertEqual(expected, actual)
@@ -111,14 +111,14 @@ class TestSerializer(unittest.TestCase):
 			]
 		})
 
-		ship_dieter = Spaceship(5.0, 6.0, 100, 100, DummySprite(), None, None, "Dieter")
+		ship_dieter = Spaceship(5.0, 6.0, DummySprite(), None, None, "Dieter")
 		ship_dieter.direction = Vector2(1.5, 0.1)
-		ship_bernd = Spaceship(2.0, 8.0, 100, 100, DummySprite(), None, None, "Bernd")
+		ship_bernd = Spaceship(2.0, 8.0, DummySprite(), None, None, "Bernd")
 		ship_bernd.direction = Vector2(0.5, 12.0)
 		spaceships = [ship_dieter, ship_bernd]
 		bullets = [
-			Bullet(5.0, 6.0, 100, 100, DummySprite(), Vector2(-1.0, -2.0), ship_dieter),
-			Bullet(8.0, 8.0, 100, 100, DummySprite(), Vector2(-5.0, -2.0), ship_dieter),
+			Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, -2.0), ship_dieter),
+			Bullet(8.0, 8.0, DummySprite(), Vector2(-5.0, -2.0), ship_dieter),
 		]
 		scoreboard = {
 			"Dieter": 100,
