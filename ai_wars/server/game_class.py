@@ -5,16 +5,19 @@ import pygame
 import threading
 from typing import List, Dict
 
-from ..utils import get_random_position, load_sprite
 from ..spaceship import Spaceship
 from ..scoreboard import Scoreboard
 from ..bullet import Bullet
+
+from ..networking.server import Server
 from .serializer import serialize_game_state
 from .deserializer import deserialize_action
-from ..networking.server import Server
 
-DECREASE_SCORE_EVENT = pygame.USEREVENT + 0
-FRAMERATE = 1
+from ..utils import get_random_position, load_sprite
+
+FRAMERATE = 30
+POINTS_LOST_AFTER_GETTING_HIT = 100
+POINTS_GAINED_AFTER_HITTING = 200
 
 
 class GameClass:
@@ -23,8 +26,6 @@ class GameClass:
 	# some constants
 	# pygame userevents use codes from 24 to 35, so the first user event will be 24
 	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
-	POINTS_LOST_AFTER_GETTING_HIT = 100
-	POINTS_GAINED_AFTER_HITTING = 200
 
 	def __init__(self):
 		os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
@@ -44,6 +45,7 @@ class GameClass:
 
 		# initialize server
 		self.server = Server.builder().build()
+		self.action_buffer = {}
 
 
 	def main_loop(self) -> None:
@@ -57,6 +59,7 @@ class GameClass:
 			self.clock.tick(FRAMERATE)
 			self._handle_events()
 			self._process_game_logic()
+			self._apply_actions()
 			self._publish_gamestate()
 
 
@@ -67,26 +70,37 @@ class GameClass:
 			received_action = self.server.recv_next()
 			name, actions = deserialize_action(received_action)
 
+			# spawn spaceship at random position if necessary
 			if name not in self.spaceships:
 				spawn = get_random_position(self.screen)
 				self.spawn_spaceship(spawn.x, spawn.y, name)
-			for action in actions:
-				self.spaceships[name].action(action)
+
+			# store actions in buffer
+			if name not in self.action_buffer:
+				self.action_buffer[name] = set()
+			self.action_buffer[name].update(actions)
 
 
 	def _handle_events(self) -> None:
 		"""Private helper method to listen and process pygame events"""
 		for event in pygame.event.get():
-			match event:
+			match event.type:
 				# check if the game should be closed
-				case event if event.type == pygame.QUIT or \
-					 (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+				case pygame.QUIT:
 					sys.exit()
 
 				# decrease the score of the players (event gets fired every second)
-				case _ if event.type == DECREASE_SCORE_EVENT:
+				case self.DECREASE_SCORE_EVENT:
 					for ship in self.spaceships.values():
 						self.scoreboard.decrease_score(ship.name, 1)
+
+	def _apply_actions(self):
+		'''private method to applies all actions in the action buffer, then clears it'''
+		for (name, actions) in self.action_buffer.items():
+			for action in actions:
+				self.spaceships[name].action(action)
+
+		self.action_buffer.clear()
 
 
 	def _process_game_logic(self) -> None:

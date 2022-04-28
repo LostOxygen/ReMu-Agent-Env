@@ -5,16 +5,18 @@ from pygame import Vector2
 from typing import List, Dict
 import threading
 
-from ..utils import load_sprite
 from ..spaceship import Spaceship
 from ..enums import EnumAction
 from ..scoreboard import Scoreboard
 from ..bullet import Bullet
+
 from ..networking.client import Client
 from .serializer import serialize_action
 from .deserializer import deserialize_game_state
 
-POLL_RATE = 144
+from ..utils import load_sprite
+
+POLL_RATE = 30
 
 class GameClass:
 	"""MainGameClass"""
