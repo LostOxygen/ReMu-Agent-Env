@@ -55,7 +55,7 @@ class GameClass:
 
 		match is_key_pressed:
 			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
-					self.spaceship1.action(EnumAction.SHOOT)
+				self.spaceship1.action(EnumAction.SHOOT)
 			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
 				self.spaceship1.action(EnumAction.LEFT)
 			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
