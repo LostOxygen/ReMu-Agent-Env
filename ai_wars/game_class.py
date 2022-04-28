@@ -27,7 +27,7 @@ class GameClass:
 		pygame.init()
 		self.clock = pygame.time.Clock()
 		self.screen = pygame.display.set_mode((800, 600))
-		self.background = load_sprite("ai_wars/img/space.png", False)
+		self.background = load_sprite("ai_wars/img/Background.png", False)
 		# initialize the scoreboard and attach all players as observers
 		self.scoreboard = Scoreboard()
 		self.bullets = [] # list with all bullets in the game

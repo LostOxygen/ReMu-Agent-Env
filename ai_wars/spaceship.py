@@ -25,6 +25,7 @@ class Spaceship():
 		self.sprite = sprite
 		self.height = sprite.get_rect().height
 		self.width = sprite.get_rect().width
+		self.color = list(np.random.choice(range(256), size=3))
 		self.bullet_append = bullet_append_func
 		self.direction = Vector2(UP)
 		self.screen = screen # the screen where everything gets drawn on
@@ -98,6 +99,8 @@ class Spaceship():
 
 	def draw(self, screen: pygame.Surface) -> None:
 		"""public method to draw the rotated version of the spaceship"""
+		self.sprite.fill(
+			self.color, special_flags=pygame.BLEND_MIN)  # fill the sprite with color
 		angle = self.direction.angle_to(UP)
 		rotated_surface = pygame.transform.rotozoom(self.sprite, angle, 1.0)
 		rotated_surface_size = Vector2(rotated_surface.get_size())
