@@ -2,7 +2,6 @@
 from typing import Callable
 import pygame
 from pygame.math import Vector2
-import numpy as np
 
 from ai_wars.enums import EnumAction
 from ai_wars.bullet import Bullet
@@ -37,6 +36,12 @@ class Spaceship():
 
 		# bullet cooldown stuff
 		self.last_action_time = 0
+
+		# initialize font stuff
+		pygame.font.init()
+		self.font = pygame.font.SysFont("consolas", 15)
+		self.font_width = self.font.size("X")[0]
+		self.font_height = self.font.size("X")[1]
 
 	def action(self, action: EnumAction) -> None:
 		"""public method to move the ship in the direction of the action"""
@@ -82,8 +87,9 @@ class Spaceship():
 		"""public method to create a bullet and append it to the bullet list"""
 		#TODO We are passing here the wrong height and width (that of the ship), the bullet class
 		# can get it itself using the img
-		bullet = Bullet(self.x, self.y - np.floor(self.height/2), \
-						load_sprite("ai_wars/img/bullet.png"), self.direction, self)
+		bullet = Bullet(self.x, self.y - self.height // 2,
+						load_sprite("ai_wars/img/bullet.png"),
+						self.direction, self)
 
 		self.bullet_append(bullet)
 
@@ -96,11 +102,18 @@ class Spaceship():
 
 	def draw(self, screen: pygame.Surface) -> None:
 		"""public method to draw the rotated version of the spaceship"""
+		# draw the spaceship
 		angle = self.direction.angle_to(UP)
 		rotated_surface = pygame.transform.rotozoom(self.sprite, angle, 1.0)
 		rotated_surface_size = Vector2(rotated_surface.get_size())
 		blit_position = Vector2(self.x, self.y) - rotated_surface_size * 0.5
 		screen.blit(rotated_surface, blit_position)
+
+		# draw the players name on top of the spaceshop
+		text_surface = self.font.render(self.name, False, (255, 255, 255))
+		half_name_length = len(self.name) // 2
+		screen.blit(text_surface, (self.x - half_name_length * self.font_width,
+								   self.y-self.font_height*3))
 
 		# debug for drawing hitbox
 		#pygame.draw.rect(screen, (0,255,0), self.hitbox)
