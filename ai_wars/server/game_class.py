@@ -1,6 +1,7 @@
 """Main GameClass"""
 import sys
 import os
+import signal
 import pygame
 import threading
 from typing import List, Dict
@@ -16,6 +17,7 @@ from .deserializer import deserialize_action
 
 from ..utils import get_random_position, load_sprite
 
+stop_threads = False
 
 class GameClass:
 	"""MainGameClass"""
@@ -52,12 +54,15 @@ class GameClass:
 
 	def main_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
+		# Register handler for SIGINT (Ctrl-C) interrupt
+		signal.signal(signal.SIGINT, self.thread_handler)
+
 		# start the server thread to receive packages
 		self.server_thread = threading.Thread(target=self.server_loop)
 		self.server_thread.start()
 
 		# loop over the game loop
-		while True:
+		while not stop_threads:
 			self.clock.tick(self.FRAMERATE)
 			self._handle_events()
 			self._process_game_logic()
@@ -68,7 +73,7 @@ class GameClass:
 	def server_loop(self) -> None:
 		"""server loop to handle receive modularity"""
 		self.server.start(addr="127.0.0.1", port=1337)
-		while True:
+		while not stop_threads:
 			received_action = self.server.recv_next()
 			name, actions = deserialize_action(received_action)
 
@@ -89,6 +94,7 @@ class GameClass:
 			match event.type:
 				# check if the game should be closed
 				case pygame.QUIT:
+					self.thread_handler()
 					sys.exit()
 
 				# decrease the score of the players (event gets fired every second)
@@ -155,3 +161,9 @@ class GameClass:
 		serialized_state = serialize_game_state(self.spaceships.values(), self.bullets,
 											   self.scoreboard.get_scoreboard_dict())
 		self.server.send_to_all(serialized_state.encode())
+
+
+	def thread_handler(self, signum=None, frame=None):  # pylint: disable=unused-argument
+		global stop_threads
+		stop_threads = True
+		print("SIGINT or Quit Event received. Stopping client.")

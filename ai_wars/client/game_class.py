@@ -1,5 +1,6 @@
 """Main GameClass"""
 import sys
+import signal
 import pygame
 from pygame import Vector2
 from typing import List, Dict
@@ -18,6 +19,7 @@ from .deserializer import deserialize_game_state
 from ..utils import load_sprite
 
 POLL_RATE = 30
+stop_threads = False
 
 class GameClass:
 	"""MainGameClass"""
@@ -43,6 +45,9 @@ class GameClass:
 
 	def main_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
+		# Register handler for SIGINT (Ctrl-C) interrupt
+		signal.signal(signal.SIGINT, self.thread_handler)
+
 		# connect the client to the server
 		self.client.connect(addr="127.0.0.1", port=1337)
 
@@ -50,7 +55,7 @@ class GameClass:
 		self.client_thread = threading.Thread(target=self.receive_data)
 		self.client_thread.start()
 
-		while True:
+		while not stop_threads:
 			self.clock.tick(POLL_RATE)
 			self._handle_inputs()
 			self._handle_events()
@@ -58,7 +63,7 @@ class GameClass:
 
 	def receive_data(self) -> None:
 		"""data loop to listen and receive data from the server"""
-		while True:
+		while not stop_threads:
 			# receive data from server
 			data = self.client.recv_next()
 			players, projectiles, scoreboard = deserialize_game_state(data.decode())
@@ -94,6 +99,7 @@ class GameClass:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or \
 			   (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+				self.thread_handler()
 				sys.exit()
 
 
@@ -160,3 +166,8 @@ class GameClass:
 		bullet = Bullet(position.x, position.y, sprite, direction, shooter)
 
 		self.bullets.append(bullet)
+
+	def thread_handler(self, signum=None, frame=None): # pylint: disable=unused-argument
+		global stop_threads
+		stop_threads = True
+		print("SIGINT or Quit Event received. Stopping client.")
