@@ -1,6 +1,7 @@
 """Utils library for miscellaneous functions"""
 import random
 from typing import Tuple
+
 import pygame
 from pygame.image import load
 from pygame.math import Vector2
@@ -40,3 +41,8 @@ def clip(score: int) -> int:
 
 def clip_pos(coord: int, min_value: int, max_value: int) -> int:
 	return max(min(coord, max_value), min_value)
+
+
+def override(func):
+	'''simple annotation to indicate that a functions overrides an abstract method of its parent'''
+	return func
