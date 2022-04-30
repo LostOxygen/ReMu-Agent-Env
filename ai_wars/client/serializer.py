@@ -6,6 +6,16 @@ def serialize_action(
 	player_name: str,
 	enum_actions: list[EnumAction]
 ) -> str:
+	'''
+	Serializes a list of actions a player performs into a json string.
+
+	Parameters:
+		player_name: the name of the player
+		enum_actions: a list of actions
+
+	Returns:
+		json string
+	'''
 	actions = _enum_action_as_dict(enum_actions)
 
 	action = {
