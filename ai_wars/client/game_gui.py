@@ -1,105 +1,77 @@
 """Main GameClass"""
 import sys
-import signal
 import pygame
 from pygame import Vector2
-from typing import List, Dict
-import threading
+from typing import List, Dict, Set
+
+from .behavior import Behavior
 
 from ..spaceship import Spaceship
 from ..enums import EnumAction
 from ..scoreboard import Scoreboard
 from ..bullet import Bullet
 
-from ..networking.client import UdpClient
-from ..networking.layers.compression import GzipCompression
-from .serializer import serialize_action
-from .deserializer import deserialize_game_state
+from ..utils import load_sprite, override
 
-from ..utils import load_sprite
 
-POLL_RATE = 30
-stop_threads = False
+class GameGUI(Behavior):
+	"""Simple game GUI with user inputs representing a player behavior"""
 
-class GameClass:
-	"""MainGameClass"""
-
-	def __init__(self, player_name: str):
-
-		pygame.init()
+	def __init__(self):
 		self.clock = pygame.time.Clock()
 		self.screen = pygame.display.set_mode((800, 600))
 		self.background = load_sprite("ai_wars/img/space.png", False)
-		# initialize the scoreboard and attach all players as observers
+
+		# data structures that hold the game information
 		self.scoreboard = Scoreboard()
 		self.bullets: List[Bullet] = []  # list with all bullets in the game
 		self.spaceships: Dict[str, Spaceship] = {}  # dict with every spaceship in the game
-		self.player_name = player_name
 
-		# initialize server connection
-		self.client = UdpClient.builder() \
-			.with_buffer_size(10*1024) \
-			.add_layer(GzipCompression()) \
-			.build()
+		pygame.init()
 
 
-	def main_loop(self) -> None:
-		"""main loop for input handling, game logic and rendering"""
-		# Register handler for SIGINT (Ctrl-C) interrupt
-		signal.signal(signal.SIGINT, self.thread_handler)
+	@override
+	def make_move(self,
+		players: dict[str, any],
+		projectiles: dict[str, any],
+		scoreboard: dict[str, int]
+	) -> set[EnumAction]:
+		self._handle_events()
 
-		# connect the client to the server
-		self.client.connect(addr="127.0.0.1", port=1337)
+		self._update_players(players)
+		self._update_scoreboard(scoreboard)
+		self._update_bullets(projectiles)
+		self._draw()
 
-		# start the client data thread to receive packages from server
-		self.client_thread = threading.Thread(target=self.receive_data)
-		self.client_thread.start()
+		return self._handle_inputs()
 
-		while not stop_threads:
-			self.clock.tick(POLL_RATE)
-			self._handle_inputs()
-			self._handle_events()
-
-
-	def receive_data(self) -> None:
-		"""data loop to listen and receive data from the server"""
-		while not stop_threads:
-			# receive data from server
-			data = self.client.recv_next()
-			players, projectiles, scoreboard = deserialize_game_state(data.decode())
-			self._update_players(players)
-			self._update_scoreboard(scoreboard)
-			self._update_bullets(projectiles)
-			self._draw()
 
 	def _handle_inputs(self) -> None:
 		"""private method to process inputs and limit the bullet frequency"""
 		# action list for all actions of the current tick
-		actions: List[EnumAction] = []
+		actions: Set[EnumAction] = set()
 		# check which keys are pressed
 		is_key_pressed = pygame.key.get_pressed()
 
 		match is_key_pressed:
 			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
-				actions.append(EnumAction.SHOOT)
+				actions.add(EnumAction.SHOOT)
 			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
-				actions.append(EnumAction.LEFT)
+				actions.add(EnumAction.LEFT)
 			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
-				actions.append(EnumAction.RIGHT)
+				actions.add(EnumAction.RIGHT)
 			case is_key_pressed if is_key_pressed[pygame.K_UP]:
-				actions.append(EnumAction.FORWARD)
+				actions.add(EnumAction.FORWARD)
 			case is_key_pressed if is_key_pressed[pygame.K_DOWN]:
-				actions.append(EnumAction.BACKWARD)
+				actions.add(EnumAction.BACKWARD)
 
-		actions = serialize_action(self.player_name, actions)
-		self.client.send(actions.encode())
+		return actions
 
 	def _handle_events(self) -> None:
 		"""Private helper method to listen and process pygame events"""
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or \
 			   (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-				self.thread_handler()
 				sys.exit()
 
 
@@ -115,7 +87,7 @@ class GameClass:
 				self.spaceships[player_name].direction = player["direction"]
 			else:
 				# create new player
-				self.spawn_spaceship(player["position"], player["direction"], player_name)
+				self._spawn_spaceship(player["position"], player["direction"], player_name)
 
 
 	def _update_scoreboard(self, new_scoreboard: dict) -> None:
@@ -129,7 +101,7 @@ class GameClass:
 
 		# iterate over all new bullets and spawn them
 		for bullet in bullets:
-			self.spawn_bullet(bullet["position"], bullet["direction"], bullet["owner"])
+			self._spawn_bullet(bullet["position"], bullet["direction"], bullet["owner"])
 
 
 	def _draw(self) -> None:
@@ -152,7 +124,7 @@ class GameClass:
 		pygame.display.flip()
 
 
-	def spawn_spaceship(self, position: Vector2, direction: Vector2, name: str) -> None:
+	def _spawn_spaceship(self, position: Vector2, direction: Vector2, name: str) -> None:
 		sprite = load_sprite("ai_wars/img/spaceship.png")
 		spaceship = Spaceship(position.x, position.y, sprite, self.bullets.append, self.screen, name)
 		spaceship.direction = direction
@@ -161,13 +133,8 @@ class GameClass:
 		self.scoreboard.attach(spaceship)
 
 
-	def spawn_bullet(self, position: Vector2, direction: Vector2, shooter: str) -> None:
+	def _spawn_bullet(self, position: Vector2, direction: Vector2, shooter: str) -> None:
 		sprite = load_sprite("ai_wars/img/bullet.png")
 		bullet = Bullet(position.x, position.y, sprite, direction, shooter)
 
 		self.bullets.append(bullet)
-
-	def thread_handler(self, signum=None, frame=None): # pylint: disable=unused-argument
-		global stop_threads
-		stop_threads = True
-		print("SIGINT or Quit Event received. Stopping client.")
