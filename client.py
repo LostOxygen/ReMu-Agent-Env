@@ -12,7 +12,7 @@ if __name__ == "__main__":
 	                    type=str, required=True)
 	parser.add_argument("--port", "-p", help="specify port on which the client connects",
                      type=int, default=1337)
-	parser.add_argument("--addr", "-a", help="specify the network address on which the client connects",
+	parser.add_argument("--addr", "-a", help="specify the network addr. on which the client connects",
 	                    type=str, default="127.0.0.1")
 	parser.add_argument("--verbose", "-l", help="enable logging mode for the client",
 	                    action="store_true", default=False)
