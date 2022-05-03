@@ -24,18 +24,18 @@ class GameClass:
 	"""MainGameClass"""
 
 	# constants
-	FRAMERATE = 30
+	FRAMERATE = 144
 	POINTS_LOST_AFTER_GETTING_HIT = 100
 	POINTS_GAINED_AFTER_HITTING = 200
 	# pygame userevents use codes from 24 to 35, so the first user event will be 24
 	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
-
 
 	def __init__(self, addr: str, port: int):
 		os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
 		pygame.init()
 		self.clock = pygame.time.Clock()
 		self.screen = pygame.display.set_mode((800, 600))
+		self.delta_time = 0
 
 		# initialize the scoreboard and attach all players as observers
 		self.scoreboard = Scoreboard()
@@ -70,7 +70,7 @@ class GameClass:
 
 		# loop over the game loop
 		while not stop_threads:
-			self.clock.tick(self.FRAMERATE)
+			self.delta_time = self.clock.tick(self.FRAMERATE) / 1000
 			self._handle_events()
 			self._process_game_logic()
 			self._apply_actions()
@@ -119,7 +119,7 @@ class GameClass:
 		'''private method to applies all actions in the action buffer, then clears it'''
 		for (name, actions) in self.action_buffer.items():
 			for action in actions:
-				self.spaceships[name].action(action)
+				self.spaceships[name].action(action, self.delta_time)
 
 		self.action_buffer.clear()
 
@@ -128,7 +128,7 @@ class GameClass:
 		"""private method to process game logic"""
 		# loop over every bullet and update its position
 		for bullet in self.bullets:
-			bullet.move()
+			bullet.move(self.delta_time)
 			#If bullet get out of bound then delete it
 			if bullet.x > self.screen.get_width() or \
 			   bullet.x < 0 or \
