@@ -89,7 +89,7 @@ class Spaceship():
 		"""public method to create a bullet and append it to the bullet list"""
 		#TODO We are passing here the wrong height and width (that of the ship), the bullet class
 		# can get it itself using the img
-		bullet = Bullet(self.x, self.y - self.height // 2,
+		bullet = Bullet(self.x, self.y,
 						load_sprite("ai_wars/img/bullet.png"),
 						self.direction, self)
 

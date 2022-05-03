@@ -109,13 +109,13 @@ class GameGUI(Behavior):
 		# draw the background
 		self.screen.blit(self.background, (0, 0))
 
-		# draw the spaceship
-		for spaceship in self.spaceships.values():
-			spaceship.draw(self.screen)
-
 		# rendering loop to draw all bullets
 		for bullet in self.bullets:
 			bullet.draw(self.screen)
+
+		# draw the spaceship
+		for spaceship in self.spaceships.values():
+			spaceship.draw(self.screen)
 
 		# draw scoreboard
 		self.scoreboard.draw_scoreboard(self.screen)
