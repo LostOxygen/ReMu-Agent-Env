@@ -53,17 +53,16 @@ class GameGUI(Behavior):
 		# check which keys are pressed
 		is_key_pressed = pygame.key.get_pressed()
 
-		match is_key_pressed:
-			case is_key_pressed if is_key_pressed[pygame.K_SPACE]:
-				actions.add(EnumAction.SHOOT)
-			case is_key_pressed if is_key_pressed[pygame.K_LEFT]:
-				actions.add(EnumAction.LEFT)
-			case is_key_pressed if is_key_pressed[pygame.K_RIGHT]:
-				actions.add(EnumAction.RIGHT)
-			case is_key_pressed if is_key_pressed[pygame.K_UP]:
-				actions.add(EnumAction.FORWARD)
-			case is_key_pressed if is_key_pressed[pygame.K_DOWN]:
-				actions.add(EnumAction.BACKWARD)
+		if is_key_pressed[pygame.K_SPACE]:
+			actions.add(EnumAction.SHOOT)
+		if is_key_pressed[pygame.K_LEFT]:
+			actions.add(EnumAction.LEFT)
+		if is_key_pressed[pygame.K_RIGHT]:
+			actions.add(EnumAction.RIGHT)
+		if is_key_pressed[pygame.K_UP]:
+			actions.add(EnumAction.FORWARD)
+		if is_key_pressed[pygame.K_DOWN]:
+			actions.add(EnumAction.BACKWARD)
 
 		return actions
 
