@@ -3,7 +3,9 @@ from typing import Tuple
 
 from pygame.math import Vector2
 
-def deserialize_game_state(json_string: str) -> Tuple[dict[str, any], dict[str, any], dict[str, int]]:
+def deserialize_game_state(
+	json_string: str
+) -> Tuple[dict[str, any], dict[str, any], dict[str, int]]:
 	'''
 	Deserializes the current game state from a json string.
 
