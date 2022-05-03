@@ -20,7 +20,7 @@ class GameGUI(Behavior):
 	def __init__(self):
 		self.clock = pygame.time.Clock()
 		self.screen = pygame.display.set_mode((800, 600))
-		self.background = load_sprite("ai_wars/img/space.png", False)
+		self.background = load_sprite("ai_wars/img/Background.png", False)
 
 		# data structures that hold the game information
 		self.scoreboard = Scoreboard()
