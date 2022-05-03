@@ -15,8 +15,8 @@ class Spaceship():
 	"""spaceship class with functions for moving, drawing and shooting"""
 	# constants
 	SHOOT_COOLDOWN = 200 # specifies the cooldown for shooting in ms
-	MOVEMENT_MULTIPLIER = 2.0
-	ROTATION_MULTIPLIER = 3.0
+	MOVEMENT_MULTIPLIER = 200.0
+	ROTATION_MULTIPLIER = 300.0
 
 	def __init__(self, x: int, y: int, sprite: pygame.sprite.Sprite, \
 				 bullet_append_func: Callable[[Bullet], None], \
@@ -45,12 +45,12 @@ class Spaceship():
 		self.font_width = self.font.size("X")[0]
 		self.font_height = self.font.size("X")[1]
 
-	def action(self, action: EnumAction) -> None:
+	def action(self, action: EnumAction, delta_time : float) -> None:
 		"""public method to move the ship in the direction of the action"""
 		match action:
 			case EnumAction.FORWARD:
-				new_position_x = self.x + self.direction.x * self.MOVEMENT_MULTIPLIER
-				new_position_y = self.y + self.direction.y * self.MOVEMENT_MULTIPLIER
+				new_position_x = self.x + self.direction.x * self.MOVEMENT_MULTIPLIER * delta_time
+				new_position_y = self.y + self.direction.y * self.MOVEMENT_MULTIPLIER * delta_time
 				# correct the position at the end of an action to stay within the screen bounds
 				valid_pos_x = clip_pos(new_position_x, 0, self.screen.get_width())
 				valid_pos_y = clip_pos(new_position_y, 0, self.screen.get_height())
@@ -62,8 +62,8 @@ class Spaceship():
 				self.refresh_hitbox_coordinates()
 
 			case EnumAction.BACKWARD:
-				new_position_x = self.x - self.direction.x * self.MOVEMENT_MULTIPLIER
-				new_position_y = self.y - self.direction.y * self.MOVEMENT_MULTIPLIER
+				new_position_x = self.x - self.direction.x * self.MOVEMENT_MULTIPLIER * delta_time
+				new_position_y = self.y - self.direction.y * self.MOVEMENT_MULTIPLIER * delta_time
 				# correct the position at the end of an action to stay within the screen bounds
 				valid_pos_x = clip_pos(new_position_x, 0, self.screen.get_width())
 				valid_pos_y = clip_pos(new_position_y, 0, self.screen.get_height())
@@ -74,10 +74,10 @@ class Spaceship():
 				self.refresh_hitbox_coordinates()
 
 			case EnumAction.RIGHT:
-				self._rotate(clockwise=True)
+				self._rotate(True, delta_time)
 
 			case EnumAction.LEFT:
-				self._rotate(clockwise=False)
+				self._rotate(False, delta_time)
 
 			case EnumAction.SHOOT:
 				# implementation of shooting cooldown, hence limits the bullets that can be shot
@@ -87,19 +87,18 @@ class Spaceship():
 
 	def _shoot(self) -> None:
 		"""public method to create a bullet and append it to the bullet list"""
-		#TODO We are passing here the wrong height and width (that of the ship), the bullet class
-		# can get it itself using the img
+		#TODO Delta time is only given once here, is that ok?
 		bullet = Bullet(self.x, self.y,
 						load_sprite("ai_wars/img/bullet.png"),
 						self.direction, self)
 
 		self.bullet_append(bullet)
 
-	def _rotate(self, clockwise: bool) -> None:
+	def _rotate(self, clockwise: bool, delta_time: float) -> None:
 		"""public method to rotate the ship in clockwise direction"""
 		# rotate the direction vector
 		sign = 1 if clockwise else -1
-		angle = self.ROTATION_MULTIPLIER * sign
+		angle = self.ROTATION_MULTIPLIER * sign * delta_time
 		self.direction.rotate_ip(angle)
 
 	def draw(self, screen: pygame.Surface) -> None:

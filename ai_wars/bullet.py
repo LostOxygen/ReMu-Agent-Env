@@ -6,7 +6,7 @@ from pygame.math import Vector2
 class Bullet():
 	"""Bullet class with functions for moving and drawing"""
 	# constants
-	MOVEMENT_MULTIPLIER = 10.0
+	MOVEMENT_MULTIPLIER = 400.0
 
 	def __init__(self, x: int, y: int, sprite: pygame.Surface, direction: Vector2, shooter):
 		self.x = x
@@ -22,21 +22,17 @@ class Bullet():
 		self.shooter = shooter
 
 
-	def move(self) -> None:
+	def move(self, delta_time) -> None:
 		"""public method to move the bullet"""
 		#First move sprite
-		self.x = self.x + self.velocity.x
-		self.y = self.y + self.velocity.y
+		self.x = self.x + self.velocity.x * delta_time
+		self.y = self.y + self.velocity.y * delta_time
 
 		self.refresh_hitbox_coordinates()
 
 	def draw(self, surface: pygame.Surface) -> None:
 		surface.blit(self.sprite, (self.x, self.y))
 
-		# debug command to draw the hitbox
-		# pygame.draw.rect(surface, (0,255,0), self.hitbox)
-
 	def refresh_hitbox_coordinates(self):
-		self.hitbox.x = self.x
-		self.hitbox.y = self.y
-
+		self.hitbox.x = self.x 
+		self.hitbox.y = self.y 
