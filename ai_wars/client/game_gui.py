@@ -1,5 +1,6 @@
 """Main GameClass"""
 import sys
+import logging
 import pygame
 from pygame import Vector2
 from typing import List, Dict, Set
@@ -28,6 +29,7 @@ class GameGUI(Behavior):
 		self.spaceships: Dict[str, Spaceship] = {}  # dict with every spaceship in the game
 
 		pygame.init()
+		logging.debug("Initialized client")
 
 
 	@override
@@ -71,6 +73,7 @@ class GameGUI(Behavior):
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or \
 			   (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+				logging.debug("Received quit event")
 				sys.exit()
 
 
