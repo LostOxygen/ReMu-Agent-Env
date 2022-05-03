@@ -1,5 +1,4 @@
 """main hook to start the game"""
-import sys
 import argparse
 import logging
 from ai_wars.client.player import Player
