@@ -2,7 +2,7 @@ import socket
 
 from .layers.layer import Layer
 
-class Client:
+class UdpClient:
 	'''
 	Simple abstraction of a UDP client.
 	'''
@@ -25,7 +25,7 @@ class Client:
 			client builder
 		'''
 
-		return ClientBuilder()
+		return UdpClientBuilder()
 
 	def connect(self, addr: str, port: int):
 		self.socket.connect((addr, port))
@@ -59,7 +59,7 @@ class Client:
 
 		return data
 
-class ClientBuilder:
+class UdpClientBuilder:
 	'''
 	Builder for client
 	'''
@@ -70,6 +70,7 @@ class ClientBuilder:
 
 	def with_buffer_size(self, size: int):
 		self.buffer_size = size
+		return self
 
 	def add_layer(self, layer: Layer):
 		'''
@@ -83,7 +84,7 @@ class ClientBuilder:
 		self.layers.append(layer)
 		return self
 
-	def build(self) -> Client:
+	def build(self) -> UdpClient:
 		'''
 		Builds the client with configured parameters.
 
@@ -91,4 +92,4 @@ class ClientBuilder:
 			the client object
 		'''
 
-		return Client(self.buffer_size, self.layers)
+		return UdpClient(self.buffer_size, self.layers)

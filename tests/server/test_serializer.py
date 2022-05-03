@@ -8,7 +8,7 @@ from pygame.math import Vector2
 from ai_wars.spaceship import Spaceship
 from ai_wars.bullet import Bullet
 
-from ai_wars.api import serializer_server
+from ai_wars.server import serializer
 
 class DummySprite(Sprite):
 
@@ -23,7 +23,7 @@ class TestSerializer(unittest.TestCase):
 		expected = {"x": 100.0, "y": 200.0}
 
 		vec = Vector2(100.0, 200.0)
-		actual = serializer_server._vector_as_dict(vec)
+		actual = serializer._vector_as_dict(vec)
 
 		self.assertEqual(expected, actual)
 
@@ -36,7 +36,7 @@ class TestSerializer(unittest.TestCase):
 
 		ship = Spaceship(5.0, 6.0, DummySprite(), None, None, "Dieter")
 		ship.direction = Vector2(1.5, 0.1)
-		actual = serializer_server._spaceship_as_dict(ship)
+		actual = serializer._spaceship_as_dict(ship)
 
 		self.assertEqual(expected, actual)
 
@@ -44,12 +44,12 @@ class TestSerializer(unittest.TestCase):
 		expected = {
 			"owner": "Dieter",
 			"position": {"x": 5.0, "y": 6.0},
-			"direction": {"x": -1.0, "y": -2.0}
+			"direction": {"x": -1.0*Bullet.MOVEMENT_MULTIPLIER, "y": 0.0}
 		}
 
 		shooter = Spaceship(0, 0, DummySprite(), None, None, "Dieter")
-		bullet = Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, -2.0), shooter)
-		actual = serializer_server._bullet_as_dict(bullet)
+		bullet = Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, 0.0), shooter)
+		actual = serializer._bullet_as_dict(bullet)
 
 		self.assertEqual(expected, actual)
 
@@ -69,7 +69,7 @@ class TestSerializer(unittest.TestCase):
 			"Dieter": 100,
 			"Bernd": -50
 		}
-		actual = serializer_server._scoreboard_as_dict(scoreboard)
+		actual = serializer._scoreboard_as_dict(scoreboard)
 
 		self.assertEqual(expected, actual)
 
@@ -91,15 +91,15 @@ class TestSerializer(unittest.TestCase):
 				{
 					"owner": "Dieter",
 					"position": {"x": 5.0, "y": 6.0},
-					"direction": {"x": -1.0, "y": -2.0}
+					"direction": {"x": -1.0*Bullet.MOVEMENT_MULTIPLIER, "y": 0.0}
 				},
 				{
 					"owner": "Dieter",
 					"position": {"x": 8.0, "y": 8.0},
-					"direction": {"x": -5.0, "y": -2.0}
+					"direction": {"x": 0.0, "y": 1.0*Bullet.MOVEMENT_MULTIPLIER}
 				}
 			],
-			"scores": [
+			"scoreboard": [
 				{
 					"name": "Dieter",
 					"score": 100
@@ -117,13 +117,13 @@ class TestSerializer(unittest.TestCase):
 		ship_bernd.direction = Vector2(0.5, 12.0)
 		spaceships = [ship_dieter, ship_bernd]
 		bullets = [
-			Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, -2.0), ship_dieter),
-			Bullet(8.0, 8.0, DummySprite(), Vector2(-5.0, -2.0), ship_dieter),
+			Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, 0.0), ship_dieter),
+			Bullet(8.0, 8.0, DummySprite(), Vector2(0.0, 1.0), ship_dieter),
 		]
 		scoreboard = {
 			"Dieter": 100,
 			"Bernd": -50
 		}
-		actual = serializer_server.serialize_game_state(spaceships, bullets, scoreboard)
+		actual = serializer.serialize_game_state(spaceships, bullets, scoreboard)
 
 		self.assertEqual(expected, actual)

@@ -33,3 +33,16 @@ def get_random_velocity(min_speed: float, max_speed: float) -> Vector2:
 	speed = random.randint(min_speed, max_speed)
 	angle = random.randrange(0, 360)
 	return Vector2(speed, 0).rotate(angle)
+
+
+def clip(score: int) -> int:
+	return max(score, 0)
+
+
+def clip_pos(coord: int, min_value: int, max_value: int) -> int:
+	return max(min(coord, max_value), min_value)
+
+
+def override(func):
+	'''simple annotation to indicate that a functions overrides an abstract method of its parent'''
+	return func

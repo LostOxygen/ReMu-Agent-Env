@@ -12,7 +12,7 @@ Server transmits the game state to each client containing the players score and 
 {
 	"players": [Player],
 	"projectiles": [Projectile],
-	"scores": [Score]
+	"scoreboard": [Score]
 }
 ```
 

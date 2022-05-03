@@ -29,7 +29,7 @@ def serialize_game_state(
 	game_state = {
 		"players": player,
 		"projectiles": bullets,
-		"scores": scores
+		"scoreboard": scores
 	}
 
 	return json.dumps(game_state)

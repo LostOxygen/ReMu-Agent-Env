@@ -5,13 +5,16 @@ from pygame.math import Vector2
 
 class Bullet():
 	"""Bullet class with functions for moving and drawing"""
-	def __init__(self, x: int, y: int, sprite: pygame.Surface, velocity: Vector2, shooter):
+	# constants
+	MOVEMENT_MULTIPLIER = 10.0
+
+	def __init__(self, x: int, y: int, sprite: pygame.Surface, direction: Vector2, shooter):
 		self.x = x
 		self.y = y
 		self.sprite = sprite
 		self.height = sprite.get_rect().height
 		self.width = sprite.get_rect().width
-		self.velocity = velocity
+		self.velocity = direction.normalize() * self.MOVEMENT_MULTIPLIER
 		# hitbox
 		self.hitbox = self.sprite.get_rect()
 		self.refresh_hitbox_coordinates()
@@ -36,3 +39,4 @@ class Bullet():
 	def refresh_hitbox_coordinates(self):
 		self.hitbox.x = self.x
 		self.hitbox.y = self.y
+

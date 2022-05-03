@@ -20,7 +20,7 @@ class Layer(abc.ABC):
 		pass
 
 	@abc.abstractmethod
-	def background(self, data):
+	def backward(self, data):
 		'''
 		Apply the backward step of isomorphism.
 

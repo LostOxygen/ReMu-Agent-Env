@@ -2,7 +2,7 @@ import unittest
 
 from pygame.math import Vector2
 
-from ai_wars.api import deserializer_client
+from ai_wars.client import deserializer
 
 class TestDeserializerClient(unittest.TestCase):
 
@@ -12,7 +12,7 @@ class TestDeserializerClient(unittest.TestCase):
 		expected = Vector2(5.0, 1.5)
 
 		vector = {"x": 5.0, "y": 1.5}
-		actual = deserializer_client._dict_to_vector(vector)
+		actual = deserializer._dict_to_vector(vector)
 
 		self.assertEqual(expected, actual)
 
@@ -28,7 +28,7 @@ class TestDeserializerClient(unittest.TestCase):
 			"position": {"x": 1.5, "y": 5.2},
 			"direction": {"x": 123.5, "y": 123.2}
 		}
-		actual = deserializer_client._dict_to_player(player)
+		actual = deserializer._dict_to_player(player)
 
 		self.assertEqual(expected, actual)
 
@@ -44,7 +44,7 @@ class TestDeserializerClient(unittest.TestCase):
 			"position": {"x": 1.5, "y": 5.2},
 			"direction": {"x": 123.5, "y": 123.2}
 		}
-		actual = deserializer_client._dict_to_projectile(projectile)
+		actual = deserializer._dict_to_projectile(projectile)
 
 		self.assertEqual(expected, actual)
 
@@ -55,7 +55,7 @@ class TestDeserializerClient(unittest.TestCase):
 			"name": "Dieter",
 			"score": 100
 		}]
-		actual = deserializer_client._dict_as_scoreboard(scoreboard)
+		actual = deserializer._dict_as_scoreboard(scoreboard)
 
 		self.assertEqual(expected, actual)
 
@@ -93,6 +93,6 @@ class TestDeserializerClient(unittest.TestCase):
 					"score": 100
 				}]
 			}'''
-		actual = deserializer_client.deserialize_game_state(json_string)
+		actual = deserializer.deserialize_game_state(json_string)
 
 		self.assertEqual(expected, actual)

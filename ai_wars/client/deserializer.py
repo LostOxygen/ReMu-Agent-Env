@@ -4,6 +4,20 @@ from typing import Tuple
 from pygame.math import Vector2
 
 def deserialize_game_state(json_string: str) -> Tuple[dict[str, any], dict[str, any], dict[str, int]]:
+	'''
+	Deserializes the current game state from a json string.
+
+	Parameters:
+		json_string: a string in json format
+
+	Returns:
+		(
+			a list of players holding player_name (str), position (Vector2), direction (Vector2),
+			a list of projectiles holding owner (str), position (Vector2), direction (Vector2),
+			the scores of the players
+		)
+	'''
+
 	obj = json.loads(json_string)
 
 	players = list(map(_dict_to_player, obj["players"]))
