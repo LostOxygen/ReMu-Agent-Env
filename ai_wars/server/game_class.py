@@ -52,6 +52,7 @@ class GameClass:
 		self.addr = addr
 		self.port = port
 		self.server = UdpServer.builder() \
+			.with_timeout(1.0) \
 			.add_layer(GzipCompression()) \
 			.build()
 		self.action_buffer = {}
@@ -81,18 +82,21 @@ class GameClass:
 		self.server.start(addr=self.addr, port=self.port)
 
 		while not stop_threads:
-			received_action = self.server.recv_next()
-			name, actions = deserialize_action(received_action)
+			try:
+				received_action = self.server.recv_next()
+				name, actions = deserialize_action(received_action)
 
-			# spawn spaceship at random position if necessary
-			if name not in self.spaceships:
-				spawn = get_random_position(self.screen)
-				self.spawn_spaceship(spawn.x, spawn.y, name)
+				# spawn spaceship at random position if necessary
+				if name not in self.spaceships:
+					spawn = get_random_position(self.screen)
+					self.spawn_spaceship(spawn.x, spawn.y, name)
 
-			# store actions in buffer
-			if name not in self.action_buffer:
-				self.action_buffer[name] = set()
-			self.action_buffer[name].update(actions)
+				# store actions in buffer
+				if name not in self.action_buffer:
+					self.action_buffer[name] = set()
+				self.action_buffer[name].update(actions)
+			except TimeoutError:
+				pass
 
 
 	def _handle_events(self) -> None:

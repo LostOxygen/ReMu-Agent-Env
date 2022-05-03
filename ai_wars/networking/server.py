@@ -12,9 +12,11 @@ class UdpServer:
 
 	def __init__(self,
 		buffer_size: int,
+		timeout: float,
 		layers: list[Layer]
 	):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.socket.settimeout(timeout)
 		self.buffer_size = buffer_size
 		self.layers = layers
 		self.clients = set()
@@ -81,10 +83,15 @@ class UdpServerBuilder:
 
 	def __init__(self):
 		self.buffer_size = 1204
+		self.timeout = 0
 		self.layers = []
 
 	def with_buffer_size(self, size: int):
 		self.buffer_size = size
+		return self
+
+	def with_timeout(self, timeout: float):
+		self.timeout = timeout
 		return self
 
 	def add_layer(self, layer: Layer):
@@ -107,4 +114,4 @@ class UdpServerBuilder:
 			the server object
 		'''
 		logging.debug("Initialized UDP Server with buffer_size: %s", self.buffer_size)
-		return UdpServer(self.buffer_size, self.layers)
+		return UdpServer(self.buffer_size, self.timeout, self.layers)
