@@ -18,14 +18,15 @@ class Spaceship():
 	MOVEMENT_MULTIPLIER = 200.0
 	ROTATION_MULTIPLIER = 300.0
 
-	def __init__(self, x: int, y: int, sprite: pygame.sprite.Sprite, \
-				 bullet_append_func: Callable[[Bullet], None], \
+	def __init__(self, x: int, y: int, spaceship_sprite: pygame.sprite.Sprite, bullet_sprite:
+				 pygame.sprite.Sprite, bullet_append_func: Callable[[Bullet], None], \
 				 screen: pygame.Surface, name: str):
 		self.x = x
 		self.y = y
-		self.sprite = sprite
-		self.height = sprite.get_rect().height
-		self.width = sprite.get_rect().width
+		self.spaceship_sprite = spaceship_sprite
+		self.bullet_sprite = bullet_sprite
+		self.height = spaceship_sprite.get_rect().height
+		self.width = spaceship_sprite.get_rect().width
 		self.color = list(np.random.choice(range(256), size=3))
 		self.bullet_append = bullet_append_func
 		self.direction = Vector2(UP)
@@ -33,7 +34,7 @@ class Spaceship():
 		self.name = name # name is equivalent to an player ID
 
 		# hitbox stuff
-		self.hitbox = self.sprite.get_rect()
+		self.hitbox = self.spaceship_sprite.get_rect()
 		self.refresh_hitbox_coordinates()
 
 		# bullet cooldown stuff
@@ -88,10 +89,7 @@ class Spaceship():
 	def _shoot(self) -> None:
 		"""public method to create a bullet and append it to the bullet list"""
 		#TODO Delta time is only given once here, is that ok?
-		bullet = Bullet(self.x, self.y,
-						load_sprite("ai_wars/img/bullet.png"),
-						self.direction, self)
-
+		bullet = Bullet(self.x, self.y, self.bullet_sprite, self.direction, self)
 		self.bullet_append(bullet)
 
 	def _rotate(self, clockwise: bool, delta_time: float) -> None:
@@ -105,9 +103,9 @@ class Spaceship():
 		"""public method to draw the rotated version of the spaceship"""
 
 		# draw the spaceship
-		self.sprite.fill(self.color, special_flags=pygame.BLEND_MIN)  # fill the sprite with color
+		self.spaceship_sprite.fill(self.color, special_flags=pygame.BLEND_MIN)  # fill the sprite with color
 		angle = self.direction.angle_to(UP)
-		rotated_surface = pygame.transform.rotozoom(self.sprite, angle, 1.0)
+		rotated_surface = pygame.transform.rotozoom(self.spaceship_sprite, angle, 1.0)
 		rotated_surface_size = Vector2(rotated_surface.get_size())
 		blit_position = Vector2(self.x, self.y) - rotated_surface_size * 0.5
 		screen.blit(rotated_surface, blit_position)

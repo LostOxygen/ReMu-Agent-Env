@@ -17,12 +17,14 @@ from ..utils import load_sprite, override
 
 class GameGUI(Behavior):
 	"""Simple game GUI with user inputs representing a player behavior"""
+	# images
+	screen = pygame.display.set_mode((800, 600))
+	background_image = load_sprite("ai_wars/img/Background.png", True)
+	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
+	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
 	def __init__(self):
 		self.clock = pygame.time.Clock()
-		self.screen = pygame.display.set_mode((800, 600))
-		self.background = load_sprite("ai_wars/img/Background.png", False)
-
 		# data structures that hold the game information
 		self.scoreboard = Scoreboard()
 		self.bullets: List[Bullet] = []  # list with all bullets in the game
@@ -110,7 +112,7 @@ class GameGUI(Behavior):
 		"""private method to draw the game"""
 
 		# draw the background
-		self.screen.blit(self.background, (0, 0))
+		self.screen.blit(self.background_image, (0, 0))
 
 		# rendering loop to draw all bullets
 		for bullet in self.bullets:
@@ -127,16 +129,13 @@ class GameGUI(Behavior):
 
 
 	def _spawn_spaceship(self, position: Vector2, direction: Vector2, name: str) -> None:
-		sprite = load_sprite("ai_wars/img/spaceship.png")
-		spaceship = Spaceship(position.x, position.y, sprite, self.bullets.append, self.screen, name)
+		spaceship = Spaceship(position.x, position.y, self.spaceship_image, self.bullet_image, \
+								self.bullets.append, self.screen, name)
 		spaceship.direction = direction
-
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 
 
 	def _spawn_bullet(self, position: Vector2, direction: Vector2, shooter: str) -> None:
-		sprite = load_sprite("ai_wars/img/bullet.png")
-		bullet = Bullet(position.x, position.y, sprite, direction, shooter)
-
+		bullet = Bullet(position.x, position.y, self.bullet_image, direction, shooter)
 		self.bullets.append(bullet)

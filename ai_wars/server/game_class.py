@@ -22,6 +22,11 @@ stop_threads = False
 
 class GameClass:
 	"""MainGameClass"""
+	# images
+	os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
+	screen = pygame.display.set_mode((800, 600))
+	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
+	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
 	# constants
 	FRAMERATE = 144
@@ -31,7 +36,6 @@ class GameClass:
 	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
 
 	def __init__(self, addr: str, port: int):
-		os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
 		pygame.init()
 		self.clock = pygame.time.Clock()
 		self.screen = pygame.display.set_mode((800, 600))
@@ -163,8 +167,8 @@ class GameClass:
 
 	def spawn_spaceship(self, x: int, y: int, name: str) -> None:
 		"""spawn a spaceship at the given position"""
-		sprite = load_sprite("ai_wars/img/spaceship.png")
-		spaceship = Spaceship(x, y, sprite, self.bullets.append, self.screen, name)
+		spaceship = Spaceship(x, y, self.spaceship_image, self.bullet_image, self.bullets.append, \
+							  self.screen, name)
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 		logging.debug("Spawned spaceship with name: %s at X:%s Y:%s", name, x, y)
