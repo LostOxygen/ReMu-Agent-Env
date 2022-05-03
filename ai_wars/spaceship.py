@@ -23,7 +23,7 @@ class Spaceship():
 				 screen: pygame.Surface, name: str):
 		self.x = x
 		self.y = y
-		self.spaceship_sprite = spaceship_sprite
+		self.spaceship_sprite = spaceship_sprite.copy()
 		self.bullet_sprite = bullet_sprite
 		self.height = spaceship_sprite.get_rect().height
 		self.width = spaceship_sprite.get_rect().width
