@@ -1,4 +1,5 @@
 import socket
+import logging
 from typing import Tuple
 
 from .layers.layer import Layer
@@ -39,7 +40,7 @@ class UdpServer:
 		'''
 
 		self.socket.bind((addr, port))
-		print(f"started server on addr:{addr} - port {port}")
+		logging.debug("Started server with addr: %s and port: %s", addr, port)
 
 	def send_to_all(self, data: any):
 		'''
@@ -105,5 +106,5 @@ class UdpServerBuilder:
 		Returns:
 			the server object
 		'''
-
+		logging.debug("Initialized UDP Server with buffer_size: %s", self.buffer_size)
 		return UdpServer(self.buffer_size, self.layers)

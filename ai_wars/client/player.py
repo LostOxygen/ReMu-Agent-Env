@@ -1,3 +1,4 @@
+import logging
 from .behavior import Behavior
 from ..networking.client import UdpClient
 from ..networking.layers.compression import GzipCompression
@@ -14,6 +15,7 @@ class Player:
 		self.addr = addr
 		self.port = port
 		self.behavior = behavior
+		logging.debug("Initialized player on addr: %s and port: %s", self.addr, self.port)
 
 	def change_behavior(self, new_behavior: Behavior):
 		'''
@@ -67,5 +69,5 @@ class PlayerFactory:
 		Returns:
 			a new player instance
 		'''
-
+		logging.debug("Created new player with name: %s", name)
 		return Player(self.addr, self.port, name, behavior)

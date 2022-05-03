@@ -4,6 +4,7 @@ import os
 import signal
 import pygame
 import threading
+import logging
 from typing import List, Dict
 
 from ..spaceship import Spaceship
@@ -29,12 +30,13 @@ class GameClass:
 	# pygame userevents use codes from 24 to 35, so the first user event will be 24
 	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
 
-	def __init__(self):
+
+	def __init__(self, addr: str, port: int):
 		os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
 		pygame.init()
 		self.clock = pygame.time.Clock()
 		self.screen = pygame.display.set_mode((800, 600))
-		self.background = load_sprite("ai_wars/img/Background.png", False)
+
 		# initialize the scoreboard and attach all players as observers
 		self.scoreboard = Scoreboard()
 		self.bullets: List[Bullet] = []  # list with all bullets in the game
@@ -44,8 +46,11 @@ class GameClass:
 		self.decrease_score_event = pygame.event.Event(self.DECREASE_SCORE_EVENT,
 												 message="decrease score")
 		pygame.time.set_timer(self.decrease_score_event, 1000)
+		logging.debug("Initialized server")
 
 		# initialize server
+		self.addr = addr
+		self.port = port
 		self.server = UdpServer.builder() \
 			.add_layer(GzipCompression()) \
 			.build()
@@ -60,6 +65,7 @@ class GameClass:
 		# start the server thread to receive packages
 		self.server_thread = threading.Thread(target=self.server_loop)
 		self.server_thread.start()
+		logging.debug("Data thread started")
 
 		# loop over the game loop
 		while not stop_threads:
@@ -72,7 +78,8 @@ class GameClass:
 
 	def server_loop(self) -> None:
 		"""server loop to handle receive modularity"""
-		self.server.start(addr="127.0.0.1", port=1337)
+		self.server.start(addr=self.addr, port=self.port)
+
 		while not stop_threads:
 			received_action = self.server.recv_next()
 			name, actions = deserialize_action(received_action)
@@ -94,6 +101,7 @@ class GameClass:
 			match event.type:
 				# check if the game should be closed
 				case pygame.QUIT:
+					logging.debug("Received Pygame.QUIT event")
 					self.thread_handler()
 					sys.exit()
 
@@ -101,6 +109,7 @@ class GameClass:
 				case self.DECREASE_SCORE_EVENT:
 					for ship in self.spaceships.values():
 						self.scoreboard.decrease_score(ship.name, 1)
+
 
 	def _apply_actions(self):
 		'''private method to applies all actions in the action buffer, then clears it'''
@@ -154,6 +163,7 @@ class GameClass:
 		spaceship = Spaceship(x, y, sprite, self.bullets.append, self.screen, name)
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
+		logging.debug("Spawned spaceship with name: %s at X:%s Y:%s", name, x, y)
 
 
 	def _publish_gamestate(self) -> None:
@@ -166,4 +176,4 @@ class GameClass:
 	def thread_handler(self, signum=None, frame=None):  # pylint: disable=unused-argument
 		global stop_threads
 		stop_threads = True
-		print("SIGINT or Quit Event received. Stopping client.")
+		logging.debug("Stopping server threads")
