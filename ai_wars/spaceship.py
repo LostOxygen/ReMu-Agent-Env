@@ -119,9 +119,6 @@ class Spaceship():
 		screen.blit(text_surface, (self.x - half_name_length * self.font_width,
 								   self.y-self.font_height*3))
 
-		# debug for drawing hitbox
-		pygame.draw.rect(screen, (0,255,0), self.hitbox)
-
 	def refresh_hitbox_coordinates(self) -> None:
 		# this is currently only a hotfix. For some reason self.x and self.y are not in the top
 		# left corner as it normally in pygame (and e.g. bullet class) but self.x and self.y give
