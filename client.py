@@ -22,7 +22,7 @@ if __name__ == "__main__":
 						format="%(asctime)-8s %(levelname)-8s %(message)s",
 						datefmt="%H:%M:%S")
 	else:
-		logging.basicConfig(level=logging.DEBUG,
+		logging.basicConfig(level=logging.CRITICAL,
 						format="%(asctime)-8s %(levelname)-8s %(message)s",
 						datefmt="%H:%M:%S")
 
