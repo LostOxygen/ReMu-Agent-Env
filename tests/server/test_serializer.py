@@ -15,6 +15,12 @@ class DummySprite(Sprite):
 	def get_rect(self):
 		return Rect(0, 0, 100, 100)
 
+	def copy(self):
+		return DummySprite()
+
+	def fill(self, color, special_flags=0):
+		pass
+
 class TestSerializer(unittest.TestCase):
 
 	# pylint: disable=protected-access
@@ -34,7 +40,7 @@ class TestSerializer(unittest.TestCase):
 			"direction": {"x": 1.5, "y": 0.1}
 		}
 
-		ship = Spaceship(5.0, 6.0, DummySprite(), None, None, "Dieter")
+		ship = Spaceship(5.0, 6.0, DummySprite(), None, None, None, "Dieter")
 		ship.direction = Vector2(1.5, 0.1)
 		actual = serializer._spaceship_as_dict(ship)
 
@@ -47,7 +53,7 @@ class TestSerializer(unittest.TestCase):
 			"direction": {"x": -1.0*Bullet.MOVEMENT_MULTIPLIER, "y": 0.0}
 		}
 
-		shooter = Spaceship(0, 0, DummySprite(), None, None, "Dieter")
+		shooter = Spaceship(0, 0, DummySprite(), None, None, None, "Dieter")
 		bullet = Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, 0.0), shooter)
 		actual = serializer._bullet_as_dict(bullet)
 
@@ -111,9 +117,9 @@ class TestSerializer(unittest.TestCase):
 			]
 		})
 
-		ship_dieter = Spaceship(5.0, 6.0, DummySprite(), None, None, "Dieter")
+		ship_dieter = Spaceship(5.0, 6.0, DummySprite(), None, None, None, "Dieter")
 		ship_dieter.direction = Vector2(1.5, 0.1)
-		ship_bernd = Spaceship(2.0, 8.0, DummySprite(), None, None, "Bernd")
+		ship_bernd = Spaceship(2.0, 8.0, DummySprite(), None, None, None, "Bernd")
 		ship_bernd.direction = Vector2(0.5, 12.0)
 		spaceships = [ship_dieter, ship_bernd]
 		bullets = [

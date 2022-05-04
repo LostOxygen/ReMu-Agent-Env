@@ -6,7 +6,7 @@ from pygame.math import Vector2
 
 from ai_wars.enums import EnumAction
 from ai_wars.bullet import Bullet
-from ai_wars.utils import load_sprite, clip_pos
+from ai_wars.utils import clip_pos
 
 UP = Vector2(0, -1)
 
