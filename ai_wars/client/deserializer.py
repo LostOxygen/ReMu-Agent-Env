@@ -5,7 +5,7 @@ from pygame.math import Vector2
 
 def deserialize_game_state(
 	json_string: str
-) -> Tuple[dict[str, any], dict[str, any], dict[str, int]]:
+) -> Tuple[list[str, any], list[str, any], dict[str, int]]:
 	'''
 	Deserializes the current game state from a json string.
 
@@ -16,7 +16,7 @@ def deserialize_game_state(
 		(
 			a list of players holding player_name (str), position (Vector2), direction (Vector2),
 			a list of projectiles holding owner (str), position (Vector2), direction (Vector2),
-			the scores of the players
+			a dictionary of the scores of the players {name, score}
 		)
 	'''
 

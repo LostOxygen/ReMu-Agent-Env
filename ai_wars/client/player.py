@@ -2,6 +2,7 @@ import logging
 from .behavior import Behavior
 from ..networking.client import UdpClient
 from ..networking.layers.compression import GzipCompression
+from ..dqn_utils import gamestate_to_tensor
 from .deserializer import deserialize_game_state
 from .serializer import serialize_action
 
@@ -43,6 +44,8 @@ class Player:
 		while True:
 			data_in = client.recv_next()
 			game_state = deserialize_game_state(data_in.decode())
+
+			gamestate_to_tensor(self.name, *game_state)
 
 			actions = self.behavior.make_move(*game_state)
 

@@ -36,8 +36,8 @@ class GameGUI(Behavior):
 
 	@override
 	def make_move(self,
-		players: dict[str, any],
-		projectiles: dict[str, any],
+		players: list[dict[str, any]],
+		projectiles: list[dict[str, any]],
 		scoreboard: dict[str, int]
 	) -> set[EnumAction]:
 		self._handle_events()
