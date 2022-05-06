@@ -99,7 +99,7 @@ class GameClass:
 				if name not in self.action_buffer:
 					self.action_buffer[name] = set()
 				self.action_buffer[name].update(actions)
-			except TimeoutError:
+			except (TimeoutError , ConnectionResetError):
 				pass
 
 
