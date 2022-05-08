@@ -1,5 +1,9 @@
 """library for DQN utilities and classes"""
+import os
 import torch
+from torch import nn
+
+from .models import DQNModel
 
 MAX_NUM_PROJECTILES = 128
 
@@ -60,3 +64,62 @@ def gamestate_to_tensor(
 			gamestate_tensor[i + len(players), 3] = projectile["direction"].y
 
 	return gamestate_tensor
+
+
+def save_model(model: nn.Sequential, path: str) -> None:
+	"""
+	Helper function to save a pytorch model to a specific path.
+
+	Arguments:
+		model: Pytorch Sequential Model
+		path:  Path-string where the model should be saved
+
+	Returns:
+		None
+	"""
+	# check if the path already exists, if not create it
+	if not os.path.exists(os.path.split(path)[0]):
+		os.mkdir(os.path.split(path)[0])
+
+	# extract the state_dict from the model to save it
+	model_state = {
+        "model": model.state_dict()
+    }
+
+	torch.save(model_state, path)
+
+
+def load_model(model_path: str, device: str) -> nn.Sequential:
+	"""
+	Helper function to load a model state from a specific path into a model and copy it onto a device
+
+	Arguments:
+		model_path:  Path-string where the model should be loaded from
+		device: device string
+
+	Returns:
+		model: Pytorch Sequential Model
+	"""
+	model = DQNModel()
+
+	model_state = torch.load(model_path, map_location=lambda storage, loc: storage)
+	model.load_state_dict(model_state["model"], strict=True)
+	model = model.to(device)
+
+	return model
+
+
+def get_model(device: str) -> nn.Sequential:
+	"""
+	Helper function to create a new model and copy it onto a specific device.
+
+	Arguments:
+		device: device string
+
+	Returns:
+		model: Pytorch Sequential Model
+	"""
+	model = DQNModel()
+	model = model.to(device)
+
+	return model
