@@ -57,7 +57,7 @@ def gamestate_to_tensor(
 	# a maximum of MAX_NUM_PROJECTILES can be stored, while the rest is ignored
 	# if there are less projectiles, the remaining indices stay filled with zeros
 	for i, projectile in enumerate(projectiles):
-		if i + len(players) < MAX_NUM_PROJECTILES:
+		if projectile["owner"] != own_name and i + len(players) < MAX_NUM_PROJECTILES:
 			gamestate_tensor[i + len(players), 0] = projectile["position"].x
 			gamestate_tensor[i + len(players), 1] = projectile["position"].y
 			gamestate_tensor[i + len(players), 2] = projectile["direction"].x
