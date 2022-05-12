@@ -6,6 +6,7 @@ from torch import nn
 from .models import DQNModel
 
 MAX_NUM_PROJECTILES = 128
+NUM_PLAYERS = 2
 
 def gamestate_to_tensor(
 		own_name: str,
@@ -28,7 +29,7 @@ def gamestate_to_tensor(
 		gamestate_tensor: the gamestate, converted to a torch.Tensor
 	"""
 	gamestate_tensor = torch.zeros(
-		size=(len(players) + MAX_NUM_PROJECTILES, 4),
+		size=(NUM_PLAYERS + MAX_NUM_PROJECTILES, 4),
 		dtype=torch.float32,
 		device=device
 	)
