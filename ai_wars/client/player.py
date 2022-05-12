@@ -5,6 +5,8 @@ from ..networking.layers.compression import GzipCompression
 from .deserializer import deserialize_game_state
 from .serializer import serialize_action
 
+from ..constants import CLIENT_BUFFER_SIZE
+
 class Player:
 	'''
 	Player of the game that performs a generic action after each game update.
@@ -33,7 +35,7 @@ class Player:
 		'''
 
 		client = UdpClient.builder() \
-			.with_buffer_size(10 * 1024) \
+			.with_buffer_size(CLIENT_BUFFER_SIZE) \
 			.add_layer(GzipCompression()) \
 			.build()
 

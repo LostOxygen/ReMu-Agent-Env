@@ -17,6 +17,13 @@ from .serializer import serialize_game_state
 from .deserializer import deserialize_action
 
 from ..utils import get_random_position, load_sprite
+from ..constants import (
+	SERVER_TICK_RATE,
+	POINTS_LOST_AFTER_GETTING_HIT,
+	POINTS_GAINED_AFTER_HITTING,
+	DECREASE_SCORE_EVENT,
+	SERVER_TIMEOUT
+)
 
 stop_threads = False
 
@@ -28,17 +35,9 @@ class GameClass:
 	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
 	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
-	# constants
-	FRAMERATE = 144
-	POINTS_LOST_AFTER_GETTING_HIT = 100
-	POINTS_GAINED_AFTER_HITTING = 200
-	# pygame userevents use codes from 24 to 35, so the first user event will be 24
-	DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
-
 	def __init__(self, addr: str, port: int):
 		pygame.init()
 		self.clock = pygame.time.Clock()
-		self.screen = pygame.display.set_mode((800, 600))
 		self.delta_time = 0
 
 		# initialize the scoreboard and attach all players as observers
@@ -47,7 +46,7 @@ class GameClass:
 		self.spaceships: Dict[Spaceship] = {}  # dict with every spaceship in the game
 
 		# initialize custom event timer
-		self.decrease_score_event = pygame.event.Event(self.DECREASE_SCORE_EVENT,
+		self.decrease_score_event = pygame.event.Event(DECREASE_SCORE_EVENT,
 												 message="decrease score")
 		pygame.time.set_timer(self.decrease_score_event, 1000)
 		logging.debug("Initialized server")
@@ -56,7 +55,7 @@ class GameClass:
 		self.addr = addr
 		self.port = port
 		self.server = UdpServer.builder() \
-			.with_timeout(1.0) \
+			.with_timeout(SERVER_TIMEOUT) \
 			.add_layer(GzipCompression()) \
 			.build()
 		self.action_buffer = {}
@@ -74,7 +73,7 @@ class GameClass:
 
 		# loop over the game loop
 		while not stop_threads:
-			self.delta_time = self.clock.tick(self.FRAMERATE) / 1000
+			self.delta_time = self.clock.tick(SERVER_TICK_RATE) / 1000
 			self._handle_events()
 			self._process_game_logic()
 			self._apply_actions()
@@ -114,7 +113,7 @@ class GameClass:
 					sys.exit()
 
 				# decrease the score of the players (event gets fired every second)
-				case self.DECREASE_SCORE_EVENT:
+				case self.decrease_score_event:
 					for ship in self.spaceships.values():
 						self.scoreboard.decrease_score(ship.name, 1)
 
@@ -155,9 +154,9 @@ class GameClass:
 					shooter_name = bullet.shooter.name
 					shot_name = ship.name
 					self.scoreboard.decrease_score(
-						shot_name, self.POINTS_LOST_AFTER_GETTING_HIT)
+						shot_name, POINTS_LOST_AFTER_GETTING_HIT)
 					self.scoreboard.increase_score(
-						shooter_name, self.POINTS_GAINED_AFTER_HITTING)
+						shooter_name, POINTS_GAINED_AFTER_HITTING)
 
 
 	def delete_bullet(self, bullet) -> None:
