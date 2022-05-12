@@ -115,9 +115,8 @@ def get_model(device: str, input_dim: int, output_dim: int, player_name: str) ->
 	if os.path.isfile(loading_path):
 		model_state = torch.load(loading_path, map_location=lambda storage, loc: storage)
 		model.load_state_dict(model_state["model"], strict=True)
-		model = model.to(device)
 		logging.debug("Loaded model from %s", loading_path)
 
-	logging.debug(summary(model, (input_dim,)))
+	logging.debug(summary(model, (input_dim,), device="cpu"))
 
 	return model.to(device)
