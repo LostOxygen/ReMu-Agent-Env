@@ -26,5 +26,5 @@ if __name__ == "__main__":
 						format="%(asctime)-8s %(levelname)-8s %(message)s",
 						datefmt="%H:%M:%S")
 
-	player = Player(args.name, args.addr, args.port, DqnBehavior(args.name, None))
+	player = Player(args.name, args.addr, args.port, DqnBehavior(args.name))
 	player.loop()
