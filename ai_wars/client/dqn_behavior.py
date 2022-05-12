@@ -15,7 +15,7 @@ class DqnBehavior(Behavior):
 		self.player_name = player_name
 
 		# model stuff
-		self.model = None
+		self.model = torch.nn.Sequential()
 		self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 		# training and state stuff
