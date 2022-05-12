@@ -1,20 +1,22 @@
 """library for DQN utilities and classes"""
 import os
+import logging
 import torch
 from torch import nn
+from torchsummary import summary
 
 from .models import DQNModel
 
+MODEL_PATH = ".models/"
 MAX_NUM_PROJECTILES = 128
 NUM_PLAYERS = 2
 
 def gamestate_to_tensor(
-		own_name: str,
-		players: list[dict[str, any]],
-		projectiles: list[dict[str, any]],
-    	scoreboard: dict[str, int], # pylint: disable=unused-argument
-		device: str = "cpu"
-	) -> torch.Tensor:
+	own_name: str,
+	players: list[dict[str, any]],
+	projectiles: list[dict[str, any]],
+	device: str = "cpu"
+) -> torch.Tensor:
 	"""
 	Converts the gamestate to a  torch.Tensor. The tensor consists out of 4-tuples
 	of the form (x, y, x_direction, y_direction) for every entity (like ships and bullets).
@@ -90,37 +92,32 @@ def save_model(model: nn.Sequential, path: str) -> None:
 	torch.save(model_state, path)
 
 
-def load_model(model_path: str, device: str) -> nn.Sequential:
-	"""
-	Helper function to load a model state from a specific path into a model and copy it onto a device
-
-	Arguments:
-		model_path:  Path-string where the model should be loaded from
-		device: device string
-
-	Returns:
-		model: Pytorch Sequential Model
-	"""
-	model = DQNModel()
-
-	model_state = torch.load(model_path, map_location=lambda storage, loc: storage)
-	model.load_state_dict(model_state["model"], strict=True)
-	model = model.to(device)
-
-	return model
-
-
-def get_model(device: str) -> nn.Sequential:
+def get_model(device: str, input_dim: int, output_dim: int, player_name: str) -> nn.Sequential:
 	"""
 	Helper function to create a new model and copy it onto a specific device.
 
 	Arguments:
 		device: device string
+		input_dim: input dimension of the model
+		output_dim: output dimension of the model
+		player_name: name of the network
 
 	Returns:
 		model: Pytorch Sequential Model
 	"""
-	model = DQNModel()
-	model = model.to(device)
+	loading_path = MODEL_PATH+player_name
 
-	return model
+	# create an empty new model
+	model = DQNModel(input_dim, output_dim)
+	logging.debug("Created new model")
+
+	# check if a model with the player_name already exists and load it
+	if os.path.isfile(loading_path):
+		model_state = torch.load(loading_path, map_location=lambda storage, loc: storage)
+		model.load_state_dict(model_state["model"], strict=True)
+		model = model.to(device)
+		logging.debug("Loaded model from %s", loading_path)
+
+	logging.debug(summary(model, (input_dim,)))
+
+	return model.to(device)
