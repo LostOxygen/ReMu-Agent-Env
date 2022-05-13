@@ -113,7 +113,7 @@ class GameClass:
 					sys.exit()
 
 				# decrease the score of the players (event gets fired every second)
-				case self.decrease_score_event:
+				case _ if event.type == DECREASE_SCORE_EVENT:
 					for ship in self.spaceships.values():
 						self.scoreboard.decrease_score(ship.name, 1)
 
