@@ -6,10 +6,11 @@ from torch import nn
 from torchsummary import summary
 
 from .models import DQNModel
-
-MODEL_PATH = ".models/"
-MAX_NUM_PROJECTILES = 128
-NUM_PLAYERS = 2
+from .constants import (
+	MODEL_PATH,
+	MAX_NUM_PROJECTILES,
+	NUM_PLAYERS
+)
 
 def gamestate_to_tensor(
 	own_name: str,
