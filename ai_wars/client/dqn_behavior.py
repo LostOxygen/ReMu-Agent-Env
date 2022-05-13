@@ -15,7 +15,7 @@ class DqnBehavior(Behavior):
 		self.player_name = player_name
 
 		# model stuff
-		self.model = torch.nn.Sequential()
+		self.model: torch.nn.Sequential = None
 		self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 		# training and state stuff
@@ -47,7 +47,7 @@ class DqnBehavior(Behavior):
 			self.model = get_model(self.device, len(gamestate_tensor), len(EnumAction), self.player_name)
 
 		# let the network predict (outputs an tensor with q-values for all actions)
-		prediction = self.model(gamestate_tensor)
+		prediction = self.model(gamestate_tensor) # pylint: disable=not-callable
 		predicted_action = EnumAction(prediction.argmax(0).item())
 
 		# save the current state and actions for the next iteration
