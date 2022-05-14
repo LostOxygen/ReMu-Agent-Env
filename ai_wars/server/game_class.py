@@ -35,6 +35,7 @@ class GameClass:
 	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
 	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
+
 	def __init__(self, addr: str, port: int):
 		pygame.init()
 		self.clock = pygame.time.Clock()
@@ -88,6 +89,9 @@ class GameClass:
 			try:
 				received_action = self.server.recv_next()
 				name, actions = deserialize_action(received_action)
+
+				if name == "spectator":
+					continue
 
 				# spawn spaceship at random position if necessary
 				if name not in self.spaceships:
