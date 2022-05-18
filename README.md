@@ -23,7 +23,7 @@ python server.py --addr "192.168.2.420" --port 1337 --verbose
 ## Client Usage:
 
 ```python
-python client.py [-h] [--name | -n NAME] [--addr | -a ADRESS] [--port | -p PORT] [--verbose | -v]
+python client.py [-h] [--name | -n NAME] [--addr | -a ADRESS] [--port | -p PORT] [--verbose | -v] |--spectate]
 ```
 example usage:
 ```python
@@ -38,3 +38,4 @@ python client.py --name "Dieter" --addr "192.168.2.420" --port 1337 --verbose
 | -p, --port | INT | specifies the port of the server on which the client tries to connect (default=1337) |
 | -v, --verbose | BOOL | flag to set the client to verbose (logging) mode |
 | -n, --name | STR | specifies the name of the player (it's ID) |
+| --spectate | BOOL | starts the client in spectator mode without a starship |
