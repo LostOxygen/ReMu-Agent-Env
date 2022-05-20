@@ -46,6 +46,7 @@ class GameClass:
 		# initialize custom event timer
 		self.decrease_score_event = pygame.event.Event(DECREASE_SCORE_EVENT,
 													   message="decrease score")
+
 		logging.debug("Initialized server")
 
 		# initialize server
