@@ -2,14 +2,17 @@
 import argparse
 import logging
 from ai_wars.server.game_class import GameClass
+from ai_wars.server.server_modus import Realtime, TrainingMode
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument("--port", "-p", help="specify port on which the server runs",
-                     type=int, default=1337)
+						type=int, default=1337)
 	parser.add_argument("--addr", "-a", help="specify the network address on which the server runs",
-	                    type=str, default="127.0.0.1")
+						type=str, default="127.0.0.1")
+	parser.add_argument("--training_mode", help="Sets the server to training mode which updates"
+						"once all clients provide their action", action="store_true")
 	parser.add_argument("--verbose", "-v", help="enable logging mode for the server",
 	                    action="store_true", default=False)
 	args = parser.parse_args()
@@ -23,5 +26,6 @@ if __name__ == "__main__":
 						format="%(asctime)-8s %(levelname)-8s %(message)s",
 						datefmt="%H:%M:%S")
 
-	server = GameClass(addr=args.addr, port=args.port)
-	server.main_loop()
+	mode = TrainingMode() if args.training_mode else Realtime()
+	server = GameClass(mode, addr=args.addr, port=args.port)
+	server.loop()
