@@ -18,6 +18,7 @@ python server.py --addr "192.168.2.420" --port 1337 --verbose
 | -h, --help | None| shows argument help message |
 | -a, --addr | STR | specifies the address of the server (default=localhost) |
 | -p, --port | INT | specifies the port of the server (default=1337) |
+| --training_mode | BOOL | sets the server to training mode which updates once all clients provide their action |
 | -v, --verbose | BOOL | flag to set the server to verbose mode |
 #
 ## Client Usage:
