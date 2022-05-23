@@ -58,5 +58,5 @@ python network.py --name "model" --n_models 20 --verbose
 | -a, --addr | STR | specifies the address of the server on which the model tries to  connect(default=localhost) |
 | -p, --port | INT | specifies the port of the server on which the model tries to connect (default=1337) |
 | -v, --verbose | BOOL | flag to set the model to verbose (logging) mode |
-| -n, --name | LIST[ STR ] | specifies the name of the model. Allows multiple strings to spawn and train multiple models with the chosen names simultaneously |
-| -nm, --n_models | INT | trains N models simultaneously. They will be named with --name as a prefix and _N as a suffix |
+| -n, --name | STR | specifies the name of the model |
+| -m, --model_type | STR | type of the model (e.g. "linear" or "lstm") |

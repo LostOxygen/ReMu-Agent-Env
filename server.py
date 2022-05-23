@@ -11,7 +11,7 @@ if __name__ == "__main__":
 						type=int, default=1337)
 	parser.add_argument("--addr", "-a", help="specify the network address on which the server runs",
 						type=str, default="127.0.0.1")
-	parser.add_argument("--training_mode", help="Sets the server to training mode which updates"
+	parser.add_argument("--training_mode", help="sets the server to training mode which updates "
 						"once all clients provide their action", action="store_true")
 	parser.add_argument("--verbose", "-v", help="enable logging mode for the server",
 	                    action="store_true", default=False)
