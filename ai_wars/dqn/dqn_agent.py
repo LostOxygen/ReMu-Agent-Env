@@ -11,6 +11,16 @@ from ..enums import EnumAction
 from .dqn_utils import get_model_linear, get_model_lstm, save_model
 from .replay_memory import ReplayMemory, Transition
 
+from ..constants import (
+    MEMORY_SIZE,
+    BATCH_SIZE,
+    GAMMA,
+    EPS_START,
+    EPS_END,
+    DECAY_FACTOR,
+   	LSTM_SEQUENCE_SIZE
+)
+
 
 class AgentNotFoundException(Exception):
 
@@ -37,14 +47,6 @@ class Agent(abc.ABC):
 	Abstract DQN agent.
 	'''
 
-	MEMORY_SIZE = 10000
-	BATCH_SIZE = 64
-
-	GAMMA = 0.999
-	EPS_START = 0.9
-	EPS_END = 0.05
-	DECAY_FACTOR = 0.99995
-
 	def __init__(self,
 		device: str,
 		model_name: str,
@@ -65,11 +67,11 @@ class Agent(abc.ABC):
 		self.policy_network = load_model(device, input_dim, model_name)
 		self.target_network = deepcopy(self.policy_network)
 
-		self.memory = ReplayMemory(self.MEMORY_SIZE)
+		self.memory = ReplayMemory(MEMORY_SIZE)
 		self.optimizer = torch.optim.RMSprop(self.policy_network.parameters())
 
 		self.current_episode = 1
-		self.eps = self.EPS_START
+		self.eps = EPS_START
 
 
 	def apply_training_step(self, state: torch.tensor, reward: int, action: EnumAction):
@@ -91,8 +93,8 @@ class Agent(abc.ABC):
 
 		self.update_replay_memory(state, reward, action)
 
-		if len(self.memory) >= self.BATCH_SIZE:
-			transitions = self.memory.sample(self.BATCH_SIZE)
+		if len(self.memory) >= BATCH_SIZE:
+			transitions = self.memory.sample(BATCH_SIZE)
 			batch = Transition(*zip(*transitions))
 
 			state_batch = torch.stack(batch.state)
@@ -102,7 +104,7 @@ class Agent(abc.ABC):
 			state_action_values = self.policy_network(state_batch).gather(1, action_batch)
 
 			next_state_values = self.target_network(state_batch).max(1)[0].detach()
-			expected_state_action_values = (next_state_values * self.GAMMA) + reward_batch
+			expected_state_action_values = (next_state_values * GAMMA) + reward_batch
 
 			max_q_value = expected_state_action_values.max()
 
@@ -116,7 +118,7 @@ class Agent(abc.ABC):
 				param.grad.data.clamp_(-1, 1)
 			self.optimizer.step()
 
-			self.eps = max(self.EPS_END, self.DECAY_FACTOR * self.eps)
+			self.eps = max(EPS_END, DECAY_FACTOR * self.eps)
 		else:
 			loss = float("inf")
 			max_q_value = float("inf")
@@ -224,8 +226,6 @@ class LSTMAgent(Agent):
 	Implementation of a DQN agent that uses a LSTM network.
 	'''
 
-	SEQUENCE_SIZE = 32
-
 	def __init__(self,
 		device: str,
 		model_name: str,
@@ -238,17 +238,17 @@ class LSTMAgent(Agent):
 		self.num_episodes = num_episodes
 		self.episodes_per_update = episodes_per_update
 
-		self.sequence_queue = deque(maxlen=self.SEQUENCE_SIZE)
-		self.last_sequence = torch.zeros((self.SEQUENCE_SIZE, input_dim)).to(self.device)
+		self.sequence_queue = deque(maxlen=LSTM_SEQUENCE_SIZE)
+		self.last_sequence = torch.zeros((LSTM_SEQUENCE_SIZE, input_dim)).to(self.device)
 
 	def _load_model(self, device, input_dim, model_name):
-		return get_model_lstm(device, input_dim, self.SEQUENCE_SIZE, len(EnumAction), model_name)
+		return get_model_lstm(device, input_dim, LSTM_SEQUENCE_SIZE, len(EnumAction), model_name)
 
 	@override
 	def select_action(self, state):
 		sample = random.random()
 
-		if len(self.sequence_queue) >= self.SEQUENCE_SIZE and sample > self.eps:
+		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE and sample > self.eps:
 			with torch.no_grad():
 				prev_states = list(self.sequence_queue)[1:]
 				prev_states.append(state)
@@ -262,8 +262,8 @@ class LSTMAgent(Agent):
 		return EnumAction(pred)
 
 	@override
-	def update_replay_memory(self, state, reward, action):
-		if len(self.sequence_queue) >= self.SEQUENCE_SIZE:
+	def update_replay_memory(self, state, reward, action): # pylint: disable=unused-argument
+		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE:
 			sequence = torch.stack(list(self.sequence_queue))
 			self.memory.push(Transition(self.last_sequence, action.value, sequence, reward))
 			self.last_sequence = sequence
