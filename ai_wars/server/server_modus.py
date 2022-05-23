@@ -2,6 +2,7 @@ import logging
 import abc
 import signal
 import threading
+from typing import Any
 import pygame
 
 from ..constants import SERVER_TICK_RATE
@@ -9,6 +10,9 @@ from ..utils import override
 
 
 class ServerModus(abc.ABC):
+	'''
+	Abstract server modus class.
+	'''
 
 	@abc.abstractmethod
 	def start(self, game):
@@ -49,7 +53,7 @@ class Realtime:
 
 		# start the update loop of the game
 		threading.Thread(target=self.update_loop).start()
-		logging.debug("game tick thread started")
+		logging.debug("Game tick thread started")
 
 	def update_loop(self) -> None:
 		"""main loop for input handling, game logic and rendering"""
@@ -58,7 +62,7 @@ class Realtime:
 			delta_time = self.clock.tick(SERVER_TICK_RATE) / 1000
 			self.game.update_game(delta_time)
 
-	def thread_handler(self, _signum, _frame):
+	def thread_handler(self, signum: Any, frame: Any) -> None:  # pylint: disable=unused-argument
 		self.game.running = False
 		logging.debug("Stopping server threads")
 
