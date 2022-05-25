@@ -7,6 +7,7 @@ from pygame.sprite import Sprite
 from pygame.math import Vector2
 from ai_wars.spaceship import Spaceship
 from ai_wars.bullet import Bullet
+from ai_wars.constants import BULLET_SPEED
 
 from ai_wars.server import serializer
 
@@ -50,7 +51,7 @@ class TestSerializer(unittest.TestCase):
 		expected = {
 			"owner": "Dieter",
 			"position": {"x": 5.0, "y": 6.0},
-			"direction": {"x": -1.0*Bullet.MOVEMENT_MULTIPLIER, "y": 0.0}
+			"direction": {"x": -1.0*BULLET_SPEED, "y": 0.0}
 		}
 
 		shooter = Spaceship(0, 0, DummySprite(), None, None, None, "Dieter")
@@ -97,12 +98,12 @@ class TestSerializer(unittest.TestCase):
 				{
 					"owner": "Dieter",
 					"position": {"x": 5.0, "y": 6.0},
-					"direction": {"x": -1.0*Bullet.MOVEMENT_MULTIPLIER, "y": 0.0}
+					"direction": {"x": -1.0*BULLET_SPEED, "y": 0.0}
 				},
 				{
 					"owner": "Dieter",
 					"position": {"x": 8.0, "y": 8.0},
-					"direction": {"x": 0.0, "y": 1.0*Bullet.MOVEMENT_MULTIPLIER}
+					"direction": {"x": 0.0, "y": 1.0*BULLET_SPEED}
 				}
 			],
 			"scoreboard": [
