@@ -7,16 +7,18 @@ from pygame.math import Vector2
 from ai_wars.enums import EnumAction
 from ai_wars.bullet import Bullet
 from ai_wars.utils import clip_pos
+from ai_wars.constants import (
+    SHOOT_COOLDOWN,
+    SHIP_SPEED,
+    ROTATION_SPEED
+)
+
 
 UP = Vector2(0, -1)
 
 
 class Spaceship():
 	"""spaceship class with functions for moving, drawing and shooting"""
-	# constants
-	SHOOT_COOLDOWN = 200 # specifies the cooldown for shooting in ms
-	MOVEMENT_MULTIPLIER = 200.0
-	ROTATION_MULTIPLIER = 300.0
 
 	def __init__(self, x: int, y: int, spaceship_sprite: pygame.sprite.Sprite, bullet_sprite:
 				 pygame.sprite.Sprite, bullet_append_func: Callable[[Bullet], None], \
@@ -53,8 +55,8 @@ class Spaceship():
 		"""public method to move the ship in the direction of the action"""
 		match action:
 			case EnumAction.FORWARD:
-				new_position_x = self.x + self.direction.x * self.MOVEMENT_MULTIPLIER * delta_time
-				new_position_y = self.y + self.direction.y * self.MOVEMENT_MULTIPLIER * delta_time
+				new_position_x = self.x + self.direction.x * SHIP_SPEED * delta_time
+				new_position_y = self.y + self.direction.y * SHIP_SPEED * delta_time
 				# correct the position at the end of an action to stay within the screen bounds
 				valid_pos_x = clip_pos(new_position_x, 0, self.screen.get_width())
 				valid_pos_y = clip_pos(new_position_y, 0, self.screen.get_height())
@@ -66,8 +68,8 @@ class Spaceship():
 				self.refresh_hitbox_coordinates()
 
 			case EnumAction.BACKWARD:
-				new_position_x = self.x - self.direction.x * self.MOVEMENT_MULTIPLIER * delta_time
-				new_position_y = self.y - self.direction.y * self.MOVEMENT_MULTIPLIER * delta_time
+				new_position_x = self.x - self.direction.x * SHIP_SPEED * delta_time
+				new_position_y = self.y - self.direction.y * SHIP_SPEED * delta_time
 				# correct the position at the end of an action to stay within the screen bounds
 				valid_pos_x = clip_pos(new_position_x, 0, self.screen.get_width())
 				valid_pos_y = clip_pos(new_position_y, 0, self.screen.get_height())
@@ -85,7 +87,7 @@ class Spaceship():
 
 			case EnumAction.SHOOT:
 				# implementation of shooting cooldown, hence limits the bullets that can be shot
-				if pygame.time.get_ticks()-self.last_action_time >= self.SHOOT_COOLDOWN:
+				if pygame.time.get_ticks()-self.last_action_time >= SHOOT_COOLDOWN:
 					self._shoot()
 					self.last_action_time = pygame.time.get_ticks()
 
@@ -99,7 +101,7 @@ class Spaceship():
 		"""public method to rotate the ship in clockwise direction"""
 		# rotate the direction vector
 		sign = 1 if clockwise else -1
-		angle = self.ROTATION_MULTIPLIER * sign * delta_time
+		angle = ROTATION_SPEED * sign * delta_time
 		self.direction.rotate_ip(angle)
 
 	def draw(self, screen: pygame.Surface) -> None:

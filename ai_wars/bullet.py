@@ -2,11 +2,10 @@
 import pygame
 from pygame.math import Vector2
 
+from ai_wars.constants import BULLET_SPEED
 
 class Bullet():
 	"""Bullet class with functions for moving and drawing"""
-	# constants
-	MOVEMENT_MULTIPLIER = 400.0
 
 	def __init__(self, x: int, y: int, sprite: pygame.Surface, direction: Vector2, shooter):
 		self.x = x
@@ -14,7 +13,7 @@ class Bullet():
 		self.sprite = sprite
 		self.height = sprite.get_rect().height
 		self.width = sprite.get_rect().width
-		self.velocity = direction.normalize() * self.MOVEMENT_MULTIPLIER
+		self.velocity = direction.normalize() * BULLET_SPEED
 		# hitbox
 		self.hitbox = self.sprite.get_rect()
 		self.refresh_hitbox_coordinates()

@@ -3,7 +3,8 @@ from __future__ import annotations
 # from abc import ABC, abstractmethod
 from typing import List, Dict
 
-from .utils import clip
+from ai_wars.utils import clip
+from ai_wars.constants import START_SCORE
 import pygame
 
 
@@ -37,8 +38,6 @@ import pygame
 
 class Scoreboard():
 	"""The Scoreboard subject notifies observers when the state changes."""
-
-	START_SCORE = 1000 # start score of every player
 	_observers: List = []
 	_scoreboard_dict: Dict[str, int] = {}
 
@@ -52,7 +51,7 @@ class Scoreboard():
 
 	def attach(self, observer) -> None:
 		self._observers.append(observer)
-		self._scoreboard_dict[observer.name] = self.START_SCORE
+		self._scoreboard_dict[observer.name] = START_SCORE
 
 
 	def detach(self, observer) -> None:

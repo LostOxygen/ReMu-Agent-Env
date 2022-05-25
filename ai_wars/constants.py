@@ -1,6 +1,13 @@
 """library file to provide constants to get rid of magic numbers"""
 import pygame
 
+# Game constants
+BULLET_SPEED = 1000000.0
+SHOOT_COOLDOWN = 200  # specifies the cooldown for shooting in ms
+SHIP_SPEED = 200.0
+ROTATION_SPEED = 300.0
+START_SCORE = 1000  # start score of every player
+
 # Server constants
 SERVER_TICK_RATE = 30
 SERVER_TIMEOUT = 1.0
