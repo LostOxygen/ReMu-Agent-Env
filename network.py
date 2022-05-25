@@ -11,9 +11,9 @@ from ai_wars.client.player import Player
 from ai_wars.dqn.dqn_behavior import DqnBehavior
 
 
-def spawn_network(model_name: str, addr: str, port: int, model_type: str, device: str) -> None:
+def spawn_network(model_name: str, addr: str, port: int, model_type: str, device_str: str) -> None:
 	"""spawn a network player"""
-	player = Player(model_name, addr, port, DqnBehavior(model_name, model_type, device))
+	player = Player(model_name, addr, port, DqnBehavior(model_name, model_type, device_str))
 	player.loop()
 
 
