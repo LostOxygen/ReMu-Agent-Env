@@ -2,7 +2,7 @@
 import pygame
 
 # Game constants
-BULLET_SPEED = 1000000.0
+BULLET_SPEED = 400.0
 SHOOT_COOLDOWN = 200  # specifies the cooldown for shooting in ms
 SHIP_SPEED = 200.0
 ROTATION_SPEED = 300.0
