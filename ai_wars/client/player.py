@@ -29,7 +29,7 @@ class Player:
 
 		self.behavior = new_behavior
 
-	def loop(self):
+	def loop(self, is_done):
 		'''
 		Connects the player to the server and let it play the given with its configured behavior.
 		'''
@@ -42,7 +42,7 @@ class Player:
 		client.connect(self.addr, self.port)
 		client.send(serialize_action(self.name, []).encode())
 
-		while True:
+		while not is_done():
 			data_in = client.recv_next()
 			game_state = deserialize_game_state(data_in.decode())
 

@@ -1,9 +1,10 @@
 """main hook to start the game"""
 import argparse
-import multiprocessing
 import socket
 import datetime
 import os
+import signal
+import threading
 import logging
 import torch
 
@@ -11,16 +12,20 @@ from ai_wars.client.player import Player
 from ai_wars.dqn.dqn_behavior import DqnBehavior
 
 
-def spawn_network(model_name: str, addr: str, port: int, model_type: str, device_str: str) -> None:
-	"""spawn a network player"""
-	player = Player(model_name, addr, port, DqnBehavior(model_name, model_type, device_str))
-	player.loop()
+should_exit = False
+
+def handler(_signum, _frame):
+	global should_exit
+	should_exit = True
+
+def is_should_exit():
+	return should_exit
 
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--name", "-n", help="specify the player name to connect with",
-						nargs="+", type=str, required=True)
+						type=str, required=True)
 	parser.add_argument("--port", "-p", help="specify port on which the client connects",
 						type=int, default=1337)
 	parser.add_argument("--addr", "-a", help="specify the network addr. on which the client connects",
@@ -29,10 +34,10 @@ if __name__ == "__main__":
 						action="store_true", default=False)
 	parser.add_argument("--model_type", "-m", help="Specify the model type ('linear' or 'lstm')",
 						type=str, required=True)
-	parser.add_argument("--device", "-d", help="Specify the device for the computations",
-                     	type=str, default="cuda:0")
 	parser.add_argument("--n_models", "-rm", help="spawns N models simultaneously",
-                     	type=int, default=1)
+						type=int, default=1)
+	parser.add_argument("--device", "-d", help="Specify the device for the computations",
+						type=str, default="cuda:0")
 
 	args = parser.parse_args()
 
@@ -57,16 +62,23 @@ if __name__ == "__main__":
 	)
 	logging.info("Using device: %s", device)
 
+	signal.signal(signal.SIGINT, handler)
+
 	if args.n_models > 1:
+		handles = []
 		for i in range(args.n_models):
-			name = f"{args.name[0]}_{i}"
+			name = f"{args.name}_{i}"
 			logging.info("Spawning model with name: %s", name)
-			model_thread = multiprocessing.Process(target=spawn_network,
-                                        args=(name, args.addr, args.port, args.model_type, device))
-			model_thread.start()
+
+			player = Player(name, args.addr, args.port, DqnBehavior(name, args.model_type, device))
+			handles.append(threading.Thread(target=player.loop, args=(is_should_exit, )))
+
+		for handle in handles:
+			handle.start()
+
+		for handle in handles:
+			handle.join()
 	else:
-		for name in args.name:
-			logging.info("Spawning model with name: %s", name)
-			model_thread = multiprocessing.Process(target=spawn_network,
-                                        args=(name, args.addr, args.port, args.model_type, device))
-			model_thread.start()
+		logging.info("Spawning model with name: %s", args.name)
+		player = Player(args.name, args.addr, args.port, DqnBehavior(args.name, args.model_type, device))
+		player.loop(is_should_exit)
