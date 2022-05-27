@@ -85,12 +85,11 @@ class TrainingMode:
 
 	@override
 	def received_input(self, hit_timeout: bool):
-		self.frame += 1
-
 		# fire decrease score event if one game second has passed
 		if (self.frame * SERVER_TICK_RATE) % 1000 < SERVER_TICK_RATE:
 			pygame.event.post(self.game.decrease_score_event)
 
 		# update game state if all clients submitted their action
 		if hit_timeout or self.game.spaceships.keys() == self.game.action_buffer.keys():
+			self.frame += 1
 			self.game.update_game(1/SERVER_TICK_RATE)
