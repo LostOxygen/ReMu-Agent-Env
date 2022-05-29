@@ -26,9 +26,12 @@ class ServerModus(abc.ABC):
 		pass
 
 	@abc.abstractmethod
-	def received_input(self):
+	def received_input(self, hit_timeout: bool):
 		'''
-		Called everytime a new input is received from a client.
+		Called every time a new input is received from a client.
+
+		Parameters:
+			hit_timeout: whether a socket read timeout was triggered
 		'''
 
 		pass
@@ -67,7 +70,7 @@ class Realtime:
 		logging.debug("Stopping server threads")
 
 	@override
-	def received_input(self):
+	def received_input(self, hit_timeout: bool):
 		pass
 
 class TrainingMode:
@@ -81,13 +84,12 @@ class TrainingMode:
 		self.frame = 0
 
 	@override
-	def received_input(self):
-		self.frame += 1
-
+	def received_input(self, hit_timeout: bool):
 		# fire decrease score event if one game second has passed
 		if (self.frame * SERVER_TICK_RATE) % 1000 < SERVER_TICK_RATE:
 			pygame.event.post(self.game.decrease_score_event)
 
 		# update game state if all clients submitted their action
-		if self.game.spaceships.keys() == self.game.action_buffer.keys():
+		if hit_timeout or self.game.spaceships.keys() == self.game.action_buffer.keys():
+			self.frame += 1
 			self.game.update_game(1/SERVER_TICK_RATE)

@@ -74,6 +74,7 @@ class GameClass:
 		self.modus.start(self)
 
 		while self.running:
+			hit_timeout = False
 			try:
 				received_action = self.server.recv_next()
 				name, actions = deserialize_action(received_action)
@@ -91,9 +92,9 @@ class GameClass:
 					self.action_buffer[name] = set()
 				self.action_buffer[name].update(actions)
 			except (TimeoutError , ConnectionResetError):
-				pass
+				hit_timeout = True
 
-			self.modus.received_input()
+			self.modus.received_input(hit_timeout)
 
 
 	def _handle_events(self) -> None:
