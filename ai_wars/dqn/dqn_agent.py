@@ -8,7 +8,7 @@ from ..utils import override
 
 from ..enums import EnumAction
 
-from .dqn_utils import get_model_linear, get_model_lstm, save_model
+from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn, save_model
 from .replay_memory import ReplayMemory, Transition
 
 from ..constants import (
@@ -39,6 +39,8 @@ def get_agent(agent_name: str, device: str, model_name: str, input_dim: int):
 			return LinearAgent(device, model_name, input_dim)
 		case "lstm":
 			return LSTMAgent(device, model_name, input_dim)
+		case "cnn":
+			return CNNAgent(device, model_name, input_dim)
 
 	raise AgentNotFoundException(agent_name)
 
@@ -120,8 +122,8 @@ class Agent(abc.ABC):
 
 			self.eps = max(EPS_END, DECAY_FACTOR * self.eps)
 		else:
-			loss = float("inf")
-			max_q_value = float("inf")
+			loss = 0
+			max_q_value = 0
 
 		if self.current_episode % self.episodes_per_update == 0:
 			self._update_target_network()
@@ -221,6 +223,7 @@ class LinearAgent(Agent):
 	def post_step(self, state):
 		self.last_state = state
 
+
 class LSTMAgent(Agent):
 	'''
 	Implementation of a DQN agent that uses a LSTM network.
@@ -271,3 +274,50 @@ class LSTMAgent(Agent):
 	@override
 	def post_step(self, state):
 		self.sequence_queue.append(state)
+
+
+class CNNAgent(Agent):
+	'''
+	Implementation of a DQN agent that uses a cnn network.
+	'''
+
+	def __init__(self,
+              device: str,
+              model_name: str,
+              input_dim: int,
+              num_episodes=0,
+              episodes_per_update=1000
+              ):
+		super().__init__(device, model_name, input_dim, self._load_model)
+
+		self.num_episodes = num_episodes
+		self.episodes_per_update = episodes_per_update
+
+		self.last_state = None
+
+	def _load_model(self, device, input_dim, model_name):
+		return get_model_cnn(device, input_dim, len(EnumAction), model_name)
+
+	@override
+	def select_action(self, state):
+		sample = random.random()
+
+		if sample > self.eps:
+			with torch.no_grad():
+				pred = int(self.policy_network(state).argmax())
+		else:
+			pred = random.randrange(len(EnumAction))
+
+		if pred not in range(len(EnumAction)):
+			return None
+		return EnumAction(pred)
+
+	@override
+	def update_replay_memory(self, state, reward, action):
+		if self.last_state is None:
+			self.last_state = torch.zeros(state.shape).to(self.device)
+		self.memory.push(Transition(self.last_state, action.value, state, reward))
+
+	@override
+	def post_step(self, state):
+		self.last_state = state

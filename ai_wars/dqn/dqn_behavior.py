@@ -1,7 +1,7 @@
 from ..enums import EnumAction
 
 from ..client.behavior import Behavior
-from ..utils import override
+from ..utils import override, surface_to_array
 
 from .dqn_utils import gamestate_to_tensor
 from .dqn_agent import get_agent
@@ -13,6 +13,9 @@ class DqnBehavior(Behavior):
 		self.player_name = player_name
 		self.agent_name = agent_name
 		self.device = device
+
+		self.steps_done = 0
+		self.running_loss = 0
 
 		self.optimizer = None
 
@@ -29,8 +32,8 @@ class DqnBehavior(Behavior):
 		reward = new_score - self.last_score
 
 		# prepare the gamestate for the model
-		gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device) \
-			.flatten()
+		gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
+		gamestate_tensor = gamestate_tensor.flatten()
 
 		# check if the model is already loaded, if not load it
 		if self.optimizer is None:
@@ -45,7 +48,10 @@ class DqnBehavior(Behavior):
 		# run the next training step
 		loss, eps, max_q_value = self.optimizer.apply_training_step(gamestate_tensor, reward,
 																	predicted_action)
-		print(f"loss: {loss:8.2f}\teps: {eps:8.2f}\tmax q value: {max_q_value:8.2f}", end="\r")
+		self.steps_done += 1
+		self.running_loss += loss
+		print(f"loss: {(self.running_loss/self.steps_done):8.2f}\teps: {eps:8.2f} "\
+			  f"\tmax q value: {max_q_value:8.2f}\tsteps: {self.steps_done}", end="\r")
 
 		# save the current state and actions for the next iteration
 		self.last_score = new_score

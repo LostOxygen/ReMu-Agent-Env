@@ -10,7 +10,7 @@ from ..constants import (
 	MAX_NUM_PROJECTILES,
 	NUM_PLAYERS
 )
-from .dqn_models import DQNModelLinear, DQNModelLSTM
+from .dqn_models import DQNModelLinear, DQNModelLSTM, DQNModelCNN
 
 def gamestate_to_tensor(
 	own_name: str,
@@ -67,7 +67,8 @@ def gamestate_to_tensor(
 			gamestate_tensor[i + len(players), 2] = projectile["direction"].x
 			gamestate_tensor[i + len(players), 3] = projectile["direction"].y
 
-	return torch.round(gamestate_tensor, decimals=-1)
+	#return torch.round(gamestate_tensor, decimals=-1)
+	return gamestate_tensor
 
 
 def save_model(model: nn.Sequential, name: str) -> None:
@@ -96,6 +97,7 @@ def save_model(model: nn.Sequential, name: str) -> None:
 
 	logging.info("Saved target network with name %s", name)
 
+
 def get_model_linear(device: str, input_dim: int, output_dim: int, player_name: str) -> nn.Module:
 	"""
 	Helper function to create a new model and copy it onto a specific device.
@@ -113,7 +115,7 @@ def get_model_linear(device: str, input_dim: int, output_dim: int, player_name: 
 
 	# create an empty new model
 	model = DQNModelLinear(input_dim, output_dim)
-	logging.debug("Created new model")
+	logging.debug("Created new model on %s", device)
 
 	# check if a model with the player_name already exists and load it
 	if os.path.isfile(loading_path):
@@ -124,6 +126,38 @@ def get_model_linear(device: str, input_dim: int, output_dim: int, player_name: 
 	logging.debug(summary(model, (input_dim,), device="cpu"))
 
 	return model.to(device)
+
+
+def get_model_cnn(device: str, input_dim: int, output_dim: int, player_name: str) -> nn.Module:
+	"""
+	Helper function to create a new model and copy it onto a specific device.
+
+	Arguments:
+		device: device string
+		input_dim: input dimension of the model
+		output_dim: output dimension of the model
+		player_name: name of the network
+
+	Returns:
+		model: Pytorch Sequential Model
+	"""
+	loading_path = MODEL_PATH+player_name
+
+	# create an empty new model
+	model = DQNModelCNN(input_dim, output_dim)
+	logging.debug("Created new model on %s", device)
+
+	# check if a model with the player_name already exists and load it
+	if os.path.isfile(loading_path):
+		model_state = torch.load(
+			loading_path, map_location=lambda storage, loc: storage)
+		model.load_state_dict(model_state["model"], strict=True)
+		logging.debug("Loaded model from %s", loading_path)
+
+	logging.debug(summary(model, (input_dim,), device="cpu"))
+
+	return model.to(device)
+
 
 def get_model_lstm(device: str, num_features: int, sequence_length: int, output_dim: int, player_name: str) -> nn.Module:
 	"""
@@ -142,7 +176,7 @@ def get_model_lstm(device: str, num_features: int, sequence_length: int, output_
 
 	# create an empty new model
 	model = DQNModelLSTM(num_features, sequence_length, output_dim)
-	logging.debug("Created new model")
+	logging.debug("Created new model on %s", device)
 
 	# check if a model with the player_name already exists and load it
 	if os.path.isfile(loading_path):
