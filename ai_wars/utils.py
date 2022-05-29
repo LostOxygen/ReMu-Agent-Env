@@ -2,6 +2,7 @@
 import random
 from typing import Tuple
 
+import torch
 import pygame
 from pygame.image import load
 from pygame.math import Vector2
@@ -46,3 +47,10 @@ def clip_pos(coord: int, min_value: int, max_value: int) -> int:
 def override(func):
 	'''simple annotation to indicate that a functions overrides an abstract method of its parent'''
 	return func
+
+
+def surface_to_array(surface: pygame.Surface) -> torch.tensor:
+	"""returns the surface as a pytorch array of dimension (channels, height, width)"""
+	img = torch.tensor(pygame.surfarray.array3d(surface))
+	img = img.permute(2, 1, 0) # swap axes to the pytorch order
+	return img
