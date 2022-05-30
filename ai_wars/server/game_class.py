@@ -6,6 +6,7 @@ import logging
 from typing import List, Dict
 
 from .server_modus import ServerModus
+from pygame.math import Vector2
 
 from ..spaceship import Spaceship
 from ..scoreboard import Scoreboard
@@ -123,7 +124,8 @@ class GameClass:
 
 
 	def _process_game_logic(self, delta_time) -> None:
-		"""private method to process game logic"""
+		print("hi")
+		"""private method to process game logic
 		# loop over every bullet and update its position
 		for bullet in self.bullets:
 			bullet.move(delta_time)
@@ -152,6 +154,29 @@ class GameClass:
 						shot_name, POINTS_LOST_AFTER_GETTING_HIT)
 					self.scoreboard.increase_score(
 						shooter_name, POINTS_GAINED_AFTER_HITTING)
+
+		"""
+		for spaceship in self.spaceships.values():
+			renderHelperList = []
+			for bullet in self.bullets:
+				if(bullet.shooter == spaceship):
+					bulletPosition = Vector2(spaceship.x, spaceship.y)
+					hitscanHelperBullets = [bullet]
+					for i in range(100):
+						helperBullet = hitscanHelperBullets.append(Bullet(bulletPosition.x, bulletPosition.y, self.bullet_image, spaceship.direction, spaceship.name))
+						hitscanHelperBullets.append(helperBullet)
+						#self.bullets.append(helperBullet)
+						bulletPosition = bulletPosition + spaceship.direction.normalize() * 10
+
+				for hitscanHelperBullet in hitscanHelperBullets:
+					renderHelperList.append(hitscanHelperBullet)
+			for bullet in renderHelperList:
+				self.bullets.append(bullet)
+					#for hitscanHelperBullet in hitscanHelperBullets:
+						#self.delete_bullet(hitscanHelperBullet)
+						#del hitscanHelperBullet
+
+
 
 
 	def delete_bullet(self, bullet) -> None:
