@@ -102,8 +102,7 @@ class Agent(abc.ABC):
 			state_batch = torch.stack(batch.state)
 			action_batch = torch.tensor(batch.action).to(self.device).unsqueeze(0)
 			reward_batch = torch.tensor(batch.reward).to(self.device).unsqueeze(0)
-
-			state_action_values = self.policy_network(state_batch).gather(1, action_batch)
+			state_action_values = self.policy_network(state_batch).gather(-1, action_batch)
 
 			next_state_values = self.target_network(state_batch).max(1)[0].detach()
 			expected_state_action_values = (next_state_values * GAMMA) + reward_batch
@@ -304,7 +303,7 @@ class CNNAgent(Agent):
 
 		if sample > self.eps:
 			with torch.no_grad():
-				pred = int(self.policy_network(state).argmax())
+				pred = int(self.policy_network(state.unsqueeze(0)).argmax())
 		else:
 			pred = random.randrange(len(EnumAction))
 
