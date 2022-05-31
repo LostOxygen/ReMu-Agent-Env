@@ -159,7 +159,8 @@ def get_model_cnn(device: str, input_dim: int, output_dim: int, player_name: str
 	return model.to(device)
 
 
-def get_model_lstm(device: str, num_features: int, sequence_length: int, output_dim: int, player_name: str) -> nn.Module:
+def get_model_lstm(device: str, num_features: int, sequence_length: int,
+				   output_dim: int, player_name: str) -> nn.Module:
 	"""
 	Helper function to create a new model and copy it onto a specific device.
 
