@@ -25,27 +25,28 @@ class DQNModelLinear(nn.Module):
 class DQNModelCNN(nn.Module):
 	"""DQN Model with conv's for feature extraction and fully connected layers for action mapping"""
 
-	def __init__(self, input_dim: int, num_actions: int) -> None:  # pylint: disable=useless-super-delegation
+	def __init__(self, _: int, num_actions: int) -> None:  # pylint: disable=useless-super-delegation
 		super().__init__()
 
 		self.features = nn.Sequential(
-					nn.Conv2d(input_dim, 32, kernel_size=8, stride=4),
-					nn.ReLU(),
-					nn.Conv2d(32, 64, kernel_size=4, stride=2),
-					nn.ReLU(),
-					nn.Conv2d(64, 64, kernel_size=3, stride=1),
-					nn.ReLU()
+                    nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, padding=1),
+                    nn.ReLU(inplace=True),
+                   	nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, padding=1),
+                    nn.ReLU(inplace=True),
+					nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, padding=1),
+					nn.ReLU(inplace=True)
 				)
 
 		self.fc = nn.Sequential(
-                    nn.Linear(64*3, 512),
-					nn.ReLU(),
-					nn.Linear(512, num_actions)
+                    nn.Linear(32*74*99, 512),
+               		nn.ReLU(inplace=True),
+					nn.Linear(512, num_actions),
+					nn.Softmax(dim=-1)
 				)
 
 	def forward(self, x: Tensor) -> Tensor:
 		x = self.features(x)
-		x = x.flatten()
+		x = x.view(x.size(0), -1) # flatten with batch dimension
 		x = self.fc(x)
 		return x
 
