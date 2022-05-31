@@ -6,6 +6,7 @@ from torch import nn
 from torchsummary import summary
 
 from ..constants import (
+	BATCH_SIZE,
 	MODEL_PATH,
 	MAX_NUM_PROJECTILES,
 	NUM_PLAYERS
@@ -154,7 +155,7 @@ def get_model_cnn(device: str, input_dim: int, output_dim: int, player_name: str
 		model.load_state_dict(model_state["model"], strict=True)
 		logging.debug("Loaded model from %s", loading_path)
 
-	logging.debug(summary(model, (input_dim,), device="cpu"))
+	logging.debug(summary(model, (1, 75, 100), device="cpu"))
 
 	return model.to(device)
 
