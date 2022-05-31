@@ -2,6 +2,7 @@
 import random
 from typing import Tuple
 
+import torchvision
 import torch
 import pygame
 from pygame.image import load
@@ -51,11 +52,34 @@ def override(func):
 	return func
 
 
+def convert_to_greyscale(image: torch.tensor) -> torch.tensor:
+	"""
+	Converts a pytorch tensor to greyscale
+
+	Parameters:
+		image: The image to convert
+
+	Return:
+		torch.tensor: The converted image
+	"""
+	return torchvision.transforms.Grayscale()(image)
+
+
 def surface_to_tensor(surface: pygame.Surface, device: str) -> torch.tensor:
-	"""returns the surface as a pytorch tensor of dimension (channels, height, width)"""
+	"""
+	Converts the surface to a pytorch tensor of dimension (channels, height, width)
+	
+	Parameters:
+		surface: The surface to convert
+		device: The device the tensor should be stored on (cpu or cuda:0)
+
+	Returns:
+		torch.tensor: The converted surface
+	"""
 	img_tensor = torch.tensor(pygame.surfarray.array3d(surface), dtype=torch.float, device=device)
-	img_tensor = img_tensor.permute(2, 1, 0)  # swap axes to the pytorch order
-	return img_tensor.to(device)
+	img_tensor = img_tensor.permute(2, 0, 1)  # swap axes to the pytorch order
+
+	return img_tensor
 
 
 def render_to_surface(
@@ -93,4 +117,20 @@ def render_to_surface(
 		blit_position = Vector2(player["position"].x, player["position"].y)-rotated_surface_size * 0.5
 		surface.blit(rotated_surface, blit_position)
 
+		surface = resize_surface(surface, (75, 100))
+
 	return surface
+
+
+def resize_surface(surface: pygame.Surface, new_size: Tuple[int, int]) -> pygame.Surface:
+	"""
+	Resizes a surface to a new size
+
+	Parameters:
+		surface: The surface to resize
+		new_size: The new size of the surface as Tuple of (width, height)
+
+	Return:
+		pygame.Surface: The resized surface
+	"""
+	return pygame.transform.scale(surface, new_size)
