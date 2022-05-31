@@ -51,11 +51,11 @@ def override(func):
 	return func
 
 
-def surface_to_tensor(surface: pygame.Surface) -> torch.tensor:
+def surface_to_tensor(surface: pygame.Surface, device: str) -> torch.tensor:
 	"""returns the surface as a pytorch tensor of dimension (channels, height, width)"""
-	img = torch.tensor(pygame.surfarray.array3d(surface))
-	img = img.permute(2, 1, 0) # swap axes to the pytorch order
-	return img
+	img_tensor = torch.tensor(pygame.surfarray.array3d(surface), dtype=torch.float, device=device)
+	img_tensor = img_tensor.permute(2, 1, 0)  # swap axes to the pytorch order
+	return img_tensor.to(device)
 
 
 def render_to_surface(
