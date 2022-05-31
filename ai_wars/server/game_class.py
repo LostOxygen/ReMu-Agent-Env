@@ -1,6 +1,8 @@
 """Main GameClass"""
 import sys
 import os
+import time
+
 import pygame
 import logging
 from typing import List, Dict
@@ -124,8 +126,8 @@ class GameClass:
 
 
 	def _process_game_logic(self, delta_time) -> None:
-		print("hi")
-		"""private method to process game logic
+		"""
+		private method to process game logic
 		# loop over every bullet and update its position
 		for bullet in self.bullets:
 			bullet.move(delta_time)
@@ -135,7 +137,7 @@ class GameClass:
 			   bullet.y > self.screen.get_height() or \
 			   bullet.y < 0:
 				self.delete_bullet(bullet)
-
+		
 		# check for collisions of ships and bullets
 		# self.scoreboard.decrease_score(ship.name, 100)
 		# check if any ships are hit by any bullets
@@ -153,31 +155,40 @@ class GameClass:
 					self.scoreboard.decrease_score(
 						shot_name, POINTS_LOST_AFTER_GETTING_HIT)
 					self.scoreboard.increase_score(
-						shooter_name, POINTS_GAINED_AFTER_HITTING)
+						shooter_name, POINTS_GAINED_AFTER_HITTING)"""
 
-		"""
+		bullet_ray_size = 100
+		all_hitscan_bullets = []
+
 		for spaceship in self.spaceships.values():
-			renderHelperList = []
 			for bullet in self.bullets:
-				if(bullet.shooter == spaceship):
-					bulletPosition = Vector2(spaceship.x, spaceship.y)
-					hitscanHelperBullets = [bullet]
-					for i in range(100):
-						helperBullet = hitscanHelperBullets.append(Bullet(bulletPosition.x, bulletPosition.y, self.bullet_image, spaceship.direction, spaceship.name))
-						hitscanHelperBullets.append(helperBullet)
-						#self.bullets.append(helperBullet)
-						bulletPosition = bulletPosition + spaceship.direction.normalize() * 10
-
-				for hitscanHelperBullet in hitscanHelperBullets:
-					renderHelperList.append(hitscanHelperBullet)
-			for bullet in renderHelperList:
-				self.bullets.append(bullet)
-					#for hitscanHelperBullet in hitscanHelperBullets:
-						#self.delete_bullet(hitscanHelperBullet)
-						#del hitscanHelperBullet
+				# if a spaceship has shot a bullet, create a ray of bullets that act as a hitscan mechanism
+				if bullet.shooter == spaceship:
+					bullet_position = Vector2(spaceship.x, spaceship.y)
+					for i in range(bullet_ray_size):
+						# in the direction of the shot bullet spawn bullet_ray_size as many bullets
+						bullet_position = bullet_position + spaceship.direction.normalize() * 10
+						all_hitscan_bullets.append(Bullet(bullet_position.x, bullet_position.y, self.bullet_image,
+														  spaceship.direction, spaceship))
 
 
+		# now check if any ray bullet (or normal fired bullet) has hit anything
+		for spaceship in self.spaceships.values():
+			for hitscan_bullet in all_hitscan_bullets:
+				if spaceship.hitbox.colliderect(hitscan_bullet.hitbox):
+					print("hit")
+					# check if bullet hit the shooter of the bullet itself
+					if hitscan_bullet.shooter == spaceship:
+						continue
+					# remove points from ship that got hit
+					shooter_name = hitscan_bullet.shooter.name
+					shot_name = spaceship.name
+					self.scoreboard.decrease_score(shot_name, POINTS_LOST_AFTER_GETTING_HIT)
+					self.scoreboard.increase_score(shooter_name, POINTS_GAINED_AFTER_HITTING)
 
+		# since every shot bullet "turn into" a ray, delete all spawned bullets
+		for bullet in self.bullets:
+			self.delete_bullet(bullet)
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
