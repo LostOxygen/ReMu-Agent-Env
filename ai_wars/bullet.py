@@ -33,5 +33,5 @@ class Bullet():
 		surface.blit(self.sprite, (self.x, self.y))
 
 	def refresh_hitbox_coordinates(self):
-		self.hitbox.x = self.x 
-		self.hitbox.y = self.y 
+		self.hitbox.x = self.x
+		self.hitbox.y = self.y
