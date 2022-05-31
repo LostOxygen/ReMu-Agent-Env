@@ -1,7 +1,8 @@
+import pygame
 from ..enums import EnumAction
 
 from ..client.behavior import Behavior
-from ..utils import override, surface_to_array
+from ..utils import override, render_to_surface, surface_to_tensor, convert_to_greyscale
 
 from .dqn_utils import gamestate_to_tensor
 from .dqn_agent import get_agent
@@ -12,6 +13,12 @@ class DqnBehavior(Behavior):
 	def __init__(self, player_name: str, agent_name: str, device="cpu"):
 		self.player_name = player_name
 		self.agent_name = agent_name
+
+		if self.agent_name == "cnn":
+			pygame.init()
+			pygame.display.init()
+			pygame.display.set_mode((1, 1))
+
 		self.device = device
 
 		self.steps_done = 0
@@ -32,8 +39,13 @@ class DqnBehavior(Behavior):
 		reward = new_score - self.last_score
 
 		# prepare the gamestate for the model
-		gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
-		gamestate_tensor = gamestate_tensor.flatten()
+		if self.agent_name == "cnn":
+			gamestate_surface = render_to_surface(players, projectiles)
+			gamestate_tensor = surface_to_tensor(gamestate_surface, self.device)
+			gamestate_tensor = convert_to_greyscale(gamestate_tensor)
+		else:
+			gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
+			gamestate_tensor = gamestate_tensor.flatten()
 
 		# check if the model is already loaded, if not load it
 		if self.optimizer is None:
