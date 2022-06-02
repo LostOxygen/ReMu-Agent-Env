@@ -167,6 +167,10 @@ class GameClass:
 				else:
 					continue
 				break
+			# since every shot bullet "turn into" a ray, delete all spawned bullets
+			for bullet in self.bullets:
+				self.delete_bullet(bullet)
+
 		else:
 			for bullet in self.bullets:
 				bullet.move(delta_time)
@@ -196,9 +200,6 @@ class GameClass:
 						self.scoreboard.increase_score(
 							shooter_name, POINTS_GAINED_AFTER_HITTING)
 
-		# since every shot bullet "turn into" a ray, delete all spawned bullets
-		for bullet in self.bullets:
-			self.delete_bullet(bullet)
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
