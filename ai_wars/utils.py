@@ -11,10 +11,11 @@ from pygame.math import Vector2
 from .constants import (HEIGHT, WIDTH)
 
 
-def load_sprite(path: str, with_alpha=True) -> pygame.Surface:
+def load_sprite(path: str, with_alpha: bool=True, is_cnn: bool=False) -> pygame.Surface:
 	loaded_sprite = load(path)
-
-	if with_alpha:
+	if is_cnn:
+		return loaded_sprite
+	elif with_alpha:
 		return loaded_sprite.convert_alpha()
 	else:
 		return loaded_sprite.convert()
@@ -68,7 +69,7 @@ def convert_to_greyscale(image: torch.tensor) -> torch.tensor:
 def surface_to_tensor(surface: pygame.Surface, device: str) -> torch.tensor:
 	"""
 	Converts the surface to a pytorch tensor of dimension (channels, height, width)
-	
+
 	Parameters:
 		surface: The surface to convert
 		device: The device the tensor should be stored on (cpu or cuda:0)
@@ -99,12 +100,9 @@ def render_to_surface(
 		pygame.Surface: the gamestate, rendered to a pygame.Surface
 	"""
 	surface = pygame.Surface((WIDTH, HEIGHT))
-	background_sprite = load_sprite("ai_wars/img/Background.png", True)
-	spaceship_sprite = load_sprite("ai_wars/img/spaceship.png", True)
-	bullet_sprite = load_sprite("ai_wars/img/bullet.png", True)
+	spaceship_sprite = load_sprite("ai_wars/img/spaceship.png", True, True)
+	bullet_sprite = load_sprite("ai_wars/img/bullet.png", True, True)
 
-	# draw the black background
-	surface.blit(background_sprite, (0, 0))
 	# draw the bullets#
 	for projectile in projectiles:
 		surface.blit(bullet_sprite, (projectile["position"].x, projectile["position"].y))

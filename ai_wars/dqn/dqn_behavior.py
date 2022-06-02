@@ -14,11 +14,6 @@ class DqnBehavior(Behavior):
 		self.player_name = player_name
 		self.agent_name = agent_name
 
-		if self.agent_name == "cnn":
-			pygame.init()
-			pygame.display.init()
-			pygame.display.set_mode((1, 1))
-
 		self.device = device
 
 		self.steps_done = 0
