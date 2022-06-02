@@ -1,4 +1,3 @@
-import pygame
 from ..enums import EnumAction
 
 from ..client.behavior import Behavior
