@@ -1,6 +1,5 @@
 """main hook to start the game"""
 import argparse
-import multiprocessing
 import socket
 import datetime
 import os
@@ -11,16 +10,10 @@ from ai_wars.client.player import Player
 from ai_wars.dqn.dqn_behavior import DqnBehavior
 
 
-def spawn_network(model_name: str, addr: str, port: int, model_type: str, device_str: str) -> None:
-	"""spawn a network player"""
-	player = Player(model_name, addr, port, DqnBehavior(model_name, model_type, device_str))
-	player.loop()
-
-
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--name", "-n", help="specify the player name to connect with",
-						nargs="+", type=str, required=True)
+						type=str, required=True)
 	parser.add_argument("--port", "-p", help="specify port on which the client connects",
 						type=int, default=1337)
 	parser.add_argument("--addr", "-a", help="specify the network addr. on which the client connects",
@@ -30,9 +23,7 @@ if __name__ == "__main__":
 	parser.add_argument("--model_type", "-m", help="Specify the model type ('linear' or 'lstm')",
 						type=str, required=True)
 	parser.add_argument("--device", "-d", help="Specify the device for the computations",
-                     	type=str, default="cuda:0")
-	parser.add_argument("--n_models", "-rm", help="spawns N models simultaneously",
-                     	type=int, default=1)
+						type=str, default="cuda:0")
 
 	args = parser.parse_args()
 
@@ -57,16 +48,6 @@ if __name__ == "__main__":
 	)
 	logging.info("Using device: %s", device)
 
-	if args.n_models > 1:
-		for i in range(args.n_models):
-			name = f"{args.name[0]}_{i}"
-			logging.info("Spawning model with name: %s", name)
-			model_thread = multiprocessing.Process(target=spawn_network,
-                                        args=(name, args.addr, args.port, args.model_type, device))
-			model_thread.start()
-	else:
-		for name in args.name:
-			logging.info("Spawning model with name: %s", name)
-			model_thread = multiprocessing.Process(target=spawn_network,
-                                        args=(name, args.addr, args.port, args.model_type, device))
-			model_thread.start()
+	logging.info("Spawning model with name: %s", args.name)
+	player = Player(args.name, args.addr, args.port, DqnBehavior(args.name, args.model_type, device))
+	player.loop()
