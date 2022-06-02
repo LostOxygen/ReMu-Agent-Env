@@ -19,7 +19,6 @@ class GameGUI(Behavior):
 	"""Simple game GUI with user inputs representing a player behavior"""
 	# images
 	screen = pygame.display.set_mode((800, 600))
-	background_image = load_sprite("ai_wars/img/Background.png", True)
 	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
 	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
@@ -110,10 +109,6 @@ class GameGUI(Behavior):
 
 	def _draw(self) -> None:
 		"""private method to draw the game"""
-
-		# draw the background
-		self.screen.blit(self.background_image, (0, 0))
-
 		# rendering loop to draw all bullets
 		for bullet in self.bullets:
 			bullet.draw(self.screen)
