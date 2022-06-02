@@ -9,4 +9,3 @@ class EnumAction(Enum):
 	RIGHT = 2
 	BACKWARD = 3
 	SHOOT = 4
-
