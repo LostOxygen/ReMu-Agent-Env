@@ -7,6 +7,7 @@ SHOOT_COOLDOWN = 200  # specifies the cooldown for shooting in ms
 SHIP_SPEED = 200.0
 ROTATION_SPEED = 300.0
 START_SCORE = 1000  # start score of every player
+HITSCAN_ENABLED = False
 
 # Server constants
 SERVER_TICK_RATE = 30

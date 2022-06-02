@@ -1,11 +1,13 @@
 """Main GameClass"""
 import sys
 import os
+
 import pygame
 import logging
 from typing import List, Dict
 
 from .server_modus import ServerModus
+from pygame.math import Vector2
 
 from ..spaceship import Spaceship
 from ..scoreboard import Scoreboard
@@ -21,7 +23,8 @@ from ..constants import (
 	POINTS_LOST_AFTER_GETTING_HIT,
 	POINTS_GAINED_AFTER_HITTING,
 	DECREASE_SCORE_EVENT,
-	SERVER_TIMEOUT
+	SERVER_TIMEOUT,
+	HITSCAN_ENABLED
 )
 
 class GameClass:
@@ -123,35 +126,79 @@ class GameClass:
 
 
 	def _process_game_logic(self, delta_time) -> None:
-		"""private method to process game logic"""
-		# loop over every bullet and update its position
-		for bullet in self.bullets:
-			bullet.move(delta_time)
-			#If bullet get out of bound then delete it
-			if bullet.x > self.screen.get_width() or \
-			   bullet.x < 0 or \
-			   bullet.y > self.screen.get_height() or \
-			   bullet.y < 0:
+		"""private method to process game logic loop over every bullet and update its position"""
+		if HITSCAN_ENABLED:
+			bullet_ray_size = 100
+			all_hitscan_rays = []
+			for spaceship in self.spaceships.values():
+				for bullet in self.bullets:
+					hitscan_ray = [bullet]
+					# if a spaceship has shot a bullet, create a ray of bullets that act as a hitscan mechanism
+					bullet_position = Vector2(spaceship.x, spaceship.y)
+					for _ in range(bullet_ray_size):
+						# in the direction of the shot bullet spawn bullet_ray_size as many bullets
+						bullet_position = bullet_position + spaceship.direction.normalize() * 10
+						hitscan_ray.append(Bullet(bullet_position.x, bullet_position.y, self.bullet_image,
+															spaceship.direction, spaceship))
+					# append the ray to the overall ray list. Every entry in the overall ray list is
+					# a list of bullets that make up that ray
+					all_hitscan_rays.append(hitscan_ray)
+
+			# iterator over every ray and in every ray over every bullet of that ray. Check if any bullet
+			# has hit any (except own) spaceship. If so deal the points and remove the whole ray.
+			for hitscan_ray in all_hitscan_rays:
+				for bullet in hitscan_ray:
+					for spaceship in self.spaceships.values():
+						if spaceship.hitbox.colliderect(bullet.hitbox):
+							# check if bullet hit the shooter of the bullet itself
+							if bullet.shooter == spaceship:
+								continue
+							# remove points from ship that got hit
+							shooter_name = bullet.shooter.name
+							shot_name = spaceship.name
+							self.scoreboard.decrease_score(shot_name, POINTS_LOST_AFTER_GETTING_HIT)
+							self.scoreboard.increase_score(shooter_name, POINTS_GAINED_AFTER_HITTING)
+
+							# since a bullet of the ray has hit a other ship, skip the whole ray.
+							break
+					else:
+						continue
+					break
+				else:
+					continue
+				break
+			# since every shot bullet "turn into" a ray, delete all spawned bullets
+			for bullet in self.bullets:
 				self.delete_bullet(bullet)
 
-		# check for collisions of ships and bullets
-		# self.scoreboard.decrease_score(ship.name, 100)
-		# check if any ships are hit by any bullets
-		for ship in self.spaceships.values():
+		else:
 			for bullet in self.bullets:
-				if ship.hitbox.colliderect(bullet.hitbox):
-					# check if bullet hit the shooter of the bullet itself
-					if bullet.shooter == ship:
-						continue
-					# destroy bullet
+				bullet.move(delta_time)
+				#If bullet get out of bound then delete it
+				if bullet.x > self.screen.get_width() or \
+				bullet.x < 0 or \
+				bullet.y > self.screen.get_height() or \
+				bullet.y < 0:
 					self.delete_bullet(bullet)
-					# remove points from ship that got hit
-					shooter_name = bullet.shooter.name
-					shot_name = ship.name
-					self.scoreboard.decrease_score(
-						shot_name, POINTS_LOST_AFTER_GETTING_HIT)
-					self.scoreboard.increase_score(
-						shooter_name, POINTS_GAINED_AFTER_HITTING)
+
+			# check for collisions of ships and bullets
+			# self.scoreboard.decrease_score(ship.name, 100)
+			# check if any ships are hit by any bullets
+			for ship in self.spaceships.values():
+				for bullet in self.bullets:
+					if ship.hitbox.colliderect(bullet.hitbox):
+						# check if bullet hit the shooter of the bullet itself
+						if bullet.shooter == ship:
+							continue
+						# destroy bullet
+						self.delete_bullet(bullet)
+						# remove points from ship that got hit
+						shooter_name = bullet.shooter.name
+						shot_name = ship.name
+						self.scoreboard.decrease_score(
+							shot_name, POINTS_LOST_AFTER_GETTING_HIT)
+						self.scoreboard.increase_score(
+							shooter_name, POINTS_GAINED_AFTER_HITTING)
 
 
 	def delete_bullet(self, bullet) -> None:
