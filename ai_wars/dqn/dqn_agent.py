@@ -201,12 +201,14 @@ class LinearAgent(Agent):
 	@override
 	def select_action(self, state):
 		sample = random.random()
+		self.policy_network.eval()
 
 		if sample > self.eps:
 			with torch.no_grad():
 				pred = int(self.policy_network(state).argmax())
 		else:
 			pred = random.randrange(len(EnumAction))
+		self.policy_network.train()
 
 		if pred not in range(len(EnumAction)):
 			return None
@@ -249,6 +251,7 @@ class LSTMAgent(Agent):
 	@override
 	def select_action(self, state):
 		sample = random.random()
+		self.policy_network.eval()
 
 		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE and sample > self.eps:
 			with torch.no_grad():
@@ -258,6 +261,7 @@ class LSTMAgent(Agent):
 				pred = int(self.policy_network(state_vector).argmax())
 		else:
 			pred = random.randrange(len(EnumAction))
+		self.policy_network.train()
 
 		if pred not in range(len(EnumAction)):
 			return None
@@ -300,12 +304,14 @@ class CNNAgent(Agent):
 	@override
 	def select_action(self, state):
 		sample = random.random()
+		self.policy_network.train()
 
 		if sample > self.eps:
 			with torch.no_grad():
 				pred = int(self.policy_network(state.unsqueeze(0)).argmax())
 		else:
 			pred = random.randrange(len(EnumAction))
+		self.policy_network.train()
 
 		if pred not in range(len(EnumAction)):
 			return None
