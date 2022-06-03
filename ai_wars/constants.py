@@ -6,7 +6,7 @@ BULLET_SPEED = 400.0
 SHOOT_COOLDOWN = 200  # specifies the cooldown for shooting in ms
 SHIP_SPEED = 200.0
 ROTATION_SPEED = 300.0
-START_SCORE = 1000  # start score of every player
+START_SCORE = 0  # start score of every player
 HITSCAN_ENABLED = False
 
 # Server constants
@@ -29,8 +29,8 @@ MAX_NUM_PROJECTILES = 128
 NUM_PLAYERS = 2
 
 # DQN agent constants
-MEMORY_SIZE = 10000
-BATCH_SIZE = 64
+MEMORY_SIZE = 100000
+BATCH_SIZE = 32
 
 GAMMA = 0.999
 EPS_START = 0.9

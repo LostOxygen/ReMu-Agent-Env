@@ -1,328 +1,128 @@
-import abc
-import random
-from collections import deque
-from copy import deepcopy
 import torch
+import torch.nn.functional as F
+from torch import optim
+import random
 
-from ..utils import override
-
+from .replay_memory import ReplayMemory
+from .dqn_utils import get_model_linear, get_model_cnn, get_model_lstm
 from ..enums import EnumAction
+from ..constants import (LSTM_SEQUENCE_SIZE)
 
-from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn, save_model
-from .replay_memory import ReplayMemory, Transition
+class DQNAgent():
+	"""DQN agent class"""
+	def __init__(self, input_shape, action_size, device, buffer_size, input_dim, model_name,
+				 player_name, batch_size, gamma, lr, tau, update_every, replay_after):
+		"""Initialize an Agent object.
 
-from ..constants import (
-    MEMORY_SIZE,
-    BATCH_SIZE,
-    GAMMA,
-    EPS_START,
-    EPS_END,
-    DECAY_FACTOR,
-   	LSTM_SEQUENCE_SIZE
-)
-
-
-class AgentNotFoundException(Exception):
-
-	def __init__(self, name):
-		super().__init__(f"Model with name {name} not found!")
-
-def get_agent(agent_name: str, device: str, model_name: str, input_dim: int):
-	'''
-	Returns a agent for the given name.
-
-	Throws AgentNotFoundException if no agent with given name exists.
-	'''
-
-	match agent_name:
-		case "linear":
-			return LinearAgent(device, model_name, input_dim)
-		case "lstm":
-			return LSTMAgent(device, model_name, input_dim)
-		case "cnn":
-			return CNNAgent(device, model_name, input_dim)
-
-	raise AgentNotFoundException(agent_name)
-
-class Agent(abc.ABC):
-	'''
-	Abstract DQN agent.
-	'''
-
-	def __init__(self,
-		device: str,
-		model_name: str,
-		input_dim: int,
-		load_model
-	):
-		'''
-		Parameters:
-			device: torch device to use
-			model_name: name of the model
-			num_episodes: how many iterations should be performed or zero to run infinite
-			load_model: functions that provides the model
-		'''
-
+		Params
+		======
+			input_shape (tuple): dimension of each state (C, H, W)
+			action_size (int): dimension of each action
+			device(string): Use Gpu or CPU
+			buffer_size (int): replay buffer size
+			batch_size (int):  minibatch size
+			gamma (float): discount factor
+			lr (float): learning rate
+			update_every (int): how often to update the network
+			replay_after (int): After which replay to be started
+			model(Model): Pytorch Model
+		"""
+		self.input_shape = input_shape
+		self.action_size = action_size
 		self.device = device
-		self.model_name = model_name
+		self.buffer_size = buffer_size
+		self.batch_size = batch_size
+		self.gamma = gamma
+		self.lr = lr
+		self.update_every = update_every
+		self.replay_after = replay_after
+		match model_name:
+			case "linear": self.model = get_model_linear(device, input_dim, 5, player_name)
+			case "cnn":	self.model = get_model_cnn(device, input_dim, 5, player_name)
+			case "lstm": self.model = get_model_lstm(device, input_dim, LSTM_SEQUENCE_SIZE, 5, player_name)
 
-		self.policy_network = load_model(device, input_dim, model_name)
-		self.target_network = deepcopy(self.policy_network)
+		self.tau = tau
 
-		self.memory = ReplayMemory(MEMORY_SIZE)
-		self.optimizer = torch.optim.RMSprop(self.policy_network.parameters())
+		self.running_loss = 0.0
+		self.eps = 0.99
 
-		self.current_episode = 1
-		self.eps = EPS_START
+		# Q-Network
+		self.policy_net = self.model.to(self.device)
+		self.target_net = self.model.to(self.device)
+		self.optimizer = optim.Adam(self.policy_net.parameters(), lr=self.lr)
 
+		# Replay memory
+		self.memory = ReplayMemory(self.buffer_size, self.batch_size, self.device)
 
-	def apply_training_step(self, state: torch.tensor, reward: int, action: EnumAction):
-		'''
-		Applies a training step to the model.
-
-		Parameters:
-			state: the new game state
-			reward: the reward that was gained
-			action: the next action that should be performed
-
-		Returns:
-			(current loss, current epsilon, current best q value)
-		'''
-
-		if self.num_episodes != 0 and self.current_episode > self.num_episodes:
-			# training is over, return
-			return
-
-		self.update_replay_memory(state, reward, action)
-
-		if len(self.memory) >= BATCH_SIZE:
-			transitions = self.memory.sample(BATCH_SIZE)
-			batch = Transition(*zip(*transitions))
-
-			state_batch = torch.stack(batch.state)
-			action_batch = torch.tensor(batch.action).to(self.device).unsqueeze(0)
-			reward_batch = torch.tensor(batch.reward).to(self.device).unsqueeze(0)
-			state_action_values = self.policy_network(state_batch).gather(-1, action_batch)
-
-			next_state_values = self.target_network(state_batch).max(1)[0].detach()
-			expected_state_action_values = (next_state_values * GAMMA) + reward_batch
-
-			max_q_value = expected_state_action_values.max()
-
-			criterion = torch.nn.SmoothL1Loss()
-			loss = criterion(state_action_values, expected_state_action_values)
-
-			# Optimize the model
-			self.optimizer.zero_grad()
-			loss.backward()
-			for param in self.policy_network.parameters():
-				param.grad.data.clamp_(-1, 1)
-			self.optimizer.step()
-
-			self.eps = max(EPS_END, DECAY_FACTOR * self.eps)
-		else:
-			loss = 0
-			max_q_value = 0
-
-		if self.current_episode % self.episodes_per_update == 0:
-			self._update_target_network()
-
-		self.post_step(state)
-
-		self.current_episode += 1
-
-		return loss, self.eps, max_q_value
-
-	@abc.abstractmethod
-	def select_action(self, state: torch.tensor) -> EnumAction:
-		'''
-		Selects a actions based on the current game state.
-
-		Parameters:
-			state: current game state
-
-		Returns:
-			the selected action
-		'''
-
-		pass
-
-	@abc.abstractmethod
-	def update_replay_memory(self, state: torch.tensor, reward: int, action: EnumAction):
-		'''
-		Replay memory should be updated here.
-
-		Parameters:
-			state: current game state
-			reward: the last received reward
-			action: the choosen action
-		'''
-
-		pass
-
-	@abc.abstractmethod
-	def post_step(self, state: torch.tensor):
-		'''
-		Operations after the training step may be applied here.
-
-		Parameters:
-			state: current game state
-		'''
-
-		pass
-
-	def _update_target_network(self):
-		self.target_network.load_state_dict(self.policy_network.state_dict())
-		save_model(self.target_network, self.model_name)
+		self.t_step = 0
+		self.total_steps = 0
 
 
-class LinearAgent(Agent):
-	'''
-	Implementation of a DQN agent that uses a linear network.
-	'''
+	def step(self, state, action, reward, next_state):
+		self.total_steps += 1
+		# Save experience in replay memory
+		self.memory.add(state, action.value, reward, next_state)
 
-	def __init__(self,
-		device: str,
-		model_name: str,
-		input_dim: int,
-		num_episodes=0,
-		episodes_per_update=1000
-	):
-		super().__init__(device, model_name, input_dim, self._load_model)
+		# Learn every UPDATE_EVERY time steps.
+		self.t_step = (self.t_step + 1) % self.update_every
 
-		self.num_episodes = num_episodes
-		self.episodes_per_update = episodes_per_update
+		if self.t_step == 0:
+			# If enough samples are available in memory, get random subset and learn
+			if len(self.memory) > self.replay_after:
+				experiences = self.memory.sample()
+				self.learn(experiences)
 
-		self.last_state = None
 
-	def _load_model(self, device, input_dim, model_name):
-		return get_model_linear(device, input_dim, len(EnumAction), model_name)
+	def act(self, state):
+		"""Returns actions for given state as per current policy."""
+		self.eps = max(0.01, 0.999995 * self.eps)
 
-	@override
-	def select_action(self, state):
-		sample = random.random()
-		self.policy_network.eval()
+		state = state.unsqueeze(0).to(self.device)
+		self.policy_net.eval()
 
-		if sample > self.eps:
+		# Epsilon-greedy action selection
+		if random.random() > self.eps:
 			with torch.no_grad():
-				pred = int(self.policy_network(state).argmax())
+				pred = int(self.policy_net(state).argmax())
 		else:
 			pred = random.randrange(len(EnumAction))
-		self.policy_network.train()
 
+		self.policy_net.train()
 		if pred not in range(len(EnumAction)):
 			return None
 		return EnumAction(pred)
 
-	@override
-	def update_replay_memory(self, state, reward, action):
-		if self.last_state is None:
-			self.last_state = torch.zeros(state.shape).to(self.device)
-		self.memory.push(Transition(self.last_state, action.value, state, reward))
 
-	@override
-	def post_step(self, state):
-		self.last_state = state
+	def learn(self, experiences):
+		states, actions, rewards, next_states = experiences
 
+		# Get expected Q values from policy model
+		q_expected_current = self.policy_net(states)
+		q_expected = q_expected_current.gather(
+			1, actions.unsqueeze(1)).squeeze(1)
 
-class LSTMAgent(Agent):
-	'''
-	Implementation of a DQN agent that uses a LSTM network.
-	'''
+		# Get max predicted Q values (for next states) from target model
+		q_targets_next = self.target_net(next_states).detach().max(1)[0]
 
-	def __init__(self,
-		device: str,
-		model_name: str,
-		input_dim: int,
-		num_episodes=0,
-		episodes_per_update=1000
-	):
-		super().__init__(device, model_name, input_dim, self._load_model)
+		# Compute Q targets for current states
+		q_targets = rewards + (self.gamma * q_targets_next)
 
-		self.num_episodes = num_episodes
-		self.episodes_per_update = episodes_per_update
+		# Compute loss
+		loss = F.mse_loss(q_expected, q_targets)
 
-		self.sequence_queue = deque(maxlen=LSTM_SEQUENCE_SIZE)
-		self.last_sequence = torch.zeros((LSTM_SEQUENCE_SIZE, input_dim)).to(self.device)
+		# Minimize the loss
+		self.optimizer.zero_grad()
+		loss.backward()
+		self.optimizer.step()
 
-	def _load_model(self, device, input_dim, model_name):
-		return get_model_lstm(device, input_dim, LSTM_SEQUENCE_SIZE, len(EnumAction), model_name)
+		self.running_loss += loss.item()
+		print(f"loss: {(self.running_loss/self.total_steps):8.2f}\teps: {self.eps:8.2f} "
+                    f"\tmax q value: {q_targets_next.max().item():8.2f}\tsteps: {self.total_steps}", end="\r")
 
-	@override
-	def select_action(self, state):
-		sample = random.random()
-		self.policy_network.eval()
-
-		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE and sample > self.eps:
-			with torch.no_grad():
-				prev_states = list(self.sequence_queue)[1:]
-				prev_states.append(state)
-				state_vector = torch.stack(prev_states)
-				pred = int(self.policy_network(state_vector).argmax())
-		else:
-			pred = random.randrange(len(EnumAction))
-		self.policy_network.train()
-
-		if pred not in range(len(EnumAction)):
-			return None
-		return EnumAction(pred)
-
-	@override
-	def update_replay_memory(self, state, reward, action): # pylint: disable=unused-argument
-		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE:
-			sequence = torch.stack(list(self.sequence_queue))
-			self.memory.push(Transition(self.last_sequence, action.value, sequence, reward))
-			self.last_sequence = sequence
-
-	@override
-	def post_step(self, state):
-		self.sequence_queue.append(state)
+		self.soft_update(self.policy_net, self.target_net, self.tau)
 
 
-class CNNAgent(Agent):
-	'''
-	Implementation of a DQN agent that uses a cnn network.
-	'''
-
-	def __init__(self,
-              device: str,
-              model_name: str,
-              input_dim: int,
-              num_episodes=0,
-              episodes_per_update=1000
-              ):
-		super().__init__(device, model_name, input_dim, self._load_model)
-
-		self.num_episodes = num_episodes
-		self.episodes_per_update = episodes_per_update
-
-		self.last_state = None
-
-	def _load_model(self, device, input_dim, model_name):
-		return get_model_cnn(device, input_dim, len(EnumAction), model_name)
-
-	@override
-	def select_action(self, state):
-		sample = random.random()
-		self.policy_network.train()
-
-		if sample > self.eps:
-			with torch.no_grad():
-				pred = int(self.policy_network(state.unsqueeze(0)).argmax())
-		else:
-			pred = random.randrange(len(EnumAction))
-		self.policy_network.train()
-
-		if pred not in range(len(EnumAction)):
-			return None
-		return EnumAction(pred)
-
-	@override
-	def update_replay_memory(self, state, reward, action):
-		if self.last_state is None:
-			self.last_state = torch.zeros(state.shape).to(self.device)
-		self.memory.push(Transition(self.last_state, action.value, state, reward))
-
-	@override
-	def post_step(self, state):
-		self.last_state = state
+	# θ'=θ×τ+θ'×(1−τ)
+	def soft_update(self, policy_model, target_model, tau):
+		for target_param, policy_param in zip(target_model.parameters(), policy_model.parameters()):
+			target_param.data.copy_(tau*policy_param.data + (1.0-tau)*target_param.data)
