@@ -117,12 +117,12 @@ class DQNAgent():
 
 		self.running_loss += loss.item()
 		print(f"loss: {(self.running_loss/self.total_steps):8.2f}\teps: {self.eps:8.2f} "
-                    f"\tmax q value: {q_targets_next.max().item():8.2f}\tsteps: {self.total_steps}", end="\r")
+              f"\tmax q value: {q_targets_next.max().item():8.2f}\tsteps: {self.total_steps}", end="\r")
 
-		self.soft_update(self.policy_net, self.target_net, self.tau)
+		self.soft_update(self.policy_net, self.target_net)
 
 
 	# θ'=θ×τ+θ'×(1−τ)
-	def soft_update(self, policy_model, target_model, tau):
+	def soft_update(self, policy_model, target_model):
 		for target_param, policy_param in zip(target_model.parameters(), policy_model.parameters()):
-			target_param.data.copy_(tau*policy_param.data + (1.0-tau)*target_param.data)
+			target_param.data.copy_(self.tau*policy_param.data + (1.0-self.tau)*target_param.data)
