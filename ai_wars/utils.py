@@ -103,7 +103,7 @@ def render_to_surface(
 	spaceship_sprite = load_sprite("ai_wars/img/spaceship.png", True, True)
 	bullet_sprite = load_sprite("ai_wars/img/bullet.png", True, True)
 
-	# draw the bullets#
+	# draw the bullets
 	for projectile in projectiles:
 		surface.blit(bullet_sprite, (projectile["position"].x, projectile["position"].y))
 
