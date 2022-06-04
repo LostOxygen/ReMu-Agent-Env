@@ -1,6 +1,8 @@
 """library file to provide constants to get rid of magic numbers"""
 import pygame
 
+from ai_wars.enums import EnumAction
+
 # Game constants
 BULLET_SPEED = 400.0
 SHOOT_COOLDOWN = 200  # specifies the cooldown for shooting in ms
@@ -27,6 +29,7 @@ DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
 MODEL_PATH = "models/"
 MAX_NUM_PROJECTILES = 128
 NUM_PLAYERS = 2
+MOVEMENT_SET = EnumAction
 
 # DQN agent constants
 MEMORY_SIZE = 10000

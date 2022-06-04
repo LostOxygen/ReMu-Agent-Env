@@ -63,4 +63,4 @@ class DqnBehavior(Behavior):
 		self.last_score = new_score
 
 		# return the action enum with the highest q value as a set
-		return {predicted_action}
+		return {predicted_action.to_enum_action()}
