@@ -47,8 +47,7 @@ python network.py [-h] [--name | -n NAME] [--n_models | -nm N_MODELS] [--addr | 
 ```
 example usage:
 ```python
-python network.py --name "model_0" --addr "192.168.2.420" --port 1337 --verbose
-python network.py --name "model" --n_models 20 --device "cuda:1" --verbose
+python network.py --name "model_0" --addr "192.168.2.420" --port 1337 --device "cuda:1" --verbose
 ```
 
 ### Network Arguments
@@ -58,7 +57,14 @@ python network.py --name "model" --n_models 20 --device "cuda:1" --verbose
 | -a, --addr | STR | specifies the address of the server on which the model tries to  connect(default=localhost) |
 | -p, --port | INT | specifies the port of the server on which the model tries to connect (default=1337) |
 | -v, --verbose | BOOL | flag to set the model to verbose (logging) mode |
-| -n, --name | STR+ | specifies the name of the model. Allows multiple strings to spawn and train multiple models with the chosen names simultaneously |
-| -nm, --n_models | INT | trains N models simultaneously. They will be named with --name as a prefix and _N as a suffix 
+| -n, --name | STR | specifies the name of the model. |
 | -m, --model_type | STR | type of the model (e.g. "linear" or "lstm") |
 | -d, --device | STR | specifies the device on which the model should be trained (e.g. "cpu" or "cuda:x", default="cuda:0"). Can be used to also specify the specific GPU (e.g. cuda:2)|
+
+## Spawn multiple networks simultaneously via bash-script:
+where **--num_models** flag defines the number of models to spawn. The networks will train on all available (loaded) nvidia GPUs.
+
+```bash
+chmod +x spawn_networks.sh
+./spawn_nets.sh --num_models [N] --model_type [linear | lstm | cnn] --addr [IP] --device [cpu | cuda:x]
+```
