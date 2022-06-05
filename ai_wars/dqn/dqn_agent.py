@@ -4,21 +4,22 @@ from collections import deque
 from copy import deepcopy
 import torch
 
-from ..utils import override
+from ..enums import MoveSet
 
-from ..enums import EnumAction
+from ..utils import override
 
 from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn, save_model
 from .replay_memory import ReplayMemory, Transition
 
 from ..constants import (
-    MEMORY_SIZE,
-    BATCH_SIZE,
-    GAMMA,
-    EPS_START,
-    EPS_END,
-    DECAY_FACTOR,
-   	LSTM_SEQUENCE_SIZE
+	MOVEMENT_SET,
+	MEMORY_SIZE,
+	BATCH_SIZE,
+	GAMMA,
+	EPS_START,
+	EPS_END,
+	DECAY_FACTOR,
+	LSTM_SEQUENCE_SIZE
 )
 
 
@@ -76,7 +77,7 @@ class Agent(abc.ABC):
 		self.eps = EPS_START
 
 
-	def apply_training_step(self, state: torch.tensor, reward: int, action: EnumAction):
+	def apply_training_step(self, state: torch.tensor, reward: int, action: MoveSet):
 		'''
 		Applies a training step to the model.
 
@@ -134,7 +135,7 @@ class Agent(abc.ABC):
 		return loss, self.eps, max_q_value
 
 	@abc.abstractmethod
-	def select_action(self, state: torch.tensor) -> EnumAction:
+	def select_action(self, state: torch.tensor) -> MoveSet:
 		'''
 		Selects a actions based on the current game state.
 
@@ -148,7 +149,7 @@ class Agent(abc.ABC):
 		pass
 
 	@abc.abstractmethod
-	def update_replay_memory(self, state: torch.tensor, reward: int, action: EnumAction):
+	def update_replay_memory(self, state: torch.tensor, reward: int, action: MoveSet):
 		'''
 		Replay memory should be updated here.
 
@@ -196,7 +197,7 @@ class LinearAgent(Agent):
 		self.last_state = None
 
 	def _load_model(self, device, input_dim, model_name):
-		return get_model_linear(device, input_dim, len(EnumAction), model_name)
+		return get_model_linear(device, input_dim, len(MOVEMENT_SET), model_name)
 
 	@override
 	def select_action(self, state):
@@ -207,12 +208,12 @@ class LinearAgent(Agent):
 			with torch.no_grad():
 				pred = int(self.policy_network(state).argmax())
 		else:
-			pred = random.randrange(len(EnumAction))
+			pred = random.randrange(len(MOVEMENT_SET))
 		self.policy_network.train()
 
-		if pred not in range(len(EnumAction)):
+		if pred not in range(len(MOVEMENT_SET)):
 			return None
-		return EnumAction(pred)
+		return MOVEMENT_SET(pred)
 
 	@override
 	def update_replay_memory(self, state, reward, action):
@@ -246,7 +247,7 @@ class LSTMAgent(Agent):
 		self.last_sequence = torch.zeros((LSTM_SEQUENCE_SIZE, input_dim)).to(self.device)
 
 	def _load_model(self, device, input_dim, model_name):
-		return get_model_lstm(device, input_dim, LSTM_SEQUENCE_SIZE, len(EnumAction), model_name)
+		return get_model_lstm(device, input_dim, LSTM_SEQUENCE_SIZE, len(MOVEMENT_SET), model_name)
 
 	@override
 	def select_action(self, state):
@@ -260,12 +261,12 @@ class LSTMAgent(Agent):
 				state_vector = torch.stack(prev_states)
 				pred = int(self.policy_network(state_vector).argmax())
 		else:
-			pred = random.randrange(len(EnumAction))
+			pred = random.randrange(len(MOVEMENT_SET))
 		self.policy_network.train()
 
-		if pred not in range(len(EnumAction)):
+		if pred not in range(len(MOVEMENT_SET)):
 			return None
-		return EnumAction(pred)
+		return MOVEMENT_SET(pred)
 
 	@override
 	def update_replay_memory(self, state, reward, action): # pylint: disable=unused-argument
@@ -299,7 +300,7 @@ class CNNAgent(Agent):
 		self.last_state = None
 
 	def _load_model(self, device, input_dim, model_name):
-		return get_model_cnn(device, input_dim, len(EnumAction), model_name)
+		return get_model_cnn(device, input_dim, len(MOVEMENT_SET), model_name)
 
 	@override
 	def select_action(self, state):
@@ -310,12 +311,12 @@ class CNNAgent(Agent):
 			with torch.no_grad():
 				pred = int(self.policy_network(state.unsqueeze(0)).argmax())
 		else:
-			pred = random.randrange(len(EnumAction))
+			pred = random.randrange(len(MOVEMENT_SET))
 		self.policy_network.train()
 
-		if pred not in range(len(EnumAction)):
+		if pred not in range(len(MOVEMENT_SET)):
 			return None
-		return EnumAction(pred)
+		return MOVEMENT_SET(pred)
 
 	@override
 	def update_replay_memory(self, state, reward, action):
