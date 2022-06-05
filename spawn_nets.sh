@@ -3,10 +3,7 @@ trap "kill 0" EXIT
 
 help()
 {
-    echo "Usage: spawn_nets [ -x | --num_models ]"
-	echo "					[ -m | --model_type ]"
-	echo "					[ -a | --addr 		]"
-	echo "					[ -d | --device		]"
+    printf "Usage: spawn_nets [ -x | --num_models ] [ -m | --model_type ] [ -a | --addr ] [ -d | --device ]"
     exit 2
 }
 
@@ -34,23 +31,34 @@ do
 			break
 			;;
 		* )
-			echo "Unexpected argument: $1"
+			printf "Unexpected argument: $1"
 			help
 			;;
 	esac
 	shift
 done
 
-printf "\n############################################################################"
-printf "\nSpawning $NUM_MODELS $MODEL_TYPE networks on device $DEVICE and addr $ADDR"
-printf "\n############################################################################"
+{
+	LOADED_GPUS="$(ls /proc/driver/nvidia/gpus/ | wc -l)";
+} || {
+	LOADED_GPUS=0;
+}
+
+if [[ "$LOADED_GPUS" -eq 0 ]]; then
+	DEVICE="cpu"
+fi
+
+printf "\n##########################################################"
+printf "\n## Found $LOADED_GPUS GPU(s) on this machine"
+printf "\n## Spawning $NUM_MODELS $MODEL_TYPE networks on device $DEVICE and addr $ADDR"
+printf "\n##########################################################\n"
 
 for i in $(seq "$NUM_MODELS"); do
-	if [ "$DEVICE" = "cpu" ]; then
+	if [[ "$DEVICE" = "cpu" ]]; then
 		python network.py -m "$MODEL_TYPE" -n "model_$((i-1))" --verbose -a "$ADDR" -d "cpu" &
 	else
 		n=$(($i-1))
-		ind=$(($n%4))
+		ind=$(($n % $LOADED_GPUS))
 		python network.py -m "$MODEL_TYPE" -n "model_$((i-1))" --verbose -a "$ADDR" -d "cuda:$ind" &
 	fi
 done
