@@ -1,8 +1,9 @@
 from typing import Tuple
 import random
-from collections import namedtuple, deque
+from collections import namedtuple
 import torch
 
+Transition = namedtuple("Experience", field_names=["state", "action", "reward", "next_state"])
 
 class ReplayMemory:
 	"""Fixed-size buffer to store experience tuples."""
@@ -17,18 +18,23 @@ class ReplayMemory:
 			device (string): GPU or CPU
 		"""
 
-		self.memory = deque(maxlen=buffer_size)
+		self.capacity = buffer_size
+		self.memory = []
 		self.batch_size = batch_size
 		self.experience = namedtuple("Experience", field_names=["state",
-																"action",
-																"reward",
-																"next_state"])
+                                                          "action",
+                                                          "reward",
+                                                          "next_state"])
 		self.device = device
+		self.position = 0
 
 	def add(self, state, action, reward, next_state):
 		"""Add a new experience to memory."""
-		e = self.experience(state, action, reward, next_state)
-		self.memory.append(e)
+		if len(self.memory) < self.capacity:
+			self.memory.append(None)
+		self.memory[self.position] = self.experience(
+			state, action, reward, next_state)
+		self.position = (self.position + 1) % self.capacity
 
 	def sample(self) -> Tuple:
 		"""Randomly sample a batch of experiences from memory."""
