@@ -24,7 +24,8 @@ from ..constants import (
 	LSTM_SEQUENCE_SIZE,
 	UPDATE_EVERY,
 	LEARNING_RATE,
-	TAU
+	TAU,
+	USE_REPLAY_AFTER
 )
 
 
@@ -108,7 +109,7 @@ class Agent(abc.ABC):
 
 		self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
-		if len(self.memory) >= BATCH_SIZE and self.t_step == 0:
+		if len(self.memory) >= USE_REPLAY_AFTER and self.t_step == 0:
 			states, actions, rewards, next_states = self.memory.sample()
 
 			state_action_values = self.policy_network(states).gather(1, actions.unsqueeze(1)).squeeze(1)

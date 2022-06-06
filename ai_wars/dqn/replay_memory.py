@@ -21,10 +21,8 @@ class ReplayMemory:
 		self.capacity = buffer_size
 		self.memory = []
 		self.batch_size = batch_size
-		self.experience = namedtuple("Experience", field_names=["state",
-                                                          "action",
-                                                          "reward",
-                                                          "next_state"])
+		self.experience = namedtuple("Experience",
+									 field_names=["state", "action", "reward", "next_state"])
 		self.device = device
 		self.position = 0
 
