@@ -1,6 +1,6 @@
 import random
 from collections import namedtuple, deque
-
+import torch
 
 Transition = namedtuple("Transition", ("state", "action", "next_state", "reward"))
 
@@ -11,6 +11,7 @@ class ReplayMemory:
 
 	def __init__(self, capacity):
 		self.memory = deque([], maxlen=capacity)
+		self.device = "cuda"
 
 	def push(self, transition: Transition):
 		'''
@@ -30,7 +31,13 @@ class ReplayMemory:
 			n transitions
 		'''
 
-		return random.sample(self.memory, n)
+		experiences = random.sample(self.memory, n)
+		states = torch.stack([e.state for e in experiences]).to(self.device)
+		actions = torch.tensor([e.action for e in experiences]).to(self.device)
+		rewards = torch.tensor([e.reward for e in experiences]).to(self.device)
+		next_states = torch.stack([e.next_state for e in experiences]).to(self.device)
+
+		return (states, actions, rewards, next_states)
 
 	def __len__(self):
 		return len(self.memory)
