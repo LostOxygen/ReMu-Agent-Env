@@ -118,10 +118,10 @@ def get_model_linear(device: str, input_dim: int, output_dim: int, player_name: 
 	logging.debug("Created new model on %s", device)
 
 	# check if a model with the player_name already exists and load it
-	# if os.path.isfile(loading_path):
-	# 	model_state = torch.load(loading_path, map_location=lambda storage, loc: storage)
-	# 	model.load_state_dict(model_state["model"], strict=True)
-	# 	logging.debug("Loaded model from %s", loading_path)
+	if os.path.isfile(loading_path):
+		model_state = torch.load(loading_path, map_location=lambda storage, loc: storage)
+		model.load_state_dict(model_state["model"], strict=True)
+		logging.debug("Loaded model from %s", loading_path)
 
 	logging.debug(summary(model, (input_dim,), device="cpu"))
 

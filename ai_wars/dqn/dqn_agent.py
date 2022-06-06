@@ -10,7 +10,7 @@ from ..enums import MoveSet
 
 from ..utils import override
 
-from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn
+from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn, save_model
 from .replay_memory import ReplayMemory, Transition
 
 from ..constants import (
@@ -172,8 +172,12 @@ class Agent(abc.ABC):
 		pass
 
 	def _update_target_network(self):
-		for target_param, local_param in zip(self.target_network.parameters(), self.policy_network.parameters()):
+		# update the target networks paramters
+		for target_param, local_param in zip(self.target_network.parameters(),
+											 self.policy_network.parameters()):
 			target_param.data.copy_(TAU*local_param.data + (1.0-TAU)*target_param.data)
+		# save the taget network
+		save_model(self.target_network, self.model_name)
 
 
 class LinearAgent(Agent):
