@@ -11,7 +11,7 @@ from ..enums import MoveSet
 from ..utils import override
 
 from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn, save_model
-from .replay_memory import ReplayMemory, Transition
+from .replay_memory import ReplayMemory
 
 from ..constants import (
 	MOVEMENT_SET,
@@ -105,7 +105,7 @@ class Agent(abc.ABC):
 			# training is over, return
 			return
 
-		self.memory.add(state, action.value, reward, next_state)
+		self.update_replay_memory(state, reward, action.value, next_state)
 
 		self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
@@ -149,7 +149,8 @@ class Agent(abc.ABC):
 		pass
 
 	@abc.abstractmethod
-	def update_replay_memory(self, state: torch.tensor, reward: int, action: MoveSet):
+	def update_replay_memory(self, state: torch.tensor, reward: int,
+							 action: MoveSet, next_state: torch.tensor):
 		'''
 		Replay memory should be updated here.
 
@@ -222,10 +223,8 @@ class LinearAgent(Agent):
 		return MOVEMENT_SET(pred)
 
 	@override
-	def update_replay_memory(self, state, reward, action):
-		if self.last_state is None:
-			self.last_state = torch.zeros(state.shape).to(self.device)
-		self.memory.add(self.last_state, action.value, reward, state)
+	def update_replay_memory(self, state, reward, action, next_state):
+		self.memory.add(state, action.value, reward, next_state)
 
 	@override
 	def post_step(self, state):
@@ -275,10 +274,10 @@ class LSTMAgent(Agent):
 		return MOVEMENT_SET(pred)
 
 	@override
-	def update_replay_memory(self, state, reward, action): # pylint: disable=unused-argument
+	def update_replay_memory(self, state, reward, action, next_state): # pylint: disable=unused-argument
 		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE:
 			sequence = torch.stack(list(self.sequence_queue))
-			self.memory.push(Transition(self.last_sequence, action.value, sequence, reward))
+			self.memory.add(self.last_sequence, action.value, sequence, reward)
 			self.last_sequence = sequence
 
 	@override
@@ -325,10 +324,8 @@ class CNNAgent(Agent):
 		return MOVEMENT_SET(pred)
 
 	@override
-	def update_replay_memory(self, state, reward, action):
-		if self.last_state is None:
-			self.last_state = torch.zeros(state.shape).to(self.device)
-		self.memory.push(Transition(self.last_state, action.value, state, reward))
+	def update_replay_memory(self, state, reward, action, next_state):
+		self.memory.add(state, action.value, reward, next_state)
 
 	@override
 	def post_step(self, state):
