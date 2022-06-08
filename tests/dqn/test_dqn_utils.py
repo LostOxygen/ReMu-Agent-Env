@@ -15,7 +15,6 @@ class TestDqnUtils(unittest.TestCase):
 		expected = torch.tensor([
 			[1.0, 1.0, 1.0, 1.0], # own
 			[2.0, 2.0, 2.0, 2.0], # other1
-			[0.0, 0.0, 0.0, 0.0], # other2 (empty)
 			[1.0, 1.0, 1.0, 1.0], # projectile 1
 			[2.0, 2.0, 2.0, 2.0], # projectile 2
 			[3.0, 3.0, 3.0, 3.0], # projectile 3
