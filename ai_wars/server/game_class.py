@@ -213,7 +213,7 @@ class GameClass:
 		"""spawn a spaceship at the given position"""
 		color = [255,0,0]
 		spaceship = Spaceship(x, y, self.spaceship_image, self.bullet_image, self.bullets.append, \
-							  self.screen, name, color)
+							  self.screen, name, color, self.modus.get_game_time())
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 		logging.debug("Spawned spaceship with name: %s at X:%s Y:%s", name, x, y)

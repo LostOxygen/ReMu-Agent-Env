@@ -5,6 +5,7 @@ import threading
 from typing import Any
 import pygame
 
+from ..game_time import GameTime, PygameGameTime, VirtualGameTime
 from ..constants import SERVER_TICK_RATE
 from ..utils import override
 
@@ -36,6 +37,17 @@ class ServerModus(abc.ABC):
 
 		pass
 
+	@abc.abstractmethod
+	def get_game_time(self) -> GameTime:
+		'''
+		Returns an object that provides the current game time.
+
+		Returns:
+			game time object
+		'''
+
+		pass
+
 class Realtime:
 	'''
 	Runs the game in real time.
@@ -43,6 +55,7 @@ class Realtime:
 
 	def __init__(self):
 		self.clock = pygame.time.Clock()
+		self.game_time = PygameGameTime()
 
 	@override
 	def start(self, game):
@@ -73,23 +86,39 @@ class Realtime:
 	def received_input(self, hit_timeout: bool):
 		pass
 
+	@override
+	def get_game_time(self) -> GameTime:
+		return self.game_time
+
 class TrainingMode:
 	'''
 	Runs the game as fast as the slowest client. Main purpose of this mode is for training models.
 	'''
 
+	def __init__(self):
+		self.game_time = VirtualGameTime()
+
 	@override
 	def start(self, game):
 		self.game = game
 		self.frame = 0
+		self.last_decrease = 0
 
 	@override
 	def received_input(self, hit_timeout: bool):
+		self.game_time.increase_game_time(1/SERVER_TICK_RATE * 1000)
+
 		# fire decrease score event if one game second has passed
-		if (self.frame * SERVER_TICK_RATE) % 1000 < SERVER_TICK_RATE:
+		time = self.game_time.get_time()
+		if time - self.last_decrease > 1000:
 			pygame.event.post(self.game.decrease_score_event)
+			self.last_decrease = time
 
 		# update game state if all clients submitted their action
 		if hit_timeout or self.game.spaceships.keys() == self.game.action_buffer.keys():
 			self.frame += 1
 			self.game.update_game(1/SERVER_TICK_RATE)
+
+	@override
+	def get_game_time(self) -> GameTime:
+		return self.game_time

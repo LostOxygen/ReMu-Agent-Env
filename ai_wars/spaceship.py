@@ -5,11 +5,12 @@ from pygame.math import Vector2
 
 from ai_wars.enums import EnumAction
 from ai_wars.bullet import Bullet
+from ai_wars.game_time import GameTime, PygameGameTime
 from ai_wars.utils import clip_pos
 from ai_wars.constants import (
-    SHOOT_COOLDOWN,
-    SHIP_SPEED,
-    ROTATION_SPEED
+	SHOOT_COOLDOWN,
+	SHIP_SPEED,
+	ROTATION_SPEED
 )
 
 
@@ -27,9 +28,9 @@ class Spaceship():
 		bullet_append_func: Callable[[Bullet], None],
 		screen: pygame.Surface,
 		name: str,
-		color: list
-	) -> None:
-		"""constructor for the spaceship class"""
+		color: list,
+		game_time: GameTime = PygameGameTime()
+	):
 		self.x = x
 		self.y = y
 		self.spaceship_sprite = spaceship_sprite.copy()
@@ -41,6 +42,7 @@ class Spaceship():
 		self.screen = screen # the screen where everything gets drawn on
 		self.name = name # name is equivalent to an player ID
 		self.color = color
+		self.game_time = game_time
 
 		# hitbox stuff
 		self.hitbox = self.spaceship_sprite.get_rect()
@@ -93,9 +95,10 @@ class Spaceship():
 
 			case EnumAction.SHOOT:
 				# implementation of shooting cooldown, hence limits the bullets that can be shot
-				if pygame.time.get_ticks()-self.last_action_time >= SHOOT_COOLDOWN:
+				current_time = self.game_time.get_time()
+				if current_time-self.last_action_time >= SHOOT_COOLDOWN:
 					self._shoot()
-					self.last_action_time = pygame.time.get_ticks()
+					self.last_action_time = current_time
 
 	def _shoot(self) -> None:
 		"""public method to create a bullet and append it to the bullet list"""
