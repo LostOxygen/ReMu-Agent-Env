@@ -3,8 +3,6 @@ import random
 from collections import namedtuple
 import torch
 
-Transition = namedtuple("Experience", field_names=["state", "action", "reward", "next_state"])
-
 class ReplayMemory:
 	"""Fixed-size buffer to store experience tuples."""
 
