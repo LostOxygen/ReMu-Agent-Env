@@ -10,6 +10,7 @@ SHIP_SPEED = 150.0
 ROTATION_SPEED = 100.0
 START_SCORE = 10000  # start score of every player
 HITSCAN_ENABLED = False
+POINTS_LOST_PER_SECOND = 0
 
 # Server constants
 SERVER_TICK_RATE = 30

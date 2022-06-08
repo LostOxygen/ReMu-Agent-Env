@@ -24,7 +24,8 @@ from ..constants import (
 	POINTS_GAINED_AFTER_HITTING,
 	DECREASE_SCORE_EVENT,
 	SERVER_TIMEOUT,
-	HITSCAN_ENABLED
+	HITSCAN_ENABLED,
+	POINTS_LOST_PER_SECOND
 )
 
 class GameClass:
@@ -113,7 +114,7 @@ class GameClass:
 				# decrease the score of the players (event gets fired every second)
 				case _ if event.type == DECREASE_SCORE_EVENT:
 					for ship in self.spaceships.values():
-						self.scoreboard.decrease_score(ship.name, 1)
+						self.scoreboard.decrease_score(ship.name, POINTS_LOST_PER_SECOND)
 
 
 	def _apply_actions(self, delta_time):
