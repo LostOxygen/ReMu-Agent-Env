@@ -3,7 +3,7 @@ from ..enums import EnumAction
 from ..client.behavior import Behavior
 from ..utils import override, render_to_surface, surface_to_tensor, convert_to_greyscale
 
-from .dqn_utils import gamestate_to_tensor
+from .dqn_utils import gamestate_to_tensor, gamestate_to_tensor_relative
 from .dqn_agent import get_agent
 
 class DqnBehavior(Behavior):
@@ -38,7 +38,7 @@ class DqnBehavior(Behavior):
 			gamestate_tensor = surface_to_tensor(gamestate_surface, self.device)
 			gamestate_tensor = convert_to_greyscale(gamestate_tensor)
 		else:
-			gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
+			gamestate_tensor = gamestate_to_tensor_relative(self.player_name, players, projectiles, self.device)
 			gamestate_tensor = gamestate_tensor.flatten()
 
 		# check if the model is already loaded, if not load it

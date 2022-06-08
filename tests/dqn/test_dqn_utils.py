@@ -7,7 +7,7 @@ from ai_wars import constants
 constants.NUM_PLAYERS = 2
 constants.MAX_NUM_PROJECTILES = 4
 
-from ai_wars.dqn.dqn_utils import gamestate_to_tensor
+from ai_wars.dqn.dqn_utils import gamestate_to_tensor, gamestate_to_tensor_relative
 
 class TestDqnUtils(unittest.TestCase):
 
@@ -59,6 +59,60 @@ class TestDqnUtils(unittest.TestCase):
 		]
 
 		actual = gamestate_to_tensor(
+			"own",
+			player,
+			projectiles
+		)
+
+		self.assertTrue(expected.equal(actual))
+
+	def test_gamestate_to_tensor_relative(self):
+		expected = torch.tensor([
+			[1.0, 0.0, 0.0, -1.0], # other1
+			[2.0, -1.0, -1.0, 0.0], # projectile 1
+			[2.0, -1.0, 0.0, 1.0], # projectile 2
+			[3.0, -2.0, 3.0, -3.0], # projectile 3
+			[4.0, -3.0, 4.0, -4.0], # projectile 4
+		])
+
+		player = [
+			{
+				"player_name": "own",
+				"position": Vector2(1.0, 0.0),
+				"direction": Vector2(1.0, 0.0)
+			},
+			{
+				"player_name": "other1",
+				"position": Vector2(1.0, 1.0),
+				"direction": Vector2(1.0, 0.0)
+			}
+		]
+
+		projectiles = [
+			{
+				"owner": "own",
+				"position": Vector2(100.0, 100.0),
+				"direction": Vector2(100.0, 100.0)
+			}, {
+				"owner": "other1",
+				"position": Vector2(2.0, 2.0),
+				"direction": Vector2(0.0, -1.0)
+			}, {
+				"owner": "other1",
+				"position": Vector2(2.0, 2.0),
+				"direction": Vector2(-1.0, 0.0)
+			}, {
+				"owner": "other1",
+				"position": Vector2(3.0, 3.0),
+				"direction": Vector2(3.0, 3.0)
+			}, {
+				"owner": "other1",
+				"position": Vector2(4.0, 4.0),
+				"direction": Vector2(4.0, 4.0)
+			}
+		]
+
+		actual = gamestate_to_tensor_relative(
 			"own",
 			player,
 			projectiles
