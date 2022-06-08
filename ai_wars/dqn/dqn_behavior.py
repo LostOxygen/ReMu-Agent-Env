@@ -21,6 +21,7 @@ class DqnBehavior(Behavior):
 		self.optimizer = None
 
 		self.last_score = 0
+		self.last_gamestate_tensor = None
 
 	@override
 	def make_move(self,
@@ -50,14 +51,16 @@ class DqnBehavior(Behavior):
 		predicted_action = self.optimizer.select_action(gamestate_tensor)
 		if predicted_action is None:
 			return {}
+		if self.last_gamestate_tensor is None:
+			self.last_gamestate_tensor = gamestate_tensor
 
 		# run the next training step
-		loss, eps, max_q_value = self.optimizer.apply_training_step(gamestate_tensor, reward,
-																	predicted_action)
+		loss, eps, max_q_value = self.optimizer.apply_training_step(self.last_gamestate_tensor, reward,
+																	predicted_action, gamestate_tensor)
 		self.steps_done += 1
 		self.running_loss += loss
 		print(f"loss: {(self.running_loss/self.steps_done):8.2f}\teps: {eps:8.2f} "\
-			  f"\tmax q value: {max_q_value:8.2f}\tsteps: {self.steps_done}", end="\r")
+			  f"\tmax_q_value: {max_q_value:8.2f}\tsteps: {self.steps_done}", end="\r")
 
 		# save the current state and actions for the next iteration
 		self.last_score = new_score

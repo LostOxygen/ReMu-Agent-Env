@@ -1,15 +1,17 @@
 import abc
 import random
+from typing import Tuple
 from collections import deque
 from copy import deepcopy
 import torch
+from torch.nn import functional as F
 
 from ..enums import MoveSet
 
 from ..utils import override
 
 from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn, save_model
-from .replay_memory import ReplayMemory, Transition
+from .replay_memory import ReplayMemory
 
 from ..constants import (
 	MOVEMENT_SET,
@@ -19,7 +21,11 @@ from ..constants import (
 	EPS_START,
 	EPS_END,
 	DECAY_FACTOR,
-	LSTM_SEQUENCE_SIZE
+	LSTM_SEQUENCE_SIZE,
+	UPDATE_EVERY,
+	LEARNING_RATE,
+	TAU,
+	USE_REPLAY_AFTER
 )
 
 
@@ -71,13 +77,19 @@ class Agent(abc.ABC):
 		self.target_network = deepcopy(self.policy_network)
 		self.target_network.eval()
 
-		self.memory = ReplayMemory(MEMORY_SIZE)
-		self.optimizer = torch.optim.Adam(self.policy_network.parameters(), lr=0.001)
 
-		self.current_episode = 1
+		self.memory = ReplayMemory(MEMORY_SIZE, BATCH_SIZE, self.device)
+		self.optimizer = torch.optim.Adam(self.policy_network.parameters(), lr=LEARNING_RATE)
+
+		self.current_episode = 0
 		self.eps = EPS_START
+		self.t_step = 0
 
-	def apply_training_step(self, state: torch.tensor, reward: float, action: MoveSet):
+	def apply_training_step(self,
+		state: torch.tensor,
+		reward: int,
+		action: MoveSet
+	) -> Tuple[float, float, float]:
 		'''
 		Applies a training step to the model.
 
@@ -94,37 +106,35 @@ class Agent(abc.ABC):
 			# training is over, return
 			return 0, self.eps, 0
 
-		self.update_replay_memory(state, reward, action)
+		self.update_replay_memory(state, reward, action.value, next_state)
 
-		if len(self.memory) >= BATCH_SIZE:
-			states, actions, rewards, next_states = self.memory.sample(BATCH_SIZE)
 
-			state_action_values = self.policy_network(states).gather(1, actions.unsqueeze(1)).squeeze(1)
+		self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
-			next_state_values = self.target_network(next_states).max(1)[0].detach()
+		if len(self.memory) >= USE_REPLAY_AFTER and self.t_step == 0:
+			states, actions, rewards = self.memory.sample()
+
+			state_action_values = self.policy_network(self.last_state).gather(1, actions.unsqueeze(1)).squeeze(1)
+
+			next_state_values = self.target_network(states).max(1)[0].detach()
 			expected_state_action_values = (next_state_values * GAMMA) + rewards
-
 			max_q_value = expected_state_action_values.max()
 
-			loss = torch.nn.functional.mse_loss(state_action_values, expected_state_action_values)
+			loss = F.mse_loss(state_action_values, expected_state_action_values)
 
 			# Optimize the model
 			self.optimizer.zero_grad()
 			loss.backward()
 			self.optimizer.step()
 
-			self.eps = max(EPS_END, DECAY_FACTOR * self.eps)
 		else:
-			loss = 0
-			max_q_value = 0
+			loss = 0.
+			max_q_value = 0.
 
 		self._update_target_network()
-		if self.current_episode % self.episodes_per_update == 0:
-			save_model(self.target_network, self.model_name)
-
 		self.current_episode += 1
+		return (loss, self.eps, max_q_value)
 
-		return loss, self.eps, max_q_value
 
 	@abc.abstractmethod
 	def select_action(self, state: torch.tensor) -> MoveSet:
@@ -141,7 +151,8 @@ class Agent(abc.ABC):
 		pass
 
 	@abc.abstractmethod
-	def update_replay_memory(self, state: torch.tensor, reward: float, action: MoveSet):
+	def update_replay_memory(self, state: torch.tensor, reward: int,
+							 action: MoveSet, next_state: torch.tensor):
 		'''
 		Replay memory should be updated here.
 
@@ -154,11 +165,12 @@ class Agent(abc.ABC):
 		pass
 
 	def _update_target_network(self):
-		# self.target_network.load_state_dict(self.policy_network.state_dict())
-		# save_model(self.target_network, self.model_name)
-		TAU = 1e-3
-		for target_param, local_param in zip(self.target_network.parameters(), self.policy_network.parameters()):
+		# update the target networks paramters
+		for target_param, local_param in zip(self.target_network.parameters(),
+											 self.policy_network.parameters()):
 			target_param.data.copy_(TAU*local_param.data + (1.0-TAU)*target_param.data)
+		# save the taget network
+		save_model(self.target_network, self.model_name)
 
 
 class LinearAgent(Agent):
@@ -193,13 +205,19 @@ class LinearAgent(Agent):
 		else:
 			pred = random.randrange(len(MOVEMENT_SET))
 
+		self.policy_network.train()
+
+		if pred not in range(len(MOVEMENT_SET)):
+			return None
+
+		self.eps = max(EPS_END, DECAY_FACTOR * self.eps)
 		return MOVEMENT_SET(pred)
 
 	@override
 	def update_replay_memory(self, state, reward, action):
 		if self.last_state is not None:
 			self.memory.push(Transition(self.last_state, action.value, state, reward))
-		self.last_state = state
+    self.last_state = state
 
 
 class LSTMAgent(Agent):
@@ -248,10 +266,12 @@ class LSTMAgent(Agent):
 		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE:
 			sequence = torch.stack(list(map(lambda e: e[0], self.sequence_queue))).to(self.device)
 			rewards_sum = sum(map(lambda e: e[1], self.sequence_queue))
+
 			self.last_sequence = sequence
 
 			if self.last_sequence is not None:
 				self.memory.push(Transition(self.last_sequence, action.value, sequence, rewards_sum))
+      self.last_state = state
 
 
 class CNNAgent(Agent):
@@ -266,6 +286,7 @@ class CNNAgent(Agent):
 		num_episodes=0,
 		episodes_per_update=1000
 	):
+
 		super().__init__(device, model_name, input_dim, self._load_model)
 
 		self.num_episodes = num_episodes
@@ -279,17 +300,20 @@ class CNNAgent(Agent):
 	@override
 	def select_action(self, state):
 		sample = random.random()
-
+    self.policy_network.eval()
 		if sample > self.eps:
 			with torch.no_grad():
 				pred = int(self.policy_network(state.unsqueeze(0)).argmax())
 		else:
 			pred = random.randrange(len(MOVEMENT_SET))
+		self.policy_network.train()
 
+		if pred not in range(len(MOVEMENT_SET)):
+			return None
 		return MOVEMENT_SET(pred)
 
 	@override
 	def update_replay_memory(self, state, reward, action):
 		if self.last_state is not None:
 			self.memory.push(Transition(self.last_state, action.value, state, reward))
-		self.last_state = state
+    self.last_state = state

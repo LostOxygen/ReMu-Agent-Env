@@ -95,7 +95,7 @@ def save_model(model: nn.Sequential, name: str) -> None:
 
 	torch.save(model_state, path)
 
-	logging.info("Saved target network with name %s", name)
+	# logging.info("Saved target network with name %s", name)
 
 
 def get_model_linear(device: str, input_dim: int, output_dim: int, player_name: str) -> nn.Module:
