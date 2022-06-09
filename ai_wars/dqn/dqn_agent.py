@@ -110,6 +110,9 @@ class Agent(abc.ABC):
 		self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
 		if len(self.memory) >= USE_REPLAY_AFTER and len(self.memory) >= BATCH_SIZE and self.t_step == 0:
+			self.policy_network.train()
+			self.target_network.eval()
+
 			states, actions, rewards, next_states = self.memory.sample()
 
 			state_action_values = self.policy_network(states).gather(1, actions.unsqueeze(1)).squeeze(1)
@@ -123,6 +126,7 @@ class Agent(abc.ABC):
 			# Optimize the model
 			self.optimizer.zero_grad()
 			loss.backward()
+			torch.nn.utils.clip_grad_norm_(self.policy_network.parameters(), max_norm=1.0, norm_type=2)
 			self.optimizer.step()
 
 		else:
@@ -162,16 +166,6 @@ class Agent(abc.ABC):
 
 		pass
 
-	@abc.abstractmethod
-	def post_step(self, state: torch.tensor):
-		'''
-		Operations after the training step may be applied here.
-
-		Parameters:
-			state: current game state
-		'''
-
-		pass
 
 	def _update_target_network(self):
 		# update the target networks paramters
@@ -225,10 +219,6 @@ class LinearAgent(Agent):
 	@override
 	def update_replay_memory(self, state, reward, action, next_state):
 		self.memory.add(state, int(action), reward, next_state)
-
-	@override
-	def post_step(self, state):
-		self.last_state = state
 
 
 class LSTMAgent(Agent):
@@ -310,7 +300,7 @@ class CNNAgent(Agent):
 	@override
 	def select_action(self, state):
 		sample = random.random()
-		self.policy_network.train()
+		self.policy_network.eval()
 
 		if sample > self.eps:
 			with torch.no_grad():
@@ -326,7 +316,3 @@ class CNNAgent(Agent):
 	@override
 	def update_replay_memory(self, state, reward, action, next_state):
 		self.memory.add(state, action.value, reward, next_state)
-
-	@override
-	def post_step(self, state):
-		self.last_state = state
