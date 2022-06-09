@@ -109,7 +109,7 @@ class Agent(abc.ABC):
 
 		self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
-		if len(self.memory) >= USE_REPLAY_AFTER and self.t_step == 0:
+		if len(self.memory) >= USE_REPLAY_AFTER and len(self.memory) >= BATCH_SIZE and self.t_step == 0:
 			states, actions, rewards, next_states = self.memory.sample()
 
 			state_action_values = self.policy_network(states).gather(1, actions.unsqueeze(1)).squeeze(1)
@@ -224,7 +224,7 @@ class LinearAgent(Agent):
 
 	@override
 	def update_replay_memory(self, state, reward, action, next_state):
-		self.memory.add(state, action.value, reward, next_state)
+		self.memory.add(state, int(action), reward, next_state)
 
 	@override
 	def post_step(self, state):
