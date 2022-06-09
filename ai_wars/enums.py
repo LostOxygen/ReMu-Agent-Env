@@ -13,7 +13,6 @@ class MoveSet(Enum):
 		Returns:
 			an EnumAction value
 		"""
-
 		pass
 
 class EnumAction(MoveSet):

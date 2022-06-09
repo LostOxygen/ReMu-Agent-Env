@@ -1,4 +1,5 @@
 from typing import Tuple
+import math
 import torch
 from ..enums import EnumAction
 
@@ -10,9 +11,12 @@ from ..constants import (
 	WIDTH
 )
 
-from .dqn_utils import gamestate_to_tensor
+from .dqn_utils import gamestate_to_tensor, gamestate_to_tensor_relative
 from .dqn_agent import get_agent
 
+from ..constants import (
+	RELATIVE_COORDINATES_MODE
+)
 
 class DqnBehavior(Behavior):
 	"""DQN Behavior"""
@@ -46,7 +50,11 @@ class DqnBehavior(Behavior):
 			new_score = scoreboard[self.player_name]
 			reward = (new_score - self.last_score)
 		else:
-			gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
+			if RELATIVE_COORDINATES_MODE:
+				gamestate_tensor = gamestate_to_tensor_relative(self.player_name, players,
+																projectiles, self.device)
+			else:
+				gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
 			# extract nearest player from gamestate
 			nearest_player = self.get_nearest_neighbour(gamestate_tensor)
 			# obtain the angle and distance towards the nearest player
@@ -156,9 +164,18 @@ class DqnBehavior(Behavior):
 		inner_product = torch.inner(vector_between_player, own_direction)
 		player_norm = torch.linalg.vector_norm(vector_between_player)
 		own_norm = torch.linalg.vector_norm(own_direction)
-		cos = inner_product / (player_norm * own_norm)
 
-		return torch.acos(cos)
+		# prevent zero division
+		if player_norm == 0.0:
+			player_norm += 1e-8
+		if own_norm == 0.0:
+			own_norm += 1e-8
+
+		cos = inner_product / (player_norm * own_norm)
+		angle = torch.acos(cos)
+
+		assert math.isnan(angle) == False, "Player angle is NaN"
+		return angle
 
 	def normalize_vals(self,
 		val1: float,

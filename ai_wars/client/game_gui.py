@@ -13,12 +13,16 @@ from ..scoreboard import Scoreboard
 from ..bullet import Bullet
 
 from ..utils import load_sprite, override
+from ..constants import (
+	WIDTH,
+	HEIGHT
+)
 
 
 class GameGUI(Behavior):
 	"""Simple game GUI with user inputs representing a player behavior"""
 	# images
-	screen = pygame.display.set_mode((800, 600))
+	screen = pygame.display.set_mode((WIDTH, HEIGHT))
 	background_image = load_sprite("ai_wars/img/background.png", True, False)
 	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True, False)
 	bullet_image = load_sprite("ai_wars/img/bullet.png", True, False)

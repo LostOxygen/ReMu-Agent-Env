@@ -3,11 +3,11 @@ import sys
 import os
 
 import pygame
+from pygame.math import Vector2
 import logging
 from typing import List, Dict
 
 from .server_modus import ServerModus
-from pygame.math import Vector2
 
 from ..spaceship import Spaceship
 from ..scoreboard import Scoreboard
@@ -25,14 +25,16 @@ from ..constants import (
 	DECREASE_SCORE_EVENT,
 	SERVER_TIMEOUT,
 	HITSCAN_ENABLED,
-	POINTS_LOST_PER_SECOND
+	POINTS_LOST_PER_SECOND,
+	WIDTH,
+	HEIGHT
 )
 
 class GameClass:
 	"""MainGameClass"""
 	# images
 	os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
-	screen = pygame.display.set_mode((800, 600))
+	screen = pygame.display.set_mode((WIDTH, HEIGHT))
 	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
 	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
