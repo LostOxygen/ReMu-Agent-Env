@@ -4,6 +4,7 @@ import logging
 import torch
 from torch import nn
 from torchsummary import summary
+from pygame.math import Vector2
 
 from ..constants import (
 	MODEL_PATH,
@@ -11,6 +12,8 @@ from ..constants import (
 	NUM_PLAYERS
 )
 from .dqn_models import DQNModelLinear, DQNModelLSTM, DQNModelCNN
+
+UP = Vector2(0, -1)
 
 def gamestate_to_tensor(
 	own_name: str,
@@ -32,7 +35,7 @@ def gamestate_to_tensor(
 		gamestate_tensor: the gamestate, converted to a torch.Tensor
 	"""
 	gamestate_tensor = torch.zeros(
-		size=(1 + NUM_PLAYERS + MAX_NUM_PROJECTILES, 4),
+		size=(NUM_PLAYERS + MAX_NUM_PROJECTILES, 4),
 		dtype=torch.float32,
 		device=device
 	)
@@ -62,12 +65,65 @@ def gamestate_to_tensor(
 	# if there are less projectiles, the remaining indices stay filled with zeros
 	for i, projectile in enumerate(filter(lambda p: p["owner"] != own_name, projectiles)):
 		if i < MAX_NUM_PROJECTILES:
-			gamestate_tensor[1 + NUM_PLAYERS + i, 0] = projectile["position"].x
-			gamestate_tensor[1 + NUM_PLAYERS + i, 1] = projectile["position"].y
-			gamestate_tensor[1 + NUM_PLAYERS + i, 2] = projectile["direction"].x
-			gamestate_tensor[1 + NUM_PLAYERS + i, 3] = projectile["direction"].y
+			gamestate_tensor[NUM_PLAYERS + i, 0] = projectile["position"].x
+			gamestate_tensor[NUM_PLAYERS + i, 1] = projectile["position"].y
+			gamestate_tensor[NUM_PLAYERS + i, 2] = projectile["direction"].x
+			gamestate_tensor[NUM_PLAYERS + i, 3] = projectile["direction"].y
 
 	#return torch.round(gamestate_tensor, decimals=-1)
+	return gamestate_tensor
+
+def gamestate_to_tensor_relative(
+	own_name: str,
+	players: list[dict[str, any]],
+	projectiles: list[dict[str, any]],
+	device: str = "cpu"
+) -> torch.Tensor:
+	"""
+	Converts the gamestate to a  torch.Tensor. The tensor consists out of 4-tuples
+	of the form (x, y, x_direction, y_direction) for every entity (like ships and bullets).
+
+	Parameters:
+		players: The players with their coordinates and directions
+		projectiles: The projectiles with their coordinates and directions
+		scoreboard: The scoreboard dictionary with the scores of the players
+		device: The device the tensor should be stored on (cpu or cuda:0)
+
+	Return:
+		gamestate_tensor: the gamestate, converted to a torch.Tensor
+	"""
+	gamestate_tensor = torch.zeros(
+		size=(NUM_PLAYERS-1 + MAX_NUM_PROJECTILES, 4),
+		dtype=torch.float32,
+		device=device
+	)
+
+	players_copy = players.copy()
+
+	own_player = next(player for player in players_copy if player["player_name"] == own_name)
+	position = own_player["position"]
+	angle = own_player["direction"].angle_to(UP)
+
+	# iterate over the remaining players
+	for i, player in enumerate(filter(lambda p: p["player_name"] != own_name, players_copy)):
+		relative_position = (player["position"] - position).rotate(angle)
+		relative_direction = player["direction"].rotate(angle)
+
+		gamestate_tensor[i, 0] = relative_position.x
+		gamestate_tensor[i, 1] = relative_position.y
+		gamestate_tensor[i, 2] = relative_direction.x
+		gamestate_tensor[i, 3] = relative_direction.y
+
+	for i, projectile in enumerate(filter(lambda p: p["owner"] != own_name, projectiles)):
+		if i < MAX_NUM_PROJECTILES:
+			relative_position = (projectile["position"] - position).rotate(angle)
+			relative_direction = projectile["direction"].rotate(angle)
+
+			gamestate_tensor[NUM_PLAYERS-1 + i, 0] = relative_position.x
+			gamestate_tensor[NUM_PLAYERS-1 + i, 1] = relative_position.y
+			gamestate_tensor[NUM_PLAYERS-1 + i, 2] = relative_direction.x
+			gamestate_tensor[NUM_PLAYERS-1 + i, 3] = relative_direction.y
+
 	return gamestate_tensor
 
 
