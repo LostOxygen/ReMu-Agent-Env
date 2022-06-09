@@ -158,8 +158,7 @@ class DqnBehavior(Behavior):
 		player_coords = torch.tensor([player[0], player[1]], dtype=torch.float)
 		own_coords = torch.tensor([own_player[0], own_player[1]], dtype=torch.float)
 		vector_between_player = player_coords-own_coords
-		own_direction = torch.tensor(
-			[own_player[2], own_player[3]], dtype=torch.float)
+		own_direction = torch.tensor([own_player[2], own_player[3]], dtype=torch.float)
 
 		inner_product = torch.inner(vector_between_player, own_direction)
 		player_norm = torch.linalg.vector_norm(vector_between_player)
@@ -172,9 +171,9 @@ class DqnBehavior(Behavior):
 			own_norm += 1e-8
 
 		cos = inner_product / (player_norm * own_norm)
-		angle = torch.acos(cos)
+		angle = torch.acos(torch.clamp(cos, -1+1e-8, 1-1e-8))
 
-		assert math.isnan(angle) == False, "Player angle is NaN"
+		assert math.isnan(angle) is False, "Player angle is NaN"
 		return angle
 
 	def normalize_vals(self,
