@@ -155,10 +155,7 @@ class GameGUI(Behavior):
 	def _isColorTooDark(self, color: list):
 		# calc the brightness of the color
 		luma = 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]
-		if luma > 128:
-			return False
-		else:
-			return True
+		return luma < 128
 
 
 	def _spawn_bullet(self, position: Vector2, direction: Vector2, shooter: str) -> None:
