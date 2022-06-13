@@ -1,4 +1,6 @@
 """Main GameClass"""
+import random
+import numpy as np
 import sys
 import logging
 import pygame
@@ -14,6 +16,7 @@ from ..bullet import Bullet
 
 from ..utils import load_sprite, override
 from ..constants import (
+	COLOR_ARRAY
 	WIDTH,
 	HEIGHT
 )
@@ -33,6 +36,7 @@ class GameGUI(Behavior):
 		self.scoreboard = Scoreboard()
 		self.bullets: List[Bullet] = []  # list with all bullets in the game
 		self.spaceships: Dict[str, Spaceship] = {}  # dict with every spaceship in the game
+		self.color_array = COLOR_ARRAY.copy()
 
 		pygame.init()
 		logging.debug("Initialized client")
@@ -133,11 +137,25 @@ class GameGUI(Behavior):
 
 
 	def _spawn_spaceship(self, position: Vector2, direction: Vector2, name: str) -> None:
+		if self.color_array:
+			color = random.choice(self.color_array)
+			self.color_array.remove(color)
+		else:
+			while True:
+				color = list(np.random.choice(range(256), size=3))
+				if not self._isColorTooDark(color):
+					break
+
 		spaceship = Spaceship(position.x, position.y, self.spaceship_image, self.bullet_image, \
-								self.bullets.append, self.screen, name)
+								self.bullets.append, self.screen, name, color)
 		spaceship.direction = direction
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
+
+	def _isColorTooDark(self, color: list):
+		# calc the brightness of the color
+		luma = 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]
+		return luma < 128
 
 
 	def _spawn_bullet(self, position: Vector2, direction: Vector2, shooter: str) -> None:
