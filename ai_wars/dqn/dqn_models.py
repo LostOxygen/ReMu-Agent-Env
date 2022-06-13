@@ -5,16 +5,15 @@ from torch import Tensor
 class DQNModelLinear(nn.Module):
 	"""DQN Model with fully connected layers"""
 
-	SIZE = 64
-
 	def __init__(self, input_dim: int, num_actions: int) -> None: # pylint: disable=useless-super-delegation
 		super().__init__()
 
 		self.layers = nn.Sequential(
-			nn.Linear(input_dim, self.SIZE),
+			nn.Linear(input_dim, 32),
 			nn.ReLU(inplace=True),
-			nn.Linear(self.SIZE, num_actions),
-			nn.Softmax(dim=-1)
+			nn.Linear(32, 64),
+			nn.ReLU(inplace=True),
+			nn.Linear(64, num_actions)
 		)
 
 	def forward(self, x: Tensor) -> Tensor:

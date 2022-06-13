@@ -3,11 +3,11 @@ import sys
 import os
 
 import pygame
+from pygame.math import Vector2
 import logging
 from typing import List, Dict
 
 from .server_modus import ServerModus
-from pygame.math import Vector2
 
 from ..spaceship import Spaceship
 from ..scoreboard import Scoreboard
@@ -24,14 +24,17 @@ from ..constants import (
 	POINTS_GAINED_AFTER_HITTING,
 	DECREASE_SCORE_EVENT,
 	SERVER_TIMEOUT,
-	HITSCAN_ENABLED
+	HITSCAN_ENABLED,
+	POINTS_LOST_PER_SECOND,
+	WIDTH,
+	HEIGHT
 )
 
 class GameClass:
 	"""MainGameClass"""
 	# images
 	os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
-	screen = pygame.display.set_mode((800, 600))
+	screen = pygame.display.set_mode((WIDTH, HEIGHT))
 	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
 	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
@@ -113,7 +116,7 @@ class GameClass:
 				# decrease the score of the players (event gets fired every second)
 				case _ if event.type == DECREASE_SCORE_EVENT:
 					for ship in self.spaceships.values():
-						self.scoreboard.decrease_score(ship.name, 1)
+						self.scoreboard.decrease_score(ship.name, POINTS_LOST_PER_SECOND)
 
 
 	def _apply_actions(self, delta_time):
