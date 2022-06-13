@@ -137,7 +137,7 @@ class GameGUI(Behavior):
 
 
 	def _spawn_spaceship(self, position: Vector2, direction: Vector2, name: str) -> None:
-		if len(self.color_array) != 0:
+		if self.color_array:
 			color = random.choice(self.color_array)
 			self.color_array.remove(color)
 		else:
