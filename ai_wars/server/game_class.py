@@ -208,8 +208,9 @@ class GameClass:
 
 	def spawn_spaceship(self, x: int, y: int, name: str) -> None:
 		"""spawn a spaceship at the given position"""
+		color = [255,0,0]
 		spaceship = Spaceship(x, y, self.spaceship_image, self.bullet_image, self.bullets.append, \
-							  self.screen, name)
+							  self.screen, name, color)
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 		logging.debug("Spawned spaceship with name: %s at X:%s Y:%s", name, x, y)

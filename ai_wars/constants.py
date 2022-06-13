@@ -9,8 +9,8 @@ SHOOT_COOLDOWN = 200  # specifies the cooldown for shooting in ms
 SHIP_SPEED = 200.0
 ROTATION_SPEED = 300.0
 START_SCORE = 1000  # start score of every player
-HITSCAN_ENABLED = False
-RELATIVE_COORDINATES_MODE = False
+HITSCAN_ENABLED = True
+RELATIVE_COORDINATES_MODE = True
 
 # Server constants
 SERVER_TICK_RATE = 30
@@ -22,6 +22,11 @@ POINTS_GAINED_AFTER_HITTING = 200
 HEIGHT = 600
 WIDTH = 800
 CLIENT_BUFFER_SIZE = 10 * 1024
+# http://phrogz.net/tmp/24colors.html
+COLOR_ARRAY = [[255, 0, 0], [237, 185, 185], [143, 35, 35], [255, 255, 0], [185, 215, 237], [35, 98, 143], [115, 115, 115],
+               [0, 234, 255], [231, 233, 185], [143, 106, 35], [204, 204, 204], [170, 0, 255], [220, 185, 237],
+               [255, 127, 0], [185, 237, 224], [79, 143, 35], [191, 255, 0], [0, 149, 255], [255, 0, 170], [255, 212, 0],
+               [106, 255, 0], [0, 64, 255]]
 
 # pygame userevents use codes from 24 to 35, so the first user event will be 24
 DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24

@@ -1,5 +1,4 @@
 """spacehip class file"""
-import numpy as np
 from typing import Callable
 import pygame
 from pygame.math import Vector2
@@ -22,7 +21,7 @@ class Spaceship():
 
 	def __init__(self, x: int, y: int, spaceship_sprite: pygame.sprite.Sprite, bullet_sprite:
 				 pygame.sprite.Sprite, bullet_append_func: Callable[[Bullet], None], \
-				 screen: pygame.Surface, name: str):
+				 screen: pygame.Surface, name: str, color: list):
 		self.x = x
 		self.y = y
 		self.spaceship_sprite = spaceship_sprite.copy()
@@ -33,6 +32,7 @@ class Spaceship():
 		self.direction = Vector2(UP)
 		self.screen = screen # the screen where everything gets drawn on
 		self.name = name # name is equivalent to an player ID
+		self.color = color
 
 		# hitbox stuff
 		self.hitbox = self.spaceship_sprite.get_rect()
@@ -47,9 +47,7 @@ class Spaceship():
 		self.font_width = self.font.size("X")[0]
 		self.font_height = self.font.size("X")[1]
 
-		# generate a random color and fill the spaceship with it
-		self.color = list(np.random.choice(range(256), size=3))
-		spaceship_sprite.fill(self.color, special_flags=pygame.BLEND_MIN)
+		self.spaceship_sprite.fill(self.color, special_flags=pygame.BLEND_MIN)
 
 	def action(self, action: EnumAction, delta_time : float) -> None:
 		"""public method to move the ship in the direction of the action"""
