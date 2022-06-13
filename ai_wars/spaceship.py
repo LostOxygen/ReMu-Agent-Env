@@ -19,9 +19,17 @@ UP = Vector2(0, -1)
 class Spaceship():
 	"""spaceship class with functions for moving, drawing and shooting"""
 
-	def __init__(self, x: int, y: int, spaceship_sprite: pygame.sprite.Sprite, bullet_sprite:
-				 pygame.sprite.Sprite, bullet_append_func: Callable[[Bullet], None], \
-				 screen: pygame.Surface, name: str, color: list):
+	def __init__(self,
+		x: int,
+		y: int,
+		spaceship_sprite: pygame.sprite.Sprite,
+		bullet_sprite: pygame.sprite.Sprite,
+		bullet_append_func: Callable[[Bullet], None],
+		screen: pygame.Surface,
+		name: str,
+		color: list
+	) -> None:
+		"""constructor for the spaceship class"""
 		self.x = x
 		self.y = y
 		self.spaceship_sprite = spaceship_sprite.copy()
