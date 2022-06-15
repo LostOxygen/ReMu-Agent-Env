@@ -16,7 +16,7 @@ from ..bullet import Bullet
 
 from ..utils import load_sprite, override
 from ..constants import (
-	COLOR_ARRAY
+	COLOR_ARRAY,
 	WIDTH,
 	HEIGHT
 )
