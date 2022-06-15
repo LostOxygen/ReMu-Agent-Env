@@ -25,7 +25,9 @@ from ..constants import (
 	UPDATE_EVERY,
 	LEARNING_RATE,
 	TAU,
-	USE_REPLAY_AFTER
+	USE_REPLAY_AFTER,
+	PARAM_SEARCH,
+	DQN_PARAMETER_DICT
 )
 
 
@@ -77,7 +79,15 @@ class Agent(abc.ABC):
 		self.target_network = deepcopy(self.policy_network)
 
 		self.memory = ReplayMemory(MEMORY_SIZE, BATCH_SIZE, self.device)
-		self.optimizer = torch.optim.Adam(self.policy_network.parameters(), lr=LEARNING_RATE)
+		if PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
+			self.optimizer = torch.optim.Adam(self.policy_network.parameters(),
+                                    		  lr=DQN_PARAMETER_DICT[self.model_name]["learning_rate"])
+			self.tau = DQN_PARAMETER_DICT[self.model_name]["tau"]
+			self.decay_factor = DQN_PARAMETER_DICT[self.model_name]["decay_factor"]
+		else:
+			self.optimizer = torch.optim.Adam(self.policy_network.parameters(), lr=LEARNING_RATE)
+			self.tau = TAU
+			self.decay_factor = DECAY_FACTOR
 
 		self.current_episode = 0
 		self.eps = EPS_START
@@ -171,7 +181,7 @@ class Agent(abc.ABC):
 		# update the target networks paramters
 		for target_param, local_param in zip(self.target_network.parameters(),
 											 self.policy_network.parameters()):
-			target_param.data.copy_(TAU*local_param.data + (1.0-TAU)*target_param.data)
+			target_param.data.copy_(self.tau*local_param.data + (1.0-self.tau)*target_param.data)
 		# save the taget network
 		save_model(self.target_network, self.model_name)
 
@@ -213,7 +223,7 @@ class LinearAgent(Agent):
 		if pred not in range(len(MOVEMENT_SET)):
 			return None
 
-		self.eps = max(EPS_END, DECAY_FACTOR * self.eps)
+		self.eps = max(EPS_END, self.decay_factor * self.eps)
 		return MOVEMENT_SET(pred)
 
 	@override
@@ -240,6 +250,11 @@ class LSTMAgent(Agent):
 
 		self.sequence_queue = deque(maxlen=LSTM_SEQUENCE_SIZE)
 		self.last_sequence = torch.zeros((LSTM_SEQUENCE_SIZE, input_dim)).to(self.device)
+
+		if PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
+			self.decay_factor = DQN_PARAMETER_DICT[self.model_name]["decay_factor"]
+		else:
+			self.decay_factor = DECAY_FACTOR
 
 	def _load_model(self, device, input_dim, model_name):
 		return get_model_lstm(device, input_dim, LSTM_SEQUENCE_SIZE, len(MOVEMENT_SET), model_name)
@@ -294,6 +309,11 @@ class CNNAgent(Agent):
 
 		self.last_state = None
 
+		if PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
+			self.decay_factor = DQN_PARAMETER_DICT[self.model_name]["decay_factor"]
+		else:
+			self.decay_factor = DECAY_FACTOR
+
 	def _load_model(self, device, input_dim, model_name):
 		return get_model_cnn(device, input_dim, len(MOVEMENT_SET), model_name)
 
@@ -311,6 +331,8 @@ class CNNAgent(Agent):
 
 		if pred not in range(len(MOVEMENT_SET)):
 			return None
+
+		self.eps = max(EPS_END, self.decay_factor * self.eps)
 		return MOVEMENT_SET(pred)
 
 	@override

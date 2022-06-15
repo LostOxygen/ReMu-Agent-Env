@@ -40,17 +40,82 @@ NUM_PLAYERS = 8
 MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 
 # DQN agent constants
-MEMORY_SIZE = int(1e5)
+MEMORY_SIZE = int(100)
 BATCH_SIZE = 64
 
-# DQN hyperparameters
+# constant DQN hyperparameters
 GAMMA = 0.99
 EPS_START = 1.0
 EPS_END = 0.05
 DECAY_FACTOR = 0.99995
 UPDATE_EVERY = 100
-USE_REPLAY_AFTER = 10000
+USE_REPLAY_AFTER = 100
 LEARNING_RATE = 0.001
 TAU = 1e-3
 
 LSTM_SEQUENCE_SIZE = 32
+
+# hyperparameter dictionaries
+PARAM_SEARCH = False
+DQN_PARAMETER_DICT = {
+    "model_0": {
+        "decay_factor": [0.999995],
+        "learning_rate": [0.001],
+        "tau": 1e-3,
+    },
+    "model_1": {
+        "decay_factor": [0.99995],
+        "learning_rate": [0.001],
+        "tau": 1e-3,
+    },
+    "model_2": {
+        "decay_factor": [0.9995],
+        "learning_rate": [0.001],
+        "tau": 1e-3,
+    },
+    "model_3": {
+        "decay_factor": [0.999995],
+        "learning_rate": [0.01],
+        "tau": 1e-3,
+    },
+    "model_4": {
+        "decay_factor": [0.99995],
+        "learning_rate": [0.01],
+        "tau": 1e-3,
+    },
+    "model_5": {
+        "decay_factor": [0.9995],
+        "learning_rate": [0.01],
+        "tau": 1e-3,
+    },
+    "model_6": {
+        "decay_factor": [0.999995],
+        "learning_rate": [0.1],
+        "tau": 1e-3,
+    },
+    "model_7": {
+        "decay_factor": [0.99995],
+        "learning_rate": [0.1],
+        "tau": 1e-3,
+    },
+    "model_8": {
+        "decay_factor": [0.9995],
+        "learning_rate": [0.1],
+        "tau": 1e-3,
+    },
+    "model_9": {
+        "decay_factor": [0.99995],
+        "learning_rate": [0.001],
+        "tau": 1e-4,
+    },
+    "model_10": {
+        "decay_factor": [0.99995],
+        "learning_rate": [0.001],
+        "tau": 1e-5,
+    },
+    "model_11": {
+        "decay_factor": [0.9999995],
+        "learning_rate": [0.01],
+        "tau": 1e-3,
+    }
+}
