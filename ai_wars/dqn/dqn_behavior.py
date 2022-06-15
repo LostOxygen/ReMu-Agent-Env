@@ -12,11 +12,43 @@ from ..constants import (
 )
 
 from .dqn_utils import gamestate_to_tensor, gamestate_to_tensor_relative
-from .dqn_agent import get_agent
+from .dqn_agent_test import get_agent_test
+from .dqn_agent_train import get_agent
 
 from ..constants import (
 	RELATIVE_COORDINATES_MODE
 )
+
+class DqnBehaviorTest(Behavior):
+
+	def __init__(self, player_name: str, agent_name: str, device="cpu"):
+		self.player_name = player_name
+		self.agent_name = agent_name
+		self.device = device
+
+		self.agent = None
+
+	@override
+	def make_move(self,
+		players: dict[str, any],
+		projectiles: dict[str, any],
+		scoreboard: dict[str, int]
+	) -> set[EnumAction]:
+		if RELATIVE_COORDINATES_MODE:
+			gamestate_tensor = gamestate_to_tensor_relative(self.player_name, players,
+															projectiles, self.device)
+		else:
+			gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
+		gamestate_tensor = gamestate_tensor.flatten()
+
+		if self.agent is None:
+			self.agent = get_agent_test(self.agent_name, self.device,
+								self.player_name, len(gamestate_tensor))
+
+		predicted_action = self.agent.select_action(gamestate_tensor)
+		if predicted_action is None:
+			return {}
+		return {predicted_action.to_enum_action()}
 
 class DqnBehavior(Behavior):
 	"""DQN Behavior"""
@@ -37,10 +69,10 @@ class DqnBehavior(Behavior):
 
 	@override
 	def make_move(self,
-			   players: dict[str, any],
-			   projectiles: dict[str, any],
-			   scoreboard: dict[str, int]
-			   ) -> set[EnumAction]:
+		players: dict[str, any],
+		projectiles: dict[str, any],
+		scoreboard: dict[str, int]
+	) -> set[EnumAction]:
 		# prepare the gamestate for the model
 		if self.agent_name == "cnn":
 			gamestate_surface = render_to_surface(players, projectiles)

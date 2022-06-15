@@ -6,6 +6,8 @@ from copy import deepcopy
 import torch
 from torch.nn import functional as F
 
+from . import AgentNotFoundException
+
 from ..enums import MoveSet
 
 from ..utils import override
@@ -28,11 +30,6 @@ from ..constants import (
 	USE_REPLAY_AFTER
 )
 
-
-class AgentNotFoundException(Exception):
-
-	def __init__(self, name):
-		super().__init__(f"Model with name {name} not found!")
 
 def get_agent(agent_name: str, device: str, model_name: str, input_dim: int):
 	'''
@@ -137,6 +134,19 @@ class Agent(abc.ABC):
 		self.current_episode += 1
 		return (loss, self.eps, max_q_value)
 
+	@abc.abstractmethod
+	def update_replay_memory(self, state: torch.tensor, reward: int,
+							 action: MoveSet, next_state: torch.tensor):
+		'''
+		Replay memory should be updated here.
+
+		Parameters:
+			state: current game state
+			reward: the last received reward
+			action: the choosen action
+		'''
+
+		pass
 
 	@abc.abstractmethod
 	def select_action(self, state: torch.tensor) -> MoveSet:
@@ -152,26 +162,12 @@ class Agent(abc.ABC):
 
 		pass
 
-	@abc.abstractmethod
-	def update_replay_memory(self, state: torch.tensor, reward: int,
-							 action: MoveSet, next_state: torch.tensor):
-		'''
-		Replay memory should be updated here.
-
-		Parameters:
-			state: current game state
-			reward: the last received reward
-			action: the choosen action
-		'''
-
-		pass
-
-
 	def _update_target_network(self):
 		# update the target networks paramters
 		for target_param, local_param in zip(self.target_network.parameters(),
 											 self.policy_network.parameters()):
 			target_param.data.copy_(TAU*local_param.data + (1.0-TAU)*target_param.data)
+
 		# save the taget network
 		save_model(self.target_network, self.model_name)
 

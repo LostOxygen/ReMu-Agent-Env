@@ -59,6 +59,7 @@ python network.py --name "model_0" --addr "192.168.2.420" --port 1337 --device "
 | -v, --verbose | BOOL | flag to set the model to verbose (logging) mode |
 | -n, --name | STR | specifies the name of the model. |
 | -m, --model_type | STR | type of the model (e.g. "linear" or "lstm") |
+| --test | BOOL | Sets network to testing modus |
 | -d, --device | STR | specifies the device on which the model should be trained (e.g. "cpu" or "cuda:x", default="cuda:0"). Can be used to also specify the specific GPU (e.g. cuda:2)|
 
 ## Spawn multiple networks simultaneously via bash-script:

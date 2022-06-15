@@ -8,7 +8,7 @@ import signal
 import torch
 
 from ai_wars.client.player import Player
-from ai_wars.dqn.dqn_behavior import DqnBehavior
+from ai_wars.dqn.dqn_behavior import DqnBehavior, DqnBehaviorTest
 
 
 RUNNING = True
@@ -36,6 +36,8 @@ if __name__ == "__main__":
 						action="store_true", default=False)
 	parser.add_argument("--model_type", "-m", help="Specify the model type ('linear' or 'lstm')",
 						type=str, required=True)
+	parser.add_argument("--test", help="Runs the networks in testing mode",
+						action="store_true", default=False)
 	parser.add_argument("--device", "-d", help="Specify the device for the computations",
 						type=str, default="cuda:0")
 
@@ -55,6 +57,11 @@ if __name__ == "__main__":
 		# overwrite the device if no GPU is available
 		device = "cpu"
 
+	if args.test:
+		behavior = DqnBehaviorTest(args.name, args.model_type, device)
+	else:
+		behavior = DqnBehavior(args.name, args.model_type, device)
+
 	logging.info("Time: %s", datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p"))
 	logging.info(
 		"System: %s CPU cores with %s threads and %s GPUs on %s",
@@ -63,5 +70,6 @@ if __name__ == "__main__":
 	logging.info("Using device: %s", device)
 
 	logging.info("Spawning model with name: %s", args.name)
-	player = Player(args.name, args.addr, args.port, DqnBehavior(args.name, args.model_type, device))
+
+	player = Player(args.name, args.addr, args.port, behavior)
 	player.loop(is_running)
