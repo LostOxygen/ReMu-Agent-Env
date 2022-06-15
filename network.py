@@ -4,13 +4,27 @@ import socket
 import datetime
 import os
 import logging
+import signal
 import torch
 
 from ai_wars.client.player import Player
 from ai_wars.dqn.dqn_behavior import DqnBehavior
 
 
+RUNNING = True
+
+def signal_handler(signum, frame):  # pylint: disable=unused-argument
+	global RUNNING
+
+	RUNNING = False
+	logging.debug("Stopping server threads")
+
+def is_running() -> bool:
+	return RUNNING
+
 if __name__ == "__main__":
+	signal.signal(signal.SIGINT, signal_handler)
+
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--name", "-n", help="specify the player name to connect with",
 						type=str, required=True)
@@ -50,4 +64,4 @@ if __name__ == "__main__":
 
 	logging.info("Spawning model with name: %s", args.name)
 	player = Player(args.name, args.addr, args.port, DqnBehavior(args.name, args.model_type, device))
-	player.loop()
+	player.loop(is_running)
