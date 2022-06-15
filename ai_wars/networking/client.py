@@ -9,9 +9,11 @@ class UdpClient:
 
 	def __init__(self,
 		buffer_size: int,
+		timeout: float,
 		layers: list[Layer]
 	):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.socket.settimeout(timeout)
 		self.buffer_size = buffer_size
 		self.layers = layers
 		self.clients = set()
@@ -72,6 +74,10 @@ class UdpClientBuilder:
 		self.buffer_size = size
 		return self
 
+	def with_timeout(self, timeout: float):
+		self.timeout = timeout
+		return self
+
 	def add_layer(self, layer: Layer):
 		'''
 		Adds a layer that is applied when sending or receiving data. Calling order of the method
@@ -92,4 +98,4 @@ class UdpClientBuilder:
 			the client object
 		'''
 
-		return UdpClient(self.buffer_size, self.layers)
+		return UdpClient(self.buffer_size, self.timeout, self.layers)
