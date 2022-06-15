@@ -1,16 +1,16 @@
 import abc
+from collections import deque
 import torch
 
-from ai_wars.utils import override
-
-
 from . import AgentNotFoundException
-from .dqn_utils import get_model_linear
+from .dqn_utils import get_model_linear, get_model_lstm
 
+from ..utils import override
 from ..enums import MoveSet
 
 from ..constants import (
-	MOVEMENT_SET
+	MOVEMENT_SET,
+	LSTM_SEQUENCE_SIZE
 )
 
 def get_agent_test(agent_name: str, device: str, model_name: str, input_dim: int):
@@ -22,16 +22,18 @@ def get_agent_test(agent_name: str, device: str, model_name: str, input_dim: int
 
 	match agent_name:
 		case "linear":
-			print("here")
 			return LinearAgentTest(device, model_name, input_dim)
-		# case "lstm":
-		# 	return LSTMAgent(device, model_name, input_dim)
+		case "lstm":
+			return LstmAgentTest(device, model_name, input_dim)
 		# case "cnn":
 		# 	return CNNAgent(device, model_name, input_dim)
 
 	raise AgentNotFoundException(agent_name)
 
 class TestAgent(abc.ABC):
+	'''
+	Abstract DQN agent in testing mode
+	'''
 
 	def __init__(self,
 		device: str,
@@ -74,7 +76,7 @@ class LinearAgentTest(TestAgent):
 	def __init__(self,
 		device: str,
 		model_name: str,
-		input_dim: int,
+		input_dim: int
 	):
 		super().__init__(device, model_name, input_dim, self._load_model)
 
@@ -85,4 +87,33 @@ class LinearAgentTest(TestAgent):
 		if pred not in range(len(MOVEMENT_SET)):
 			return None
 
+		return MOVEMENT_SET(pred)
+
+class LstmAgentTest(TestAgent):
+
+	def __init__(self,
+		device: str,
+		model_name: str,
+		input_dim: int
+	):
+		super().__init__(device, model_name, input_dim, self._load_model)
+
+		self.sequence_queue = deque(maxlen=LSTM_SEQUENCE_SIZE)
+
+	def _load_model(self, device, input_dim, model_name):
+		return get_model_lstm(device, input_dim, LSTM_SEQUENCE_SIZE, len(MOVEMENT_SET), model_name)
+
+	@override
+	def select_action(self, state):
+		self.sequence_queue.append(state)
+
+		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE:
+			with torch.no_grad():
+				state_vector = torch.stack(list(self.sequence_queue))
+				pred = int(self.network(state_vector).argmax())
+		else:
+			pred = None
+
+		if pred not in range(len(MOVEMENT_SET)):
+			return None
 		return MOVEMENT_SET(pred)
