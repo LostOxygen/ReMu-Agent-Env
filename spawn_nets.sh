@@ -3,7 +3,7 @@ trap "kill 0" EXIT
 
 help()
 {
-    printf "Usage: spawn_nets [ -x | --num_models ] [ -m | --model_type ] [ -a | --addr ] [ -d | --device ]"
+    printf "Usage: spawn_nets [ -x | --num_models ] [ -m | --model_type ] [ -a | --addr ] [ -d | --device ] [-p | --parameter_search]"
     exit 2
 }
 
@@ -16,6 +16,10 @@ do
 			;;
 		-m | --model_type )
 			MODEL_TYPE="$2"
+			shift
+			;;
+		-p | --parameter_search )
+			PARAM_SEARCH=true
 			shift
 			;;
 		-a | --addr )
@@ -55,11 +59,19 @@ printf "\n##########################################################\n"
 
 for i in $(seq "$NUM_MODELS"); do
 	if [[ "$DEVICE" = "cpu" ]]; then
-		python network.py -m "$MODEL_TYPE" -n "model_$((i-1))" --verbose -a "$ADDR" -d "cpu" &
+		if $PARAM_SEARCH; then
+			python network.py -m "$MODEL_TYPE" -n "model_$((i-1))" --verbose -a "$ADDR" -d "cpu" -ps &
+		else
+			python network.py -m "$MODEL_TYPE" -n "model_$((i-1))" --verbose -a "$ADDR" -d "cpu" &
+		fi
 	else
 		n=$(($i-1))
 		ind=$(($n % $LOADED_GPUS))
-		python network.py -m "$MODEL_TYPE" -n "model_$((i-1))" --verbose -a "$ADDR" -d "cuda:$ind" &
+		if $PARAM_SEARCH; then
+			python network.py -m "$MODEL_TYPE" -n "model_$((i-1))" --verbose -a "$ADDR" -d "cuda:$ind" -ps &
+		else
+			python network.py -m "$MODEL_TYPE" -n "model_$((i-1))" --verbose -a "$ADDR" -d "cuda:$ind" &
+		fi
 	fi
 done
 
