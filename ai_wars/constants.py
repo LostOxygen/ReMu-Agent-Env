@@ -45,6 +45,7 @@ MEMORY_SIZE = int(100)
 BATCH_SIZE = 64
 
 # constant DQN hyperparameters
+HIDDEN_NEURONS = (128, 256)
 GAMMA = 0.99
 EPS_START = 1.0
 EPS_END = 0.05
@@ -60,63 +61,75 @@ LSTM_SEQUENCE_SIZE = 32
 PARAM_SEARCH = False
 DQN_PARAMETER_DICT = {
     "model_0": {
-        "decay_factor": [0.999995],
-        "learning_rate": [0.001],
+        "decay_factor": 0.999995,
+        "learning_rate": 0.001,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_1": {
-        "decay_factor": [0.99995],
-        "learning_rate": [0.001],
+        "decay_factor": 0.99995,
+        "learning_rate": 0.001,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_2": {
-        "decay_factor": [0.9995],
-        "learning_rate": [0.001],
+        "decay_factor": 0.9995,
+        "learning_rate": 0.001,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_3": {
-        "decay_factor": [0.999995],
-        "learning_rate": [0.01],
+        "decay_factor": 0.999995,
+        "learning_rate": 0.01,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_4": {
-        "decay_factor": [0.99995],
-        "learning_rate": [0.01],
+        "decay_factor": 0.99995,
+        "learning_rate": 0.01,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_5": {
-        "decay_factor": [0.9995],
-        "learning_rate": [0.01],
+        "decay_factor": 0.9995,
+        "learning_rate": 0.01,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_6": {
-        "decay_factor": [0.999995],
-        "learning_rate": [0.1],
+        "decay_factor": 0.999995,
+        "learning_rate": 0.1,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_7": {
-        "decay_factor": [0.99995],
-        "learning_rate": [0.1],
+        "decay_factor": 0.99995,
+        "learning_rate": 0.1,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_8": {
-        "decay_factor": [0.9995],
-        "learning_rate": [0.1],
+        "decay_factor": 0.9995,
+        "learning_rate": 0.1,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     },
     "model_9": {
-        "decay_factor": [0.99995],
-        "learning_rate": [0.001],
+        "decay_factor": 0.99995,
+        "learning_rate": 0.001,
         "tau": 1e-4,
+        "hidden_neurons": (128, 256),
     },
     "model_10": {
-        "decay_factor": [0.99995],
-        "learning_rate": [0.001],
+        "decay_factor": 0.99995,
+        "learning_rate": 0.001,
         "tau": 1e-5,
+        "hidden_neurons": (128, 256),
     },
     "model_11": {
-        "decay_factor": [0.9999995],
-        "learning_rate": [0.01],
+        "decay_factor": 0.9999995,
+        "learning_rate": 0.01,
         "tau": 1e-3,
+        "hidden_neurons": (128, 256),
     }
 }

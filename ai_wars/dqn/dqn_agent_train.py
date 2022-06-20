@@ -15,6 +15,7 @@ from ..utils import override
 from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn, save_model
 from .replay_memory import ReplayMemory
 
+import ai_wars.constants
 from ..constants import (
 	MOVEMENT_SET,
 	MEMORY_SIZE,
@@ -28,7 +29,6 @@ from ..constants import (
 	LEARNING_RATE,
 	TAU,
 	USE_REPLAY_AFTER,
-	PARAM_SEARCH,
 	DQN_PARAMETER_DICT
 )
 
@@ -76,7 +76,7 @@ class Agent(abc.ABC):
 		self.target_network = deepcopy(self.policy_network)
 
 		self.memory = ReplayMemory(MEMORY_SIZE, BATCH_SIZE, self.device)
-		if PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
+		if ai_wars.constants.PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
 			self.optimizer = torch.optim.Adam(self.policy_network.parameters(),
                                     		  lr=DQN_PARAMETER_DICT[self.model_name]["learning_rate"])
 			self.tau = DQN_PARAMETER_DICT[self.model_name]["tau"]
@@ -246,11 +246,6 @@ class LSTMAgent(Agent):
 		self.sequence_queue = deque(maxlen=LSTM_SEQUENCE_SIZE)
 		self.last_sequence = torch.zeros((LSTM_SEQUENCE_SIZE, input_dim)).to(self.device)
 
-		if PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
-			self.decay_factor = DQN_PARAMETER_DICT[self.model_name]["decay_factor"]
-		else:
-			self.decay_factor = DECAY_FACTOR
-
 	def _load_model(self, device, input_dim, model_name):
 		return get_model_lstm(device, input_dim, LSTM_SEQUENCE_SIZE, len(MOVEMENT_SET), model_name)
 
@@ -303,11 +298,6 @@ class CNNAgent(Agent):
 		self.episodes_per_update = episodes_per_update
 
 		self.last_state = None
-
-		if PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
-			self.decay_factor = DQN_PARAMETER_DICT[self.model_name]["decay_factor"]
-		else:
-			self.decay_factor = DECAY_FACTOR
 
 	def _load_model(self, device, input_dim, model_name):
 		return get_model_cnn(device, input_dim, len(MOVEMENT_SET), model_name)
