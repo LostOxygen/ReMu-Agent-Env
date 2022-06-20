@@ -25,8 +25,8 @@ def get_agent_test(agent_name: str, device: str, model_name: str, input_dim: int
 			return LinearAgentTest(device, model_name, input_dim)
 		case "lstm":
 			return LstmAgentTest(device, model_name, input_dim)
-		# case "cnn":
-		# 	return CNNAgent(device, model_name, input_dim)
+		case "cnn":
+			raise NotImplementedError
 
 	raise AgentNotFoundException(agent_name)
 
