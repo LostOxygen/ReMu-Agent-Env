@@ -1,5 +1,7 @@
 """library for DQN utilities and classes"""
 import os
+import math
+from typing import Tuple
 import logging
 import torch
 from torch import nn
@@ -242,3 +244,107 @@ def get_model_lstm(device: str, num_features: int, sequence_length: int,
 		logging.debug("Loaded model from %s", loading_path)
 
 	return model.to(device)
+
+
+def get_nearest_neighbour(own_name: str, players: dict) -> Tuple[float, float, float, float]:
+	"""
+	Iterates over every enemy and returns the coords and rotation of the nearest neighbour
+
+	Parameters:
+		torch.tensor: Gamestate
+
+	Returns:
+		(float, float, float, float): (x, y, x_direction, y_direction)
+	"""
+	players_copy = players.copy()
+	best_distance = float("inf")
+	nearest_player = torch.tensor([0., 0.], dtype=torch.float)
+	own_player = next(player for player in players_copy if player["player_name"] == own_name)
+	own_player_vec = torch.tensor([own_player["position"].x,
+								   own_player["position"].y],
+								   dtype=torch.float)
+
+	# iterate over every other "player" tensor in the whole gamestate
+	for player in players_copy:
+		if player["player_name"] != own_name:
+			tmp_player_vec = torch.tensor([player["position"].x,
+                                  		   player["position"].y], dtype=torch.float)
+
+			tmp_distance = (own_player_vec - tmp_player_vec).pow(2).sum().sqrt()
+			if tmp_distance < best_distance:
+				nearest_player = torch.tensor([player["position"].x, player["position"].y])
+
+	return nearest_player
+
+
+def get_dist(own_player: torch.tensor, player: torch.tensor) -> float:
+	"""
+	Returns the distance between the own ship and the given player
+
+	Parameters:
+		torch.tensor([float, float, float, float]): own_player with(x, y, x_dir, y_dir)
+		torch.tensor([float, float, float, float]): player with(x, y, x_dir, y_dir)
+
+	Returns:
+		float: distance
+	"""
+	own_player_vec = torch.tensor(
+		[own_player[0], own_player[1]], dtype=torch.float)
+	player_vec = torch.tensor([player[0], player[1]], dtype=torch.float)
+
+	return (own_player_vec - player_vec).pow(2).sum().sqrt()
+
+
+def get_angle(own_player: torch.tensor, player: torch.tensor):
+	"""
+	Returns the angle between the own ship and the given player
+
+	Parameters:
+		torch.tensor([float, float, float, float]): own_player with(x, y, x_dir, y_dir)
+		torch.tensor([float, float, float, float]): player with(x, y, x_dir, y_dir)
+
+	Returns:
+		float: angle
+	"""
+	player_coords = torch.tensor([player[0], player[1]], dtype=torch.float)
+	own_coords = torch.tensor([own_player[0], own_player[1]], dtype=torch.float)
+	vector_between_player = player_coords-own_coords
+	own_direction = torch.tensor([own_player[2], own_player[3]], dtype=torch.float)
+
+	inner_product = torch.inner(vector_between_player, own_direction)
+	player_norm = torch.linalg.vector_norm(vector_between_player)
+	own_norm = torch.linalg.vector_norm(own_direction)
+
+	# prevent zero division
+	if player_norm == 0.0:
+		player_norm += 1e-8
+	if own_norm == 0.0:
+		own_norm += 1e-8
+
+	cos = inner_product / (player_norm * own_norm)
+	angle = torch.acos(torch.clamp(cos, -1+1e-8, 1-1e-8))
+
+	assert math.isnan(angle) is False, "Player angle is NaN"
+	return angle
+
+
+def normalize_vals(
+	val1: float,
+	limit1: float,
+	val2: float,
+	limit2: float
+) -> Tuple[float, float]:
+	"""
+	Normalizes two values to a new range of [MAX, 0]
+
+	Parameters:
+		val1: first value
+		val2: second value
+
+	Returns:
+		Tuple[float, float]: (val1, val2)
+	"""
+	new_val1 = ((100-0)*(val1-0) / limit1-0)+0  # distance
+	new_val2 = ((100-0)*(val2-0) / limit2-0)+0  # angle
+
+	return new_val1, new_val2

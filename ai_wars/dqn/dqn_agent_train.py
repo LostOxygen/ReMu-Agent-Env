@@ -6,6 +6,8 @@ from copy import deepcopy
 import torch
 from torch.nn import functional as F
 
+from . import AgentNotFoundException
+
 from ..enums import MoveSet
 
 from ..utils import override
@@ -30,11 +32,6 @@ from ..constants import (
 	DQN_PARAMETER_DICT
 )
 
-
-class AgentNotFoundException(Exception):
-
-	def __init__(self, name):
-		super().__init__(f"Model with name {name} not found!")
 
 def get_agent(agent_name: str, device: str, model_name: str, input_dim: int):
 	'''
@@ -147,21 +144,6 @@ class Agent(abc.ABC):
 		self.current_episode += 1
 		return (loss, self.eps, max_q_value)
 
-
-	@abc.abstractmethod
-	def select_action(self, state: torch.tensor) -> MoveSet:
-		'''
-		Selects a actions based on the current game state.
-
-		Parameters:
-			state: current game state
-
-		Returns:
-			the selected action
-		'''
-
-		pass
-
 	@abc.abstractmethod
 	def update_replay_memory(self, state: torch.tensor, reward: int,
 							 action: MoveSet, next_state: torch.tensor):
@@ -176,6 +158,19 @@ class Agent(abc.ABC):
 
 		pass
 
+	@abc.abstractmethod
+	def select_action(self, state: torch.tensor) -> MoveSet:
+		'''
+		Selects a actions based on the current game state.
+
+		Parameters:
+			state: current game state
+
+		Returns:
+			the selected action
+		'''
+
+		pass
 
 	def _update_target_network(self):
 		# update the target networks paramters

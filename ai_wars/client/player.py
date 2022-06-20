@@ -1,11 +1,14 @@
+from typing import Callable
 import logging
+import time
+
 from .behavior import Behavior
 from ..networking.client import UdpClient
 from ..networking.layers.compression import GzipCompression
 from .deserializer import deserialize_game_state
 from .serializer import serialize_action
 
-from ..constants import CLIENT_BUFFER_SIZE
+from ..constants import CLIENT_BUFFER_SIZE, CLIENT_TIMEOUT
 
 class Player:
 	'''
@@ -29,27 +32,32 @@ class Player:
 
 		self.behavior = new_behavior
 
-	def loop(self):
+	def loop(self, is_running: Callable[[], bool]):
 		'''
 		Connects the player to the server and let it play the given with its configured behavior.
 		'''
 
 		client = UdpClient.builder() \
 			.with_buffer_size(CLIENT_BUFFER_SIZE) \
+			.with_timeout(CLIENT_TIMEOUT) \
 			.add_layer(GzipCompression()) \
 			.build()
 
 		client.connect(self.addr, self.port)
 		client.send(serialize_action(self.name, []).encode())
 
-		while True:
-			data_in = client.recv_next()
-			game_state = deserialize_game_state(data_in.decode())
+		while is_running():
+			try:
+				data_in = client.recv_next()
+				game_state = deserialize_game_state(data_in.decode())
 
-			actions = self.behavior.make_move(*game_state)
+				actions = self.behavior.make_move(*game_state)
 
-			data_out = serialize_action(self.name, actions)
-			client.send(data_out.encode())
+				data_out = serialize_action(self.name, actions)
+				client.send(data_out.encode())
+			except TimeoutError:
+				logging.warning("Could not recieve data from server")
+				time.sleep(0.1)
 
 class PlayerFactory:
 	'''

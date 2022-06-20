@@ -39,4 +39,4 @@ if __name__ == "__main__":
 						datefmt="%H:%M:%S")
 
 	player = Player(player_name, args.addr, args.port, GameGUI())
-	player.loop()
+	player.loop(lambda: True)
