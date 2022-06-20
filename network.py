@@ -26,7 +26,7 @@ if __name__ == "__main__":
 						type=str, required=True)
 	parser.add_argument("--device", "-d", help="Specify the device for the computations",
 						type=str, default="cuda:0")
-	parser.add_argument("--param_search", "-v", help="enable hyperparameter search from dictionary",
+	parser.add_argument("--param_search", "-ps", help="enable hyperparameter search from dictionary",
                      	action="store_true", default=False)
 
 	args = parser.parse_args()
