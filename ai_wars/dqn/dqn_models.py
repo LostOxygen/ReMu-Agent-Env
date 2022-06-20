@@ -9,11 +9,11 @@ class DQNModelLinear(nn.Module):
 		super().__init__()
 
 		self.layers = nn.Sequential(
-			nn.Linear(input_dim, 32),
+			nn.Linear(input_dim, 128),
 			nn.ReLU(inplace=True),
-			nn.Linear(32, 64),
+			nn.Linear(128, 256),
 			nn.ReLU(inplace=True),
-			nn.Linear(64, num_actions)
+			nn.Linear(256, num_actions)
 		)
 
 	def forward(self, x: Tensor) -> Tensor:

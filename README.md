@@ -43,7 +43,7 @@ python client.py --name "Dieter" --addr "192.168.2.420" --port 1337 --verbose
 #
 ## Neural Network Usage:
 ```python
-python network.py [-h] [--name | -n NAME] [--n_models | -nm N_MODELS] [--addr | -a ADRESS] [--port | -p PORT] [--verbose | -v]
+python network.py [-h] [--name | -n NAME] [--n_models | -nm N_MODELS] [--addr | -a ADRESS] [--port | -p PORT] [--verbose | -v] [--param_search | -ps]
 ```
 example usage:
 ```python
@@ -60,6 +60,7 @@ python network.py --name "model_0" --addr "192.168.2.420" --port 1337 --device "
 | -n, --name | STR | specifies the name of the model. |
 | -m, --model_type | STR | type of the model (e.g. "linear" or "lstm") |
 | -d, --device | STR | specifies the device on which the model should be trained (e.g. "cpu" or "cuda:x", default="cuda:0"). Can be used to also specify the specific GPU (e.g. cuda:2)|
+| -ps, --param_search | BOOL | flag to activate parameter search mode (which will use the parameter dictionaries from the constants.py file)|
 
 ## Spawn multiple networks simultaneously via bash-script:
 where **--num_models** flag defines the number of models to spawn. The networks will train on all available (loaded) nvidia GPUs.
