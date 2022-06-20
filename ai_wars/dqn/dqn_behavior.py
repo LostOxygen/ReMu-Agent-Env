@@ -128,8 +128,8 @@ class DqnBehavior(Behavior):
                                                               		gamestate_tensor)
 		self.steps_done += 1
 		self.running_loss += loss
-		# print(f"loss: {(self.running_loss/self.steps_done):8.2f}\teps: {eps:8.2f} "
-		# 			f"\tmax_q_value: {max_q_value:8.2f}\tsteps: {self.steps_done}", end="\r")
+		print(f"loss: {(self.running_loss/self.steps_done):8.2f}\teps: {eps:8.2f} "
+					f"\tmax_q_value: {max_q_value:8.2f}\tsteps: {self.steps_done}", end="\r")
 
 		# save the current state and actions for the next iteration
 		self.last_score = new_score
