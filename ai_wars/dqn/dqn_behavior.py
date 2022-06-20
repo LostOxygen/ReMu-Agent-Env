@@ -96,7 +96,6 @@ class DqnBehavior(Behavior):
 			# obtain the angle and distance towards the nearest player
 			angle = get_angle(gamestate_tensor[0], nearest_player)
 			dist = get_dist(gamestate_tensor[0], nearest_player)
-			print(dist, end="\r")
 
 			# normalize the values to be in the same range between [100, 0]
 			max_dist = (torch.tensor([0, 0]) - torch.tensor([WIDTH, HEIGHT])).pow(2).sum().sqrt()

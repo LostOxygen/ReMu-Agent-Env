@@ -8,10 +8,13 @@ from torch import nn
 from torchsummary import summary
 from pygame.math import Vector2
 
+import ai_wars.constants
 from ..constants import (
 	MODEL_PATH,
 	MAX_NUM_PROJECTILES,
-	NUM_PLAYERS
+	NUM_PLAYERS,
+	DQN_PARAMETER_DICT,
+    HIDDEN_NEURONS
 )
 from .dqn_models import DQNModelLinear, DQNModelLSTM, DQNModelCNN
 
@@ -170,9 +173,13 @@ def get_model_linear(device: str, input_dim: int, output_dim: int, player_name: 
 		model: Pytorch Sequential Model
 	"""
 	loading_path = MODEL_PATH+player_name
+	if ai_wars.constants.PARAM_SEARCH:
+		hidden_neurons = DQN_PARAMETER_DICT[player_name]["hidden_neurons"]
+	else:
+		hidden_neurons = HIDDEN_NEURONS
 
 	# create an empty new model
-	model = DQNModelLinear(input_dim, output_dim)
+	model = DQNModelLinear(input_dim, hidden_neurons, output_dim)
 	logging.debug("Created new model on %s", device)
 
 	# check if a model with the player_name already exists and load it
@@ -272,10 +279,9 @@ def get_nearest_neighbour(own_name: str, players: dict) -> Tuple[float, float, f
 
 			tmp_distance = (own_player_vec - tmp_player_vec).pow(2).sum().sqrt()
 			if tmp_distance < best_distance:
-				nearest_player = player
+				nearest_player = torch.tensor([player["position"].x, player["position"].y])
 
-	print(f"Current nearest player: {nearest_player['player_name']}")
-	return torch.tensor([nearest_player["position"].x, nearest_player["position"].y])
+	return nearest_player
 
 
 def get_dist(own_player: torch.tensor, player: torch.tensor) -> float:

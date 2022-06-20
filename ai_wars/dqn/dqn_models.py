@@ -1,19 +1,20 @@
 """Library for neural network and general model architectures"""
+from typing import Tuple
 from torch import nn
 from torch import Tensor
 
 class DQNModelLinear(nn.Module):
 	"""DQN Model with fully connected layers"""
 
-	def __init__(self, input_dim: int, num_actions: int) -> None: # pylint: disable=useless-super-delegation
-		super().__init__()
+	def __init__(self, input_dim: int, hidden_neurons: Tuple[int, int], num_actions: int) -> None:
+		super().__init__()  # pylint: disable=useless-super-delegation
 
 		self.layers = nn.Sequential(
-			nn.Linear(input_dim, 32),
+			nn.Linear(input_dim, hidden_neurons[0]),
 			nn.ReLU(inplace=True),
-			nn.Linear(32, 64),
+			nn.Linear(hidden_neurons[0], hidden_neurons[1]),
 			nn.ReLU(inplace=True),
-			nn.Linear(64, num_actions)
+			nn.Linear(hidden_neurons[1], num_actions)
 		)
 
 	def forward(self, x: Tensor) -> Tensor:
