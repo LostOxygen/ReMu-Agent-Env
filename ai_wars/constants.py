@@ -117,19 +117,19 @@ DQN_PARAMETER_DICT = {
     "model_9": {
         "decay_factor": 0.99995,
         "learning_rate": 0.001,
-        "tau": 1e-4,
-        "hidden_neurons": (128, 256),
+        "tau": 1e-3,
+        "hidden_neurons": (64, 128),
     },
     "model_10": {
         "decay_factor": 0.99995,
         "learning_rate": 0.001,
         "tau": 1e-5,
-        "hidden_neurons": (128, 256),
+        "hidden_neurons": (256, 512),
     },
     "model_11": {
-        "decay_factor": 0.9999995,
-        "learning_rate": 0.01,
-        "tau": 1e-3,
+        "decay_factor": 0.99995,
+        "learning_rate": 0.001,
+        "tau": 1e-4,
         "hidden_neurons": (128, 256),
     }
 }
