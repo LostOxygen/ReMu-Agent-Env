@@ -41,7 +41,7 @@ NUM_PLAYERS = 8
 MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 
 # DQN agent constants
-MEMORY_SIZE = int(100)
+MEMORY_SIZE = int(1e5)
 BATCH_SIZE = 64
 
 # constant DQN hyperparameters
