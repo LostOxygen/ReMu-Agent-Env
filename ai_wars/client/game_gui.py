@@ -13,12 +13,14 @@ from ..spaceship import Spaceship
 from ..enums import EnumAction
 from ..scoreboard import Scoreboard
 from ..bullet import Bullet
+from ..maps.map_loader import load_map
 
 from ..utils import load_sprite, override
 from ..constants import (
 	COLOR_ARRAY,
 	WIDTH,
-	HEIGHT
+	HEIGHT,
+	MAP
 )
 
 
@@ -37,6 +39,7 @@ class GameGUI(Behavior):
 		self.bullets: List[Bullet] = []  # list with all bullets in the game
 		self.spaceships: Dict[str, Spaceship] = {}  # dict with every spaceship in the game
 		self.color_array = COLOR_ARRAY.copy()
+		self.map = load_map(self.screen, MAP)
 
 		pygame.init()
 		logging.debug("Initialized client")
@@ -118,9 +121,10 @@ class GameGUI(Behavior):
 
 	def _draw(self) -> None:
 		"""private method to draw the game"""
-
 		# draw the background
 		self.screen.blit(self.background_image, (0, 0))
+
+		self.map.draw()
 
 		# rendering loop to draw all bullets
 		for bullet in self.bullets:
