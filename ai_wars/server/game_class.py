@@ -95,7 +95,8 @@ class GameClass:
 				# spawn spaceship at random position if necessary
 				if name not in self.spaceships:
 					spawn = get_random_position(self.screen)
-					self.spawn_spaceship(spawn.x, spawn.y, name)
+					#self.spawn_spaceship(spawn.x, spawn.y, name)
+					self.spawn_spaceship(300, 400, "test")
 
 				# store actions in buffer
 				if name not in self.action_buffer:
@@ -133,12 +134,18 @@ class GameClass:
 
 
 	def _process_game_logic(self, delta_time) -> None:
+		# Check if in bounds
 		for spaceship in self.spaceships.values():
 			if self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):
 				continue
 			else:
 				spaceship.x = 0
 				spaceship.y = 300
+
+		# Check distance and update score accordingly
+		for spaceship in self.spaceships.values():
+			spaceship_location = Vector2(spaceship.x, spaceship.y)
+			print(spaceship_location.distance_squared_to(self.map.goalPoint))
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
