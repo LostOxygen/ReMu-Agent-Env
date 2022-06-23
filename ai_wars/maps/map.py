@@ -11,11 +11,16 @@ class Map(abc.ABC):
     def __init__(self, screen: pygame.surface):
         self.boundRects: list[pygame.rect] = []
         self.screen = screen
+        self.goal = pygame.rect.Rect(780, 200, 10, 200)
         pass
 
     def draw(self) -> None:
+        # draw bounds
         for rect in self.boundRects:
             pygame.draw.rect(self.screen, 'gray', rect)
+
+        # draw goal
+        pygame.draw.rect(self.screen, 'white', self.goal)
 
     def is_point_in_bounds(self, point: Vector2) -> bool:
         for rect in self.boundRects:
