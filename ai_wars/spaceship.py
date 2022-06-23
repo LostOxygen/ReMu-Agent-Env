@@ -102,9 +102,6 @@ class Spaceship():
 
 	def _shoot(self) -> None:
 		"""public method to create a bullet and append it to the bullet list"""
-		#TODO Delta time is only given once here, is that ok?
-		bullet = Bullet(self.x, self.y, self.bullet_sprite, self.direction, self)
-		self.bullet_append(bullet)
 
 	def _rotate(self, clockwise: bool, delta_time: float) -> None:
 		"""public method to rotate the ship in clockwise direction"""
