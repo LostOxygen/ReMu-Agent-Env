@@ -93,7 +93,7 @@ class Scoreboard():
 		"""public method to draw the scoreboard on the given screen"""
 		for pos, (player, score) in enumerate(self._scoreboard_dict.items()):
 			score_string = f"{player} : {score}"
-			text_surface = self.font.render(score_string, False, (255, 255, 255))
+			text_surface = self.font.render(score_string, False, (0, 0, 0))
 			screen.blit(text_surface, (0, self.font_height*pos))
 
 
