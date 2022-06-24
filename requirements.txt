@@ -3,3 +3,4 @@ pygame
 torch
 torchsummary
 torchvision
+matplotlib
