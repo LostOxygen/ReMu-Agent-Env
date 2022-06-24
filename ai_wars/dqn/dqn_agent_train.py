@@ -135,10 +135,11 @@ class Agent(abc.ABC):
 			loss.backward()
 			torch.nn.utils.clip_grad_norm_(self.policy_network.parameters(), max_norm=1.0, norm_type=2)
 			self.optimizer.step()
+			loss = loss.item()
 
 		else:
-			loss = 0.
-			max_q_value = 0.
+			loss = None
+			max_q_value = None
 
 		self._update_target_network()
 		self.current_episode += 1

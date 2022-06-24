@@ -5,7 +5,9 @@ from ..client.behavior import Behavior
 from ..utils import override, render_to_surface, surface_to_tensor, convert_to_greyscale
 from ..constants import (
 	HEIGHT,
-	WIDTH
+	WIDTH,
+	LOG_EVERY,
+	USE_REPLAY_AFTER
 )
 
 from .dqn_utils import (
@@ -15,6 +17,8 @@ from .dqn_utils import (
 	get_dist,
 	get_angle,
 	normalize_vals,
+	plot_metrics,
+	log_metrics
 )
 from .dqn_agent_test import get_agent_test
 from .dqn_agent_train import get_agent
@@ -69,7 +73,13 @@ class DqnBehavior(Behavior):
 		self.optimizer = None
 
 		self.last_score = 0
+		self.last_max_q_value = 0.
+		self.last_loss = 0.
 		self.last_gamestate_tensor = None
+
+		# metrics for plotting
+		self.metrics_scores = []
+		self.metrics_losses = []
 
 	@override
 	def make_move(self,
@@ -125,14 +135,28 @@ class DqnBehavior(Behavior):
 		loss, eps, max_q_value = self.optimizer.apply_training_step(self.last_gamestate_tensor,
 															 		reward, predicted_action,
                                                               		gamestate_tensor)
+		if loss is None:
+			loss = self.last_loss
+		if max_q_value is None:
+			max_q_value = self.last_max_q_value
+
 		self.steps_done += 1
 		self.running_loss += loss
 		print(f"loss: {(self.running_loss/self.steps_done):8.2f}\teps: {eps:8.2f} "
-					f"\tmax_q_value: {max_q_value:8.2f}\tsteps: {self.steps_done}", end="\r")
+			  f"\tmax_q_value: {max_q_value:8.2f}\tsteps: {self.steps_done}", end="\r")
 
 		# save the current state and actions for the next iteration
+		self.last_loss = loss
 		self.last_score = new_score
 		self.last_gamestate_tensor = gamestate_tensor
+		self.last_max_q_value = max_q_value
+
+		# plot and log the metrics every LOG_EVERY steps
+		if self.steps_done % LOG_EVERY == 0 and self.steps_done >= USE_REPLAY_AFTER:
+			self.metrics_losses.append(loss)
+			self.metrics_scores.append(scoreboard[self.player_name])
+			log_metrics(new_score, loss, self.steps_done, self.player_name)
+			plot_metrics(self.metrics_scores, self.metrics_losses, self.player_name)
 
 		# return the action enum with the highest q value as a set
 		return {predicted_action.to_enum_action()}

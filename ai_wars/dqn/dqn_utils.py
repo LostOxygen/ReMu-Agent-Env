@@ -2,11 +2,13 @@
 import os
 import math
 from typing import Tuple
+from datetime import datetime
 import logging
 import torch
 from torch import nn
 from torchsummary import summary
 from pygame.math import Vector2
+import matplotlib.pyplot as plt
 
 import ai_wars.constants
 from ..constants import (
@@ -355,3 +357,60 @@ def normalize_vals(
 	new_val2 = ((100-0)*(val2-0) / limit2-0)+0  # angle
 
 	return new_val1, new_val2
+
+
+def plot_metrics(scores: torch.Tensor, losses: torch.Tensor, model_name: str) -> None:
+	"""
+	Plots score and loss for a model over epochs and saves the plot under ./plots/
+
+	Parameters:
+		scores: torch.Tensor with the current scores and their associated epochs of a given model
+		losses: torch.Tensor with the current loss the associated epochs of a given model
+		epoch: current epoch
+		model_name: the name of the model
+
+	Returns:
+		None
+	"""
+	if not os.path.exists("plots/"):
+		os.mkdir("plots/")
+
+	# plot the scores
+	plt.plot(scores)
+	plt.title(f"{model_name} Score Metrics")
+	plt.ylabel("Score")
+	plt.xlabel("Epochs")
+	plt.savefig(f"./plots/{model_name}_score.png")
+	plt.close()
+
+	# plot the losses
+	plt.plot(losses)
+	plt.title(f"{model_name} Loss Metrics")
+	plt.ylabel("Score")
+	plt.xlabel("Epochs")
+	plt.savefig(f"./plots/{model_name}_loss.png")
+	plt.close()
+
+
+def log_metrics(score: torch.Tensor, loss: torch.Tensor, epoch: int, model_name: str) -> None:
+	"""
+	Logs score and loss for a model over epochs and saves the log under ./logs/model_name.log
+
+	Parameters:
+		scores: torch.Tensor with the current scoreof a given model
+		loss: torch.Tensor with the current loss of a given model
+		epoch: current epoch
+		model_name: the name of the model
+
+	Returns:
+		None
+	"""
+	if not os.path.exists("logs/"):
+		os.mkdir("logs/")
+
+	try:
+		with open(f"./logs/{model_name}.log", encoding="utf-8", mode="a") as log_file:
+			log_file.write(f"{datetime.now().strftime('%A, %d. %B %Y %I:%M%p')} - epoch: {epoch} " \
+						   f"- score: {score} - loss: {loss:.2f}\n")
+	except OSError as error:
+		logging.error("Could not write logs into /logs/%s.log - error: %s", model_name, error)
