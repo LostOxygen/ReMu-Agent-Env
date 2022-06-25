@@ -61,7 +61,7 @@ class DqnBehaviorTest(Behavior):
 class DqnBehavior(Behavior):
 	"""DQN Behavior"""
 
-	def __init__(self, player_name: str, agent_name: str, device="cpu"):
+	def __init__(self, player_name: str, agent_name: str, device: str="cpu"):
 		self.player_name = player_name
 		self.agent_name = agent_name
 

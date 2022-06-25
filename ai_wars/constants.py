@@ -14,7 +14,7 @@ POINTS_LOST_PER_SECOND = 0
 RELATIVE_COORDINATES_MODE = False
 
 # Server constants
-SERVER_TICK_RATE = 30
+SERVER_TICK_RATE = 144
 SERVER_TIMEOUT = 1.0
 CLIENT_TIMEOUT = 1.0
 POINTS_LOST_AFTER_GETTING_HIT = 100
@@ -57,6 +57,12 @@ LEARNING_RATE = 0.001
 TAU = 1e-3
 
 LSTM_SEQUENCE_SIZE = 32
+
+# heuristic parameters
+CHANGE_TARGET_PROB = 0.1 # prob. to change the target
+ANGLE_TRESH_RIGHT = 2 # angle threshold for right rotation
+ANGLE_TRESH_LEFT = -2  # angle threshold for left rotation
+DIST_THRESH = 150 # distance threshold before shooting
 
 # hyperparameter dictionaries, if PARAM_SEARCH is true, these will be used by the models
 PARAM_SEARCH = False
