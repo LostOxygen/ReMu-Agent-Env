@@ -5,6 +5,7 @@ import json
 from pygame import Rect
 from pygame.sprite import Sprite
 from pygame.math import Vector2
+from ai_wars.scoreboard import ScoreboardEntry
 from ai_wars.spaceship import Spaceship
 from ai_wars.constants import COLOR_ARRAY
 
@@ -50,17 +51,19 @@ class TestSerializer(unittest.TestCase):
 		expected = [
 			{
 				"name": "Dieter",
-				"score": 100
+				"score": 100,
+				"finish_reached": 1
 			},
 			{
 				"name": "Bernd",
-				"score": -50
+				"score": -50,
+				"finish_reached": 4
 			}
 		]
 
 		scoreboard = {
-			"Dieter": 100,
-			"Bernd": -50
+			"Dieter": ScoreboardEntry(100, 1),
+			"Bernd": ScoreboardEntry(-50, 4)
 		}
 		actual = serializer._scoreboard_as_dict(scoreboard)
 
@@ -83,11 +86,13 @@ class TestSerializer(unittest.TestCase):
 			"scoreboard": [
 				{
 					"name": "Dieter",
-					"score": 100
+					"score": 100,
+					"finish_reached": 1
 				},
 				{
 					"name": "Bernd",
-					"score": -50
+					"score": -50,
+					"finish_reached": 4
 				}
 			]
 		})
@@ -98,8 +103,8 @@ class TestSerializer(unittest.TestCase):
 		ship_bernd.direction = Vector2(0.5, 12.0)
 		spaceships = [ship_dieter, ship_bernd]
 		scoreboard = {
-			"Dieter": 100,
-			"Bernd": -50
+			"Dieter": ScoreboardEntry(100, 1),
+			"Bernd": ScoreboardEntry(-50, 4)
 		}
 		actual = serializer.serialize_game_state(spaceships, scoreboard)
 

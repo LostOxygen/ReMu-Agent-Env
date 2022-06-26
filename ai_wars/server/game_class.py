@@ -122,15 +122,16 @@ class GameClass:
 			current_dist = spaceship_location.distance_squared_to(self.map.goal_point)
 			percent_dist = current_dist / self.map.max_dist_between_spawn_and_goal
 
-			self.scoreboard.update_score(spaceship.name, int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED))
+			new_distance = int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED)
+			self.scoreboard.update_score(spaceship.name, new_distance)
 
 		# Check if in bounds
 		for spaceship in self.spaceships.values():
 			# When hit goal respawn and give points and increment
 			if self.map.goal_rect.collidepoint(Vector2(spaceship.x, spaceship.y)):
 				self.respawn_ship(spaceship)
-				self.scoreboard.increase_score(spaceship.name, 1000000)
-				self.scoreboard.increment_goal_reached(spaceship.name)
+				self.scoreboard.update_score(spaceship.name, 1000000)
+				self.scoreboard.increment_finish_reached(spaceship.name)
 
 			# When it boundary respawn
 			if not self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):

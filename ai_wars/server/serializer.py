@@ -2,11 +2,13 @@ import json
 
 from pygame.math import Vector2
 
+from ai_wars.scoreboard import ScoreboardEntry
+
 from ..spaceship import Spaceship
 
 def serialize_game_state(
 	spaceships: list[Spaceship],
-	scoreboard: dict[str, int]
+	scoreboard: dict[str, ScoreboardEntry]
 ) -> str:
 	'''
 	Serializes the current game state into a json string
@@ -43,11 +45,12 @@ def _spaceship_as_dict(spaceship: Spaceship) -> dict[str, any]:
 		"direction": _vector_as_dict(spaceship.direction)
 	}
 
-def _scoreboard_as_dict(scoreboard: dict[str, int]) -> list[dict[str, any]]:
-	def _entry_as_dict(name, score):
+def _scoreboard_as_dict(scoreboard: dict[str, ScoreboardEntry]) -> list[dict[str, any]]:
+	def _entry_as_dict(name, entry):
 		return {
 			"name": name,
-			"score": score
+			"score": entry.score,
+			"finish_reached": entry.finish_reached
 		}
 
 	return list(map(

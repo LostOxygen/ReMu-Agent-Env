@@ -11,7 +11,7 @@ from .behavior import Behavior
 
 from ..spaceship import Spaceship
 from ..enums import EnumAction
-from ..scoreboard import Scoreboard
+from ..scoreboard import Scoreboard, ScoreboardEntry
 from ..maps.map_loader import load_map
 
 from ..utils import load_sprite, override
@@ -45,7 +45,7 @@ class GameGUI(Behavior):
 	@override
 	def make_move(self,
 		players: list[dict[str, any]],
-		scoreboard: dict[str, int]
+		scoreboard: dict[str, ScoreboardEntry]
 	) -> set[EnumAction]:
 		self._handle_events()
 

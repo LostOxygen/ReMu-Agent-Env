@@ -3,6 +3,7 @@ import unittest
 from pygame.math import Vector2
 
 from ai_wars.client import deserializer
+from ai_wars.scoreboard import ScoreboardEntry
 
 class TestDeserializerClient(unittest.TestCase):
 
@@ -33,11 +34,12 @@ class TestDeserializerClient(unittest.TestCase):
 		self.assertEqual(expected, actual)
 
 	def test__dict_as_scoreboard(self):
-		expected = {"Dieter": 100}
+		expected = {"Dieter": ScoreboardEntry(100, 1)}
 
 		scoreboard = [{
 			"name": "Dieter",
-			"score": 100
+			"score": 100,
+			"finish_reached": 1
 		}]
 		actual = deserializer._dict_as_scoreboard(scoreboard)
 
@@ -51,7 +53,7 @@ class TestDeserializerClient(unittest.TestCase):
 				"direction": Vector2(123.5, 123.2)
 			}],
 			{
-				"Dieter": 100
+				"Dieter": ScoreboardEntry(100, 1)
 			}
 		)
 
@@ -64,7 +66,8 @@ class TestDeserializerClient(unittest.TestCase):
 				}],
 				"scoreboard": [{
 					"name": "Dieter",
-					"score": 100
+					"score": 100,
+					"finish_reached": 1
 				}]
 			}'''
 		actual = deserializer.deserialize_game_state(json_string)

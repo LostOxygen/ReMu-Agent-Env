@@ -3,9 +3,11 @@ from typing import Tuple
 
 from pygame.math import Vector2
 
+from ai_wars.scoreboard import ScoreboardEntry
+
 def deserialize_game_state(
 	json_string: str
-) -> Tuple[list[dict[str, any]], list[dict[str, any]], dict[str, int]]:
+) -> Tuple[list[dict[str, any]], list[dict[str, any]], dict[str, ScoreboardEntry]]:
 	'''
 	Deserializes the current game state from a json string.
 
@@ -49,7 +51,8 @@ def _dict_as_scoreboard(value: list[dict[str, any]]) -> dict[str, int]:
 	for entry in value:
 		name = entry["name"]
 		score = entry["score"]
+		finish_reached = entry["finish_reached"]
 
-		scoreboard[name] = score
+		scoreboard[name] = ScoreboardEntry(score, finish_reached)
 
 	return scoreboard
