@@ -443,7 +443,7 @@ def plot_metrics(scores: torch.Tensor, losses: torch.Tensor, model_name: str) ->
 	# plot the losses
 	plt.plot(losses)
 	plt.title(f"{model_name} Loss Metrics")
-	plt.ylabel("Score")
+	plt.ylabel("Loss")
 	plt.xlabel("Epochs")
 	plt.savefig(f"./plots/{model_name}_loss.png")
 	plt.close()
