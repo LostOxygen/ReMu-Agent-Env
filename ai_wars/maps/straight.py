@@ -12,8 +12,17 @@ class Straight(Map):
 
     def __init__(self, screen: pygame.surface):
         super().__init__(screen)
-        self.boundRects.append(Rect(0, 0, 800, 200))
-        self.boundRects.append(Rect(0, 400, 800, 200))
-        self.goalRect = pygame.rect.Rect(780, 200, 10, 200)
-        self.goalPoint = Vector2(785, 300)
-        pass
+
+        # Create map boundaries
+        self.bound_rects.append(Rect(0, 0, 800, 200))
+        self.bound_rects.append(Rect(0, 400, 800, 200))
+
+        # Goal properties
+        self.goal_rect = pygame.rect.Rect(780, 200, 10, 200)
+        self.goal_point = Vector2(785, 300)
+
+        # Spawn point
+        self.spawn_point = Vector2(0, 300)
+
+        # Needed for calculation
+        self.max_dist_between_spawn_and_goal = self.spawn_point.distance_squared_to(self.goal_point)

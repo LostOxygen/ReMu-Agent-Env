@@ -29,7 +29,8 @@ from ..constants import (
 	POINTS_LOST_PER_SECOND,
 	WIDTH,
 	HEIGHT,
-	MAP
+	MAP,
+	MAX_POINTS_WHEN_GOAL_REACHED
 )
 
 class GameClass:
@@ -95,8 +96,7 @@ class GameClass:
 				# spawn spaceship at random position if necessary
 				if name not in self.spaceships:
 					spawn = get_random_position(self.screen)
-					#self.spawn_spaceship(spawn.x, spawn.y, name)
-					self.spawn_spaceship(300, 400, "test")
+					self.spawn_spaceship(self.map.spawn_point.x, self.map.spawn_point.y, name)
 
 				# store actions in buffer
 				if name not in self.action_buffer:
@@ -145,7 +145,13 @@ class GameClass:
 		# Check distance and update score accordingly
 		for spaceship in self.spaceships.values():
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
-			print(spaceship_location.distance_squared_to(self.map.goalPoint))
+			print("spaceship location", spaceship_location)
+			current_dist = spaceship_location.distance_squared_to(self.map.goal_point)
+			percent_dist = current_dist / self.map.max_dist_between_spawn_and_goal
+			print("current dist", current_dist)
+			print("max dist", self.map.max_dist_between_spawn_and_goal)
+			print("perc dist", percent_dist)
+			self.scoreboard.update_score(spaceship.name, int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED))
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)

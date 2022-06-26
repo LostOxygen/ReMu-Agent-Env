@@ -4,6 +4,7 @@ import pygame
 from ai_wars.enums import EnumAction, RotationOnlyActions  # pylint: disable=unused-import
 
 # Game constants
+MAX_POINTS_WHEN_GOAL_REACHED = 100000
 BULLET_SPEED = 400.0
 SHOOT_COOLDOWN = 1000  # specifies the cooldown for shooting in ms
 SHIP_SPEED = 150.0
