@@ -20,7 +20,6 @@ do
 			;;
 		-p | --parameter_search )
 			PARAM_SEARCH=true
-			shift
 			;;
 		-a | --addr )
 			ADDR="$2"
