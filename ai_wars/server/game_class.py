@@ -144,11 +144,14 @@ class GameClass:
 
 		# Check if in bounds
 		for spaceship in self.spaceships.values():
-			if not self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):
-				self.respawn_ship(spaceship)
-			elif self.map.goal_rect.collidepoint(Vector2(spaceship.x, spaceship.y)):
+			# When hit goal respawn and give points and increment
+			if self.map.goal_rect.collidepoint(Vector2(spaceship.x, spaceship.y)):
 				self.respawn_ship(spaceship)
 				self.scoreboard.increase_score(spaceship.name, 1000000)
+				self.scoreboard.increment_goal_reached(spaceship.name)
+			# When it boundary respawn
+			if not self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):
+				self.respawn_ship(spaceship)
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)

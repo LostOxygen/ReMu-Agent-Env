@@ -7,39 +7,10 @@ from ai_wars.utils import clip
 from ai_wars.constants import START_SCORE
 import pygame
 
-
-# class Subject(ABC):
-# 	"""The Subject interface."""
-
-# 	@abstractmethod
-# 	def attach(self, observer: Observer) -> None:
-# 		"""Attach an observer to the subject."""
-# 		pass
-
-# 	@abstractmethod
-# 	def detach(self, observer: Observer) -> None:
-# 		"""Detach an observer from the subject."""
-# 		pass
-
-# 	@abstractmethod
-# 	def notify(self) -> None:
-# 		"""Notify all observers about an event."""
-# 		pass
-
-
-# class Observer(ABC):
-# 	"""Observer interface."""
-
-# 	@abstractmethod
-# 	def update(self, subject: Subject) -> None:
-# 		"""Receive update from subject."""
-# 		pass
-
-
 class Scoreboard():
 	"""The Scoreboard subject notifies observers when the state changes."""
 	_observers: List = []
-	_scoreboard_dict: Dict[str, int] = {}
+	_scoreboard_dict: Dict[str, (int, int)] = {}
 
 
 	def __init__(self):
@@ -51,7 +22,7 @@ class Scoreboard():
 
 	def attach(self, observer) -> None:
 		self._observers.append(observer)
-		self._scoreboard_dict[observer.name] = START_SCORE
+		self._scoreboard_dict[observer.name] = (START_SCORE, 0)
 
 
 	def detach(self, observer) -> None:
@@ -64,7 +35,7 @@ class Scoreboard():
 
 
 	def update_score(self, player_name: str, new_score: int) -> None:
-		self._scoreboard_dict[player_name] = new_score
+		self._scoreboard_dict[player_name] = (new_score, self._scoreboard_dict[player_name][1])
 		# re-sort the scoreboard
 		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
 									 key=lambda x: x[1], reverse=True))
@@ -72,8 +43,8 @@ class Scoreboard():
 
 
 	def decrease_score(self, player_name: str, decrease: int) -> None:
-		new_score_val = clip(self._scoreboard_dict[player_name] - decrease)
-		self._scoreboard_dict[player_name] = new_score_val
+		new_score_val = clip(self._scoreboard_dict[player_name][0] - decrease)
+		self._scoreboard_dict[player_name] = (new_score_val, self._scoreboard_dict[player_name][1])
 		# re-sort the scoreboard
 		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
                                      key=lambda x: x[1], reverse=True))
@@ -81,18 +52,21 @@ class Scoreboard():
 
 
 	def increase_score(self, player_name: str, increase: int) -> None:
-		new_score_val = clip(self._scoreboard_dict[player_name] + increase)
-		self._scoreboard_dict[player_name] = new_score_val
+		new_score_val = clip(self._scoreboard_dict[player_name][0] + increase)
+		self._scoreboard_dict[player_name] = (new_score_val, self._scoreboard_dict[player_name][1])
 		# re-sort the scoreboard
 		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
                                      key=lambda x: x[1], reverse=True))
 		self.notify()
 
+	def increment_goal_reached(self, player_name: str):
+		self._scoreboard_dict[player_name] = (self._scoreboard_dict[player_name][0], self._scoreboard_dict[player_name][1] + 1)
+
 
 	def draw_scoreboard(self, screen: pygame.Surface) -> None:
 		"""public method to draw the scoreboard on the given screen"""
-		for pos, (player, score) in enumerate(self._scoreboard_dict.items()):
-			score_string = f"{player} : {score}"
+		for pos, (player, (score, count)) in enumerate(self._scoreboard_dict.items()):
+			score_string = f"{player} : {score} | goals {count}"
 			text_surface = self.font.render(score_string, False, (0, 0, 0))
 			screen.blit(text_surface, (0, self.font_height*pos))
 
