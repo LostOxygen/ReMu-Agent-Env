@@ -23,10 +23,9 @@ def deserialize_game_state(
 	obj = json.loads(json_string)
 
 	players = list(map(_dict_to_player, obj["players"]))
-	projectiles = list(map(_dict_to_projectile, obj["projectiles"]))
 	scoreboard = _dict_as_scoreboard(obj["scoreboard"])
 
-	return (players, projectiles, scoreboard)
+	return (players, scoreboard)
 
 def _dict_to_vector(value: dict[str, float]) -> Vector2:
 	x = value["x"]
@@ -41,17 +40,6 @@ def _dict_to_player(value: dict[str, any]) -> dict[str, any]:
 
 	return {
 		"player_name": name,
-		"position": position,
-		"direction": direction
-	}
-
-def _dict_to_projectile(value: dict[str, any]) -> dict[str, any]:
-	owner = value["owner"]
-	position = _dict_to_vector(value["position"])
-	direction = _dict_to_vector(value["direction"])
-
-	return {
-		"owner": owner,
 		"position": position,
 		"direction": direction
 	}

@@ -32,22 +32,6 @@ class TestDeserializerClient(unittest.TestCase):
 
 		self.assertEqual(expected, actual)
 
-	def test__dict_to_projectile(self):
-		expected = {
-			"owner": "Dieter",
-			"position": Vector2(1.5, 5.2),
-			"direction": Vector2(123.5, 123.2)
-		}
-
-		projectile = {
-			"owner": "Dieter",
-			"position": {"x": 1.5, "y": 5.2},
-			"direction": {"x": 123.5, "y": 123.2}
-		}
-		actual = deserializer._dict_to_projectile(projectile)
-
-		self.assertEqual(expected, actual)
-
 	def test__dict_as_scoreboard(self):
 		expected = {"Dieter": 100}
 
@@ -66,11 +50,6 @@ class TestDeserializerClient(unittest.TestCase):
 				"position": Vector2(1.5, 5.2),
 				"direction": Vector2(123.5, 123.2)
 			}],
-			[{
-				"owner": "Dieter",
-				"position": Vector2(1.5, 5.2),
-				"direction": Vector2(123.5, 123.2)
-			}],
 			{
 				"Dieter": 100
 			}
@@ -80,11 +59,6 @@ class TestDeserializerClient(unittest.TestCase):
 			'''{
 				"players": [{
 					"name": "Dieter",
-					"position": {"x": 1.5, "y": 5.2},
-					"direction": {"x": 123.5, "y": 123.2}
-				}],
-				"projectiles": [{
-					"owner": "Dieter",
 					"position": {"x": 1.5, "y": 5.2},
 					"direction": {"x": 123.5, "y": 123.2}
 				}],

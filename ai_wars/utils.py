@@ -83,10 +83,7 @@ def surface_to_tensor(surface: pygame.Surface, device: str) -> torch.tensor:
 	return img_tensor
 
 
-def render_to_surface(
-    players: list[dict[str, any]],
-    projectiles: list[dict[str, any]]
-	) -> pygame.Surface:
+def render_to_surface(players: list[dict[str, any]]) -> pygame.Surface:
 	"""
 	Renders the gamestate to a pygame surface
 
@@ -101,11 +98,6 @@ def render_to_surface(
 	"""
 	surface = pygame.Surface((WIDTH, HEIGHT))
 	spaceship_sprite = load_sprite("ai_wars/img/spaceship.png", True, True)
-	bullet_sprite = load_sprite("ai_wars/img/bullet.png", True, True)
-
-	# draw the bullets
-	for projectile in projectiles:
-		surface.blit(bullet_sprite, (projectile["position"].x, projectile["position"].y))
 
 	# draw the players
 	for player in players:

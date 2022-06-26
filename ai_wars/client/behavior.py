@@ -11,7 +11,6 @@ class Behavior(abc.ABC):
 	@abc.abstractmethod
 	def make_move(self,
 		players: dict[str, any],
-		projectiles: dict[str, any],
 		scoreboard: dict[str, int]
 	) -> set[EnumAction]:
 		'''
@@ -20,7 +19,6 @@ class Behavior(abc.ABC):
 
 		Parameters:
 			players: the position and direction of each player.
-			projectiles: the position and direction of each projectile
 			scoreboard: the score of each player
 
 		Returns:

@@ -1,18 +1,12 @@
 """library file to provide constants to get rid of magic numbers"""
-import pygame
-
 from ai_wars.enums import EnumAction, RotationOnlyActions  # pylint: disable=unused-import
 
 # Game constants
 MAX_POINTS_WHEN_GOAL_REACHED = 1000
-BULLET_SPEED = 400.0
 SHOOT_COOLDOWN = 1000  # specifies the cooldown for shooting in ms
 SHIP_SPEED = 150.0
 ROTATION_SPEED = 100.0
 START_SCORE = 0  # start score of every player
-HITSCAN_ENABLED = False
-POINTS_LOST_PER_SECOND = 0
-RELATIVE_COORDINATES_MODE = False
 
 # Server constants
 MAP = "straight"
@@ -33,13 +27,8 @@ COLOR_ARRAY = [[255, 0, 0], [237, 185, 185], [143, 35, 35], [255, 255, 0], [185,
                [79, 143, 35], [191, 255, 0], [0, 149, 255], [255, 0, 170], [255, 212, 0],
                [106, 255, 0], [0, 64, 255]]
 
-# pygame userevents use codes from 24 to 35, so the first user event will be 24
-DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
-
 # DQN gamestate constants
 MODEL_PATH = "models/"
-MAX_NUM_PROJECTILES = 128 # the number of projectiles in the gamestate tensor
-NUM_PLAYERS = 8
 MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 
 # DQN agent constants

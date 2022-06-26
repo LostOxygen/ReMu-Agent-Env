@@ -3,11 +3,9 @@ import json
 from pygame.math import Vector2
 
 from ..spaceship import Spaceship
-from ..bullet import Bullet
 
 def serialize_game_state(
 	spaceships: list[Spaceship],
-	bullets: list[Bullet],
 	scoreboard: dict[str, int]
 ) -> str:
 	'''
@@ -23,12 +21,10 @@ def serialize_game_state(
 	'''
 
 	player = list(map(_spaceship_as_dict, spaceships))
-	bullets = list(map(_bullet_as_dict, bullets))
 	scores = _scoreboard_as_dict(scoreboard)
 
 	game_state = {
 		"players": player,
-		"projectiles": bullets,
 		"scoreboard": scores
 	}
 
@@ -45,13 +41,6 @@ def _spaceship_as_dict(spaceship: Spaceship) -> dict[str, any]:
 		"name": spaceship.name,
 		"position": _vector_as_dict(Vector2(spaceship.x, spaceship.y)),
 		"direction": _vector_as_dict(spaceship.direction)
-	}
-
-def _bullet_as_dict(bullet: Bullet) -> dict[str, any]:
-	return {
-		"owner": bullet.shooter.name,
-		"position": _vector_as_dict(Vector2(bullet.x, bullet.y)),
-		"direction": _vector_as_dict(bullet.velocity)
 	}
 
 def _scoreboard_as_dict(scoreboard: dict[str, int]) -> list[dict[str, any]]:

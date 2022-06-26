@@ -5,13 +5,12 @@ import os
 import pygame
 from pygame.math import Vector2
 import logging
-from typing import List, Dict
+from typing import Dict
 
 from .server_modus import ServerModus
 
 from ..spaceship import Spaceship
 from ..scoreboard import Scoreboard
-from ..bullet import Bullet
 
 from ..networking.server import UdpServer
 from ..networking.layers.compression import GzipCompression
@@ -21,17 +20,11 @@ from ..maps.map_loader import load_map
 
 from ..utils import get_random_position, load_sprite
 from ..constants import (
-	POINTS_LOST_AFTER_GETTING_HIT,
-	POINTS_GAINED_AFTER_HITTING,
-	DECREASE_SCORE_EVENT,
 	SERVER_TIMEOUT,
-	HITSCAN_ENABLED,
-	POINTS_LOST_PER_SECOND,
 	WIDTH,
 	HEIGHT,
 	MAP,
-	MAX_POINTS_WHEN_GOAL_REACHED,
-	MAX_ITERATIONS
+	MAX_POINTS_WHEN_GOAL_REACHED
 )
 
 class GameClass:
@@ -40,7 +33,6 @@ class GameClass:
 	os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
 	screen = pygame.display.set_mode((WIDTH, HEIGHT))
 	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
-	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
 
 	def __init__(self, modus: ServerModus, addr: str, port: int):
@@ -50,12 +42,7 @@ class GameClass:
 
 		# initialize the scoreboard and attach all players as observers
 		self.scoreboard = Scoreboard()
-		self.bullets: List[Bullet] = []  # list with all bullets in the game
 		self.spaceships: Dict[str, Spaceship] = {}  # dict with every spaceship in the game
-
-		# initialize custom event timer
-		self.decrease_score_event = pygame.event.Event(DECREASE_SCORE_EVENT,
-													   message="decrease score")
 
 		logging.debug("Initialized server")
 
@@ -119,11 +106,6 @@ class GameClass:
 					self.thread_handler()
 					sys.exit()
 
-				# decrease the score of the players (event gets fired every second)
-				case _ if event.type == DECREASE_SCORE_EVENT:
-					for ship in self.spaceships.values():
-						self.scoreboard.decrease_score(ship.name, POINTS_LOST_PER_SECOND)
-
 
 	def _apply_actions(self, delta_time):
 		'''private method to applies all actions in the action buffer, then clears it'''
@@ -163,7 +145,7 @@ class GameClass:
 	def spawn_spaceship(self, x: int, y: int, name: str) -> None:
 		"""spawn a spaceship at the given position"""
 		color = [255,0,0]
-		spaceship = Spaceship(x, y, self.spaceship_image, self.bullet_image, self.bullets.append, \
+		spaceship = Spaceship(x, y, self.spaceship_image, \
 							  self.screen, name, color, self.modus.get_game_time())
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
@@ -172,8 +154,8 @@ class GameClass:
 
 	def _publish_gamestate(self) -> None:
 		"""private method to send the current gamestate to all clients"""
-		serialized_state = serialize_game_state(self.spaceships.values(), self.bullets,
-											   self.scoreboard.get_scoreboard_dict())
+		serialized_state = serialize_game_state(self.spaceships.values(),
+												self.scoreboard.get_scoreboard_dict())
 		self.server.send_to_all(serialized_state.encode())
 
 	def respawn_ship(self, spaceship: Spaceship):

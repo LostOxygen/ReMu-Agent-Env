@@ -1,7 +1,5 @@
 """library for DQN utilities and classes"""
 import os
-import math
-from typing import Tuple
 import logging
 import torch
 from torch import nn
@@ -11,8 +9,6 @@ from pygame.math import Vector2
 import ai_wars.constants
 from ..constants import (
 	MODEL_PATH,
-	MAX_NUM_PROJECTILES,
-	NUM_PLAYERS,
 	DQN_PARAMETER_DICT,
     HIDDEN_NEURONS
 )
@@ -23,7 +19,6 @@ UP = Vector2(0, -1)
 def gamestate_to_tensor(
 	own_name: str,
 	players: list[dict[str, any]],
-	projectiles: list[dict[str, any]],
 	device: str = "cpu"
 ) -> torch.Tensor:
 	"""
@@ -59,60 +54,6 @@ def gamestate_to_tensor(
 			break
 	#return torch.round(gamestate_tensor, decimals=-1)
 	return gamestate_tensor
-
-def gamestate_to_tensor_relative(
-	own_name: str,
-	players: list[dict[str, any]],
-	projectiles: list[dict[str, any]],
-	device: str = "cpu"
-) -> torch.Tensor:
-	"""
-	Converts the gamestate to a  torch.Tensor. The tensor consists out of 4-tuples
-	of the form (x, y, x_direction, y_direction) for every entity (like ships and bullets).
-
-	Parameters:
-		players: The players with their coordinates and directions
-		projectiles: The projectiles with their coordinates and directions
-		scoreboard: The scoreboard dictionary with the scores of the players
-		device: The device the tensor should be stored on (cpu or cuda:0)
-
-	Return:
-		gamestate_tensor: the gamestate, converted to a torch.Tensor
-	"""
-	gamestate_tensor = torch.zeros(
-		size=(NUM_PLAYERS-1 + MAX_NUM_PROJECTILES, 4),
-		dtype=torch.float32,
-		device=device
-	)
-
-	players_copy = players.copy()
-
-	own_player = next(player for player in players_copy if player["player_name"] == own_name)
-	position = own_player["position"]
-	angle = own_player["direction"].angle_to(UP)
-
-	# iterate over the remaining players
-	for i, player in enumerate(filter(lambda p: p["player_name"] != own_name, players_copy)):
-		relative_position = (player["position"] - position).rotate(angle)
-		relative_direction = player["direction"].rotate(angle)
-
-		gamestate_tensor[i, 0] = relative_position.x
-		gamestate_tensor[i, 1] = relative_position.y
-		gamestate_tensor[i, 2] = relative_direction.x
-		gamestate_tensor[i, 3] = relative_direction.y
-
-	for i, projectile in enumerate(filter(lambda p: p["owner"] != own_name, projectiles)):
-		if i < MAX_NUM_PROJECTILES:
-			relative_position = (projectile["position"] - position).rotate(angle)
-			relative_direction = projectile["direction"].rotate(angle)
-
-			gamestate_tensor[NUM_PLAYERS-1 + i, 0] = relative_position.x
-			gamestate_tensor[NUM_PLAYERS-1 + i, 1] = relative_position.y
-			gamestate_tensor[NUM_PLAYERS-1 + i, 2] = relative_direction.x
-			gamestate_tensor[NUM_PLAYERS-1 + i, 3] = relative_direction.y
-
-	return gamestate_tensor
-
 
 def save_model(model: nn.Sequential, name: str) -> None:
 	"""
@@ -233,107 +174,3 @@ def get_model_lstm(device: str, num_features: int, sequence_length: int,
 		logging.debug("Loaded model from %s", loading_path)
 
 	return model.to(device)
-
-
-def get_nearest_neighbour(own_name: str, players: dict) -> Tuple[float, float, float, float]:
-	"""
-	Iterates over every enemy and returns the coords and rotation of the nearest neighbour
-
-	Parameters:
-		torch.tensor: Gamestate
-
-	Returns:
-		(float, float, float, float): (x, y, x_direction, y_direction)
-	"""
-	players_copy = players.copy()
-	best_distance = float("inf")
-	nearest_player = torch.tensor([0., 0.], dtype=torch.float)
-	own_player = next(player for player in players_copy if player["player_name"] == own_name)
-	own_player_vec = torch.tensor([own_player["position"].x,
-								   own_player["position"].y],
-								   dtype=torch.float)
-
-	# iterate over every other "player" tensor in the whole gamestate
-	for player in players_copy:
-		if player["player_name"] != own_name:
-			tmp_player_vec = torch.tensor([player["position"].x,
-                                  		   player["position"].y], dtype=torch.float)
-
-			tmp_distance = (own_player_vec - tmp_player_vec).pow(2).sum().sqrt()
-			if tmp_distance < best_distance:
-				nearest_player = torch.tensor([player["position"].x, player["position"].y])
-
-	return nearest_player
-
-
-def get_dist(own_player: torch.tensor, player: torch.tensor) -> float:
-	"""
-	Returns the distance between the own ship and the given player
-
-	Parameters:
-		torch.tensor([float, float, float, float]): own_player with(x, y, x_dir, y_dir)
-		torch.tensor([float, float, float, float]): player with(x, y, x_dir, y_dir)
-
-	Returns:
-		float: distance
-	"""
-	own_player_vec = torch.tensor(
-		[own_player[0], own_player[1]], dtype=torch.float)
-	player_vec = torch.tensor([player[0], player[1]], dtype=torch.float)
-
-	return (own_player_vec - player_vec).pow(2).sum().sqrt()
-
-
-def get_angle(own_player: torch.tensor, player: torch.tensor):
-	"""
-	Returns the angle between the own ship and the given player
-
-	Parameters:
-		torch.tensor([float, float, float, float]): own_player with(x, y, x_dir, y_dir)
-		torch.tensor([float, float, float, float]): player with(x, y, x_dir, y_dir)
-
-	Returns:
-		float: angle
-	"""
-	player_coords = torch.tensor([player[0], player[1]], dtype=torch.float)
-	own_coords = torch.tensor([own_player[0], own_player[1]], dtype=torch.float)
-	vector_between_player = player_coords-own_coords
-	own_direction = torch.tensor([own_player[2], own_player[3]], dtype=torch.float)
-
-	inner_product = torch.inner(vector_between_player, own_direction)
-	player_norm = torch.linalg.vector_norm(vector_between_player)
-	own_norm = torch.linalg.vector_norm(own_direction)
-
-	# prevent zero division
-	if player_norm == 0.0:
-		player_norm += 1e-8
-	if own_norm == 0.0:
-		own_norm += 1e-8
-
-	cos = inner_product / (player_norm * own_norm)
-	angle = torch.acos(torch.clamp(cos, -1+1e-8, 1-1e-8))
-
-	assert math.isnan(angle) is False, "Player angle is NaN"
-	return angle
-
-
-def normalize_vals(
-	val1: float,
-	limit1: float,
-	val2: float,
-	limit2: float
-) -> Tuple[float, float]:
-	"""
-	Normalizes two values to a new range of [MAX, 0]
-
-	Parameters:
-		val1: first value
-		val2: second value
-
-	Returns:
-		Tuple[float, float]: (val1, val2)
-	"""
-	new_val1 = ((100-0)*(val1-0) / limit1-0)+0  # distance
-	new_val2 = ((100-0)*(val2-0) / limit2-0)+0  # angle
-
-	return new_val1, new_val2

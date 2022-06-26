@@ -1,28 +1,13 @@
-import torch
 from ..enums import EnumAction
 
 from ..client.behavior import Behavior
 from ..utils import override, render_to_surface, surface_to_tensor, convert_to_greyscale
-from ..constants import (
-	HEIGHT,
-	WIDTH
-)
 
-from .dqn_utils import (
-	gamestate_to_tensor,
-	gamestate_to_tensor_relative,
-	get_nearest_neighbour,
-	get_dist,
-	get_angle,
-	normalize_vals,
-)
+from .dqn_utils import gamestate_to_tensor
 from .dqn_agent_test import get_agent_test
 from .dqn_agent_train import get_agent
 
-from ..constants import (
-	RELATIVE_COORDINATES_MODE,
-	MAX_ITERATIONS
-)
+from ..constants import MAX_ITERATIONS
 
 class DqnBehaviorTest(Behavior):
 
@@ -36,14 +21,9 @@ class DqnBehaviorTest(Behavior):
 	@override
 	def make_move(self,
 		players: dict[str, any],
-		projectiles: dict[str, any],
 		scoreboard: dict[str, int]
 	) -> set[EnumAction]:
-		if RELATIVE_COORDINATES_MODE:
-			gamestate_tensor = gamestate_to_tensor_relative(self.player_name, players,
-															projectiles, self.device)
-		else:
-			gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
+		gamestate_tensor = gamestate_to_tensor(self.player_name, players, self.device)
 		gamestate_tensor = gamestate_tensor.flatten()
 
 		if self.agent is None:
@@ -74,40 +54,22 @@ class DqnBehavior(Behavior):
 	@override
 	def make_move(self,
 		players: dict[str, any],
-		projectiles: dict[str, any],
 		scoreboard: dict[str, int]
 	) -> set[EnumAction]:
-
 		if self.steps_done >= MAX_ITERATIONS:
 			return {}
 
-		# prepare the gamestate for the model
 		if self.agent_name == "cnn":
-			gamestate_surface = render_to_surface(players, projectiles)
+			gamestate_surface = render_to_surface(players)
 			gamestate_tensor = surface_to_tensor(gamestate_surface, self.device)
 			gamestate_tensor = convert_to_greyscale(gamestate_tensor)
-			# obtain the new score and calculate the reward
-			reward = scoreboard[self.player_name][0]
 		else:
-			if RELATIVE_COORDINATES_MODE:
-				gamestate_tensor = gamestate_to_tensor_relative(self.player_name, players,
-																projectiles, self.device)
-			else:
-				gamestate_tensor = gamestate_to_tensor(self.player_name, players, projectiles, self.device)
-			# extract nearest player from gamestate
-			nearest_player = get_nearest_neighbour(self.player_name, players)
-			# obtain the angle and distance towards the nearest player
-			angle = get_angle(gamestate_tensor[0], nearest_player)
-			dist = get_dist(gamestate_tensor[0], nearest_player)
-
-			# normalize the values to be in the same range between [100, 0]
-			max_dist = (torch.tensor([0, 0]) - torch.tensor([WIDTH, HEIGHT])).pow(2).sum().sqrt()
-			angle, dist = normalize_vals(angle, 180, dist, max_dist)
-
+			# prepare the gamestate for the model
+			gamestate_tensor = gamestate_to_tensor(self.player_name, players, self.device)
 			gamestate_tensor = gamestate_tensor.flatten()
 
-			# obtain the new score and calculate the reward and subtract the distance and the angle
-			reward = scoreboard[self.player_name][0]
+		# obtain the new score and calculate the reward and subtract the distance and the angle
+		reward = scoreboard[self.player_name][0]
 
 		# check if the model is already loaded, if not load it
 		if self.optimizer is None:

@@ -31,7 +31,5 @@ def _string_to_action(value: str) -> EnumAction:
 			return EnumAction.BACKWARD
 		case "right":
 			return EnumAction.RIGHT
-		case "shoot":
-			return EnumAction.SHOOT
 
 	raise ValueError(f"Unknown action {value}")

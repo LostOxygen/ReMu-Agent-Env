@@ -6,11 +6,7 @@ from pygame import Rect
 from pygame.sprite import Sprite
 from pygame.math import Vector2
 from ai_wars.spaceship import Spaceship
-from ai_wars.bullet import Bullet
-from ai_wars.constants import (
-	BULLET_SPEED,
-	COLOR_ARRAY
-)
+from ai_wars.constants import COLOR_ARRAY
 
 from ai_wars.server import serializer
 
@@ -44,22 +40,9 @@ class TestSerializer(unittest.TestCase):
 			"direction": {"x": 1.5, "y": 0.1}
 		}
 
-		ship = Spaceship(5.0, 6.0, DummySprite(), None, None, None, "Dieter", COLOR_ARRAY[0])
+		ship = Spaceship(5.0, 6.0, DummySprite(), None, "Dieter", COLOR_ARRAY[0])
 		ship.direction = Vector2(1.5, 0.1)
 		actual = serializer._spaceship_as_dict(ship)
-
-		self.assertEqual(expected, actual)
-
-	def test__bullet_as_dict(self):
-		expected = {
-			"owner": "Dieter",
-			"position": {"x": 5.0, "y": 6.0},
-			"direction": {"x": -1.0*BULLET_SPEED, "y": 0.0}
-		}
-
-		shooter = Spaceship(0, 0, DummySprite(), None, None, None, "Dieter", COLOR_ARRAY[0])
-		bullet = Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, 0.0), shooter)
-		actual = serializer._bullet_as_dict(bullet)
 
 		self.assertEqual(expected, actual)
 
@@ -97,18 +80,6 @@ class TestSerializer(unittest.TestCase):
 					"direction": {"x": 0.5, "y": 12.0}
 				}
 			],
-			"projectiles": [
-				{
-					"owner": "Dieter",
-					"position": {"x": 5.0, "y": 6.0},
-					"direction": {"x": -1.0*BULLET_SPEED, "y": 0.0}
-				},
-				{
-					"owner": "Dieter",
-					"position": {"x": 8.0, "y": 8.0},
-					"direction": {"x": 0.0, "y": 1.0*BULLET_SPEED}
-				}
-			],
 			"scoreboard": [
 				{
 					"name": "Dieter",
@@ -121,19 +92,15 @@ class TestSerializer(unittest.TestCase):
 			]
 		})
 
-		ship_dieter = Spaceship(5.0, 6.0, DummySprite(), None, None, None, "Dieter", COLOR_ARRAY[0])
+		ship_dieter = Spaceship(5.0, 6.0, DummySprite(), None, "Dieter", COLOR_ARRAY[0])
 		ship_dieter.direction = Vector2(1.5, 0.1)
-		ship_bernd = Spaceship(2.0, 8.0, DummySprite(), None, None, None, "Bernd", COLOR_ARRAY[0])
+		ship_bernd = Spaceship(2.0, 8.0, DummySprite(), None, "Bernd", COLOR_ARRAY[0])
 		ship_bernd.direction = Vector2(0.5, 12.0)
 		spaceships = [ship_dieter, ship_bernd]
-		bullets = [
-			Bullet(5.0, 6.0, DummySprite(), Vector2(-1.0, 0.0), ship_dieter),
-			Bullet(8.0, 8.0, DummySprite(), Vector2(0.0, 1.0), ship_dieter),
-		]
 		scoreboard = {
 			"Dieter": 100,
 			"Bernd": -50
 		}
-		actual = serializer.serialize_game_state(spaceships, bullets, scoreboard)
+		actual = serializer.serialize_game_state(spaceships, scoreboard)
 
 		self.assertEqual(expected, actual)

@@ -1,14 +1,11 @@
 """spacehip class file"""
-from typing import Callable
 import pygame
 from pygame.math import Vector2
 
 from ai_wars.enums import EnumAction
-from ai_wars.bullet import Bullet
 from ai_wars.game_time import GameTime, PygameGameTime
 from ai_wars.utils import clip_pos
 from ai_wars.constants import (
-	SHOOT_COOLDOWN,
 	SHIP_SPEED,
 	ROTATION_SPEED
 )
@@ -24,8 +21,6 @@ class Spaceship():
 		x: int,
 		y: int,
 		spaceship_sprite: pygame.sprite.Sprite,
-		bullet_sprite: pygame.sprite.Sprite,
-		bullet_append_func: Callable[[Bullet], None],
 		screen: pygame.Surface,
 		name: str,
 		color: list,
@@ -34,10 +29,8 @@ class Spaceship():
 		self.x = x
 		self.y = y
 		self.spaceship_sprite = spaceship_sprite.copy()
-		self.bullet_sprite = bullet_sprite
 		self.height = spaceship_sprite.get_rect().height
 		self.width = spaceship_sprite.get_rect().width
-		self.bullet_append = bullet_append_func
 		self.direction = Vector2(1,0)
 		self.screen = screen # the screen where everything gets drawn on
 		self.name = name # name is equivalent to an player ID
@@ -47,9 +40,6 @@ class Spaceship():
 		# hitbox stuff
 		self.hitbox = self.spaceship_sprite.get_rect()
 		self.refresh_hitbox_coordinates()
-
-		# bullet cooldown stuff
-		self.last_action_time = 0
 
 		# initialize font stuff
 		pygame.font.init()
@@ -92,16 +82,6 @@ class Spaceship():
 
 			case EnumAction.LEFT:
 				self._rotate(False, delta_time)
-
-			case EnumAction.SHOOT:
-				# implementation of shooting cooldown, hence limits the bullets that can be shot
-				current_time = self.game_time.get_time()
-				if current_time-self.last_action_time >= SHOOT_COOLDOWN:
-					self._shoot()
-					self.last_action_time = current_time
-
-	def _shoot(self) -> None:
-		"""public method to create a bullet and append it to the bullet list"""
 
 	def _rotate(self, clockwise: bool, delta_time: float) -> None:
 		"""public method to rotate the ship in clockwise direction"""
