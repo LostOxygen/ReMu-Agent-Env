@@ -134,24 +134,21 @@ class GameClass:
 
 
 	def _process_game_logic(self, delta_time) -> None:
-		# Check if in bounds
-		for spaceship in self.spaceships.values():
-			if self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):
-				continue
-			else:
-				spaceship.x = 0
-				spaceship.y = 300
-
-		# Check distance and update score accordingly
 		for spaceship in self.spaceships.values():
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
-			print("spaceship location", spaceship_location)
+
 			current_dist = spaceship_location.distance_squared_to(self.map.goal_point)
 			percent_dist = current_dist / self.map.max_dist_between_spawn_and_goal
-			print("current dist", current_dist)
-			print("max dist", self.map.max_dist_between_spawn_and_goal)
-			print("perc dist", percent_dist)
+
 			self.scoreboard.update_score(spaceship.name, int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED))
+
+		# Check if in bounds
+		for spaceship in self.spaceships.values():
+			if not self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):
+				self.respawn_ship(spaceship)
+			elif self.map.goal_rect.collidepoint(Vector2(spaceship.x, spaceship.y)):
+				self.respawn_ship(spaceship)
+				self.scoreboard.increase_score(spaceship.name, 1000000)
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
@@ -173,3 +170,8 @@ class GameClass:
 		serialized_state = serialize_game_state(self.spaceships.values(), self.bullets,
 											   self.scoreboard.get_scoreboard_dict())
 		self.server.send_to_all(serialized_state.encode())
+
+	def respawn_ship(self, spaceship: Spaceship):
+		spaceship.x = self.map.spawn_point.x
+		spaceship.y = self.map.spawn_point.y
+		spaceship.direction = Vector2(1,0)

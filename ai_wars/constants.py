@@ -4,7 +4,7 @@ import pygame
 from ai_wars.enums import EnumAction, RotationOnlyActions  # pylint: disable=unused-import
 
 # Game constants
-MAX_POINTS_WHEN_GOAL_REACHED = 100000
+MAX_POINTS_WHEN_GOAL_REACHED = 1000
 BULLET_SPEED = 400.0
 SHOOT_COOLDOWN = 1000  # specifies the cooldown for shooting in ms
 SHIP_SPEED = 150.0
@@ -47,11 +47,11 @@ MEMORY_SIZE = int(1e5)
 BATCH_SIZE = 64
 
 # constant DQN hyperparameters
-HIDDEN_NEURONS = (128, 256)
+HIDDEN_NEURONS = (32, 64)
 GAMMA = 0.99
 EPS_START = 1.0
 EPS_END = 0.05
-DECAY_FACTOR = 0.99995
+DECAY_FACTOR = 0.9995
 UPDATE_EVERY = 100
 USE_REPLAY_AFTER = 100
 LEARNING_RATE = 0.001

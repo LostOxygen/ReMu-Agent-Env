@@ -68,7 +68,6 @@ class DqnBehavior(Behavior):
 
 		self.optimizer = None
 
-		self.last_score = 0
 		self.last_gamestate_tensor = None
 
 	@override
@@ -83,8 +82,7 @@ class DqnBehavior(Behavior):
 			gamestate_tensor = surface_to_tensor(gamestate_surface, self.device)
 			gamestate_tensor = convert_to_greyscale(gamestate_tensor)
 			# obtain the new score and calculate the reward
-			new_score = scoreboard[self.player_name]
-			reward = (new_score - self.last_score)
+			reward = scoreboard[self.player_name]
 		else:
 			if RELATIVE_COORDINATES_MODE:
 				gamestate_tensor = gamestate_to_tensor_relative(self.player_name, players,
@@ -104,9 +102,7 @@ class DqnBehavior(Behavior):
 			gamestate_tensor = gamestate_tensor.flatten()
 
 			# obtain the new score and calculate the reward and subtract the distance and the angle
-			new_score = scoreboard[self.player_name]
-			reward = (new_score - self.last_score) + (100 - angle) + (100 - dist)
-			reward = reward.item()
+			reward = scoreboard[self.player_name]
 
 		# check if the model is already loaded, if not load it
 		if self.optimizer is None:
@@ -131,7 +127,6 @@ class DqnBehavior(Behavior):
 					f"\tmax_q_value: {max_q_value:8.2f}\tsteps: {self.steps_done}", end="\r")
 
 		# save the current state and actions for the next iteration
-		self.last_score = new_score
 		self.last_gamestate_tensor = gamestate_tensor
 
 		# return the action enum with the highest q value as a set

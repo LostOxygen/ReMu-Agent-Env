@@ -22,7 +22,6 @@ class EnumAction(MoveSet):
 	RIGHT = 1
 	FORWARD = 2
 	BACKWARD = 3
-	SHOOT = 4
 
 	def to_enum_action(self):
 		return self
@@ -35,7 +34,6 @@ class RotationOnlyActions(MoveSet):
 
 	LEFT = 0
 	RIGHT = 1
-	SHOOT = 2
 
 	def to_enum_action(self):
 		match self:
@@ -43,5 +41,3 @@ class RotationOnlyActions(MoveSet):
 				return EnumAction.LEFT
 			case RotationOnlyActions.RIGHT:
 				return EnumAction.RIGHT
-			case RotationOnlyActions.SHOOT:
-				return EnumAction.SHOOT

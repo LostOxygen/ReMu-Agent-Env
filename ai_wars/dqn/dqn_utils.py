@@ -40,7 +40,7 @@ def gamestate_to_tensor(
 		gamestate_tensor: the gamestate, converted to a torch.Tensor
 	"""
 	gamestate_tensor = torch.zeros(
-		size=(NUM_PLAYERS + MAX_NUM_PROJECTILES, 4),
+		size=(1, 4),
 		dtype=torch.float32,
 		device=device
 	)
@@ -57,24 +57,6 @@ def gamestate_to_tensor(
 			# remove the own player from the list
 			del players_copy[i]
 			break
-
-	# iterate over the remaining players
-	for i, player in enumerate(players_copy):
-		gamestate_tensor[i+1, 0] = player["position"].x
-		gamestate_tensor[i+1, 1] = player["position"].y
-		gamestate_tensor[i+1, 2] = player["direction"].x
-		gamestate_tensor[i+1, 3] = player["direction"].y
-
-	# iterate over all projectiles and save their position as well as their direction as 4-tuples
-	# a maximum of MAX_NUM_PROJECTILES can be stored, while the rest is ignored
-	# if there are less projectiles, the remaining indices stay filled with zeros
-	for i, projectile in enumerate(filter(lambda p: p["owner"] != own_name, projectiles)):
-		if i < MAX_NUM_PROJECTILES:
-			gamestate_tensor[NUM_PLAYERS + i, 0] = projectile["position"].x
-			gamestate_tensor[NUM_PLAYERS + i, 1] = projectile["position"].y
-			gamestate_tensor[NUM_PLAYERS + i, 2] = projectile["direction"].x
-			gamestate_tensor[NUM_PLAYERS + i, 3] = projectile["direction"].y
-
 	#return torch.round(gamestate_tensor, decimals=-1)
 	return gamestate_tensor
 

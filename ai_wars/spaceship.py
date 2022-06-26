@@ -38,7 +38,7 @@ class Spaceship():
 		self.height = spaceship_sprite.get_rect().height
 		self.width = spaceship_sprite.get_rect().width
 		self.bullet_append = bullet_append_func
-		self.direction = Vector2(UP)
+		self.direction = Vector2(1,0)
 		self.screen = screen # the screen where everything gets drawn on
 		self.name = name # name is equivalent to an player ID
 		self.color = color
