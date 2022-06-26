@@ -30,7 +30,8 @@ from ..constants import (
 	WIDTH,
 	HEIGHT,
 	MAP,
-	MAX_POINTS_WHEN_GOAL_REACHED
+	MAX_POINTS_WHEN_GOAL_REACHED,
+	MAX_ITERATIONS
 )
 
 class GameClass:
@@ -149,6 +150,7 @@ class GameClass:
 				self.respawn_ship(spaceship)
 				self.scoreboard.increase_score(spaceship.name, 1000000)
 				self.scoreboard.increment_goal_reached(spaceship.name)
+
 			# When it boundary respawn
 			if not self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):
 				self.respawn_ship(spaceship)

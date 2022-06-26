@@ -45,6 +45,7 @@ MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 # DQN agent constants
 MEMORY_SIZE = int(1e5)
 BATCH_SIZE = 64
+MAX_ITERATIONS = 100000
 
 # constant DQN hyperparameters
 HIDDEN_NEURONS = (32, 64)

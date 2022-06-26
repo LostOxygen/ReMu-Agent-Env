@@ -20,7 +20,8 @@ from .dqn_agent_test import get_agent_test
 from .dqn_agent_train import get_agent
 
 from ..constants import (
-	RELATIVE_COORDINATES_MODE
+	RELATIVE_COORDINATES_MODE,
+	MAX_ITERATIONS
 )
 
 class DqnBehaviorTest(Behavior):
@@ -76,13 +77,17 @@ class DqnBehavior(Behavior):
 		projectiles: dict[str, any],
 		scoreboard: dict[str, int]
 	) -> set[EnumAction]:
+
+		if self.steps_done >= MAX_ITERATIONS:
+			return {}
+
 		# prepare the gamestate for the model
 		if self.agent_name == "cnn":
 			gamestate_surface = render_to_surface(players, projectiles)
 			gamestate_tensor = surface_to_tensor(gamestate_surface, self.device)
 			gamestate_tensor = convert_to_greyscale(gamestate_tensor)
 			# obtain the new score and calculate the reward
-			reward = scoreboard[self.player_name]
+			reward = scoreboard[self.player_name][0]
 		else:
 			if RELATIVE_COORDINATES_MODE:
 				gamestate_tensor = gamestate_to_tensor_relative(self.player_name, players,
@@ -102,7 +107,7 @@ class DqnBehavior(Behavior):
 			gamestate_tensor = gamestate_tensor.flatten()
 
 			# obtain the new score and calculate the reward and subtract the distance and the angle
-			reward = scoreboard[self.player_name]
+			reward = scoreboard[self.player_name][0]
 
 		# check if the model is already loaded, if not load it
 		if self.optimizer is None:
