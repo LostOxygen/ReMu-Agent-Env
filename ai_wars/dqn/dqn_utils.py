@@ -270,7 +270,7 @@ def get_nearest_neighbour(own_name: str, players: dict) -> Tuple[float, float, f
 	best_distance = float("inf")
 	nearest_player = torch.tensor([0., 0.], dtype=torch.float)
 	own_player = next(player for player in players_copy if player["player_name"] == own_name)
-	own_player_vec = torch.tensor([own_player["position"].x,
+	own_player_pos = torch.tensor([own_player["position"].x,
 								   own_player["position"].y],
 								   dtype=torch.float)
 
@@ -278,13 +278,47 @@ def get_nearest_neighbour(own_name: str, players: dict) -> Tuple[float, float, f
 	for player in players_copy:
 		if player["player_name"] != own_name:
 			tmp_player_vec = torch.tensor([player["position"].x,
-                                  		   player["position"].y], dtype=torch.float)
+                                  		   player["position"].y],
+										   dtype=torch.float)
 
-			tmp_distance = (own_player_vec - tmp_player_vec).pow(2).sum().sqrt()
+			tmp_distance = (own_player_pos - tmp_player_vec).pow(2).sum().sqrt()
 			if tmp_distance < best_distance:
 				nearest_player = torch.tensor([player["position"].x, player["position"].y])
 
 	return nearest_player
+
+
+def get_ordered_neighbours(own_name: str, players: dict) -> Tuple[float, float, float, float]:
+	"""
+	Iterates over every enemy and returns the coords and rotation of the nearest neighbour as an
+	ordered Sequence.
+
+	Parameters:
+		torch.tensor: Gamestate
+
+	Returns:
+		list[players]: ordered list of players according to their distance.
+	"""
+	ordered_players = []
+	players_copy = players.copy()
+	own_player = next(player for player in players_copy if player["player_name"] == own_name)
+	own_player_pos = torch.tensor([own_player["position"].x,
+								   own_player["position"].y],
+								   dtype=torch.float)
+
+	# iterate over every other "player" tensor in the whole gamestate
+	for player in players_copy:
+		if player["player_name"] != own_name:
+			tmp_player_vec = torch.tensor([player["position"].x,
+                                  		   player["position"].y],
+										   dtype=torch.float)
+
+			distance = (own_player_pos - tmp_player_vec).pow(2).sum().sqrt()
+			# calculate the distance to every player and append them to the list
+			ordered_players.append((player, distance))
+	# sort the player with descending distance (so lowest distance is on top) and return without dist
+	ordered_players.sort(key=lambda x: x[1])
+	return [player[0] for player in ordered_players]
 
 
 def get_dist(own_player: torch.tensor, player: torch.tensor) -> float:
@@ -336,6 +370,28 @@ def get_angle(own_player: torch.tensor, player: torch.tensor):
 
 	assert math.isnan(angle) is False, "Player angle is NaN"
 	return angle
+
+
+def get_oriented_angle(own_player: torch.tensor, player: torch.tensor):
+	"""
+	Returns the angle between the own ship and the given player but with a sign for orientation
+
+	Parameters:
+		torch.tensor([float, float, float, float]): own_player with(x, y, x_dir, y_dir)
+		torch.tensor([float, float, float, float]): player with(x, y, x_dir, y_dir)
+
+	Returns:
+		float: angle
+	"""
+	player_coords = torch.tensor([player[0], player[1]], dtype=torch.float)
+	own_coords = torch.tensor([own_player[0], own_player[1]], dtype=torch.float)
+	vector_between_player = player_coords-own_coords
+	own_direction = torch.tensor([own_player[2], own_player[3]], dtype=torch.float)
+
+	dot = torch.dot(own_direction, vector_between_player)
+	det = own_direction[0]*vector_between_player[1] - vector_between_player[0]*own_direction[1]
+
+	return torch.rad2deg(torch.atan2(det, dot))
 
 
 def normalize_vals(

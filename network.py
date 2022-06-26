@@ -10,6 +10,7 @@ import torch
 import ai_wars.constants
 from ai_wars.client.player import Player
 from ai_wars.dqn.dqn_behavior import DqnBehavior, DqnBehaviorTest
+from ai_wars.dqn.heuristic_behaviour import HeuristicBehavior
 
 
 RUNNING = True
@@ -66,7 +67,10 @@ if __name__ == "__main__":
 	if args.test:
 		behavior = DqnBehaviorTest(args.name, args.model_type, device)
 	else:
-		behavior = DqnBehavior(args.name, args.model_type, device)
+		if args.model_type == "heuristic":
+			behavior = HeuristicBehavior(args.name, args.model_type, device)
+		else:
+			behavior = DqnBehavior(args.name, args.model_type, device)
 
 	logging.info("Time: %s", datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p"))
 	logging.info(
