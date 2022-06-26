@@ -16,7 +16,8 @@ from ..constants import (
 	MAX_NUM_PROJECTILES,
 	NUM_PLAYERS,
 	DQN_PARAMETER_DICT,
-    HIDDEN_NEURONS
+    HIDDEN_NEURONS,
+	MAX_ITERATIONS
 )
 from .dqn_models import DQNModelLinear, DQNModelLSTM, DQNModelCNN
 
@@ -405,12 +406,13 @@ def log_metrics(score: torch.Tensor, loss: torch.Tensor, epoch: int, model_name:
 	Returns:
 		None
 	"""
-	if not os.path.exists("logs/"):
-		os.mkdir("logs/")
+	if epoch <= MAX_ITERATIONS:
+		if not os.path.exists("logs/"):
+			os.mkdir("logs/")
 
-	try:
-		with open(f"./logs/{model_name}.log", encoding="utf-8", mode="a") as log_file:
-			log_file.write(f"{datetime.now().strftime('%A, %d. %B %Y %I:%M%p')} - epoch: {epoch} " \
-						   f"- score: {score} - loss: {loss:.2f}\n")
-	except OSError as error:
-		logging.error("Could not write logs into /logs/%s.log - error: %s", model_name, error)
+		try:
+			with open(f"./logs/{model_name}.log", encoding="utf-8", mode="a") as log_file:
+				log_file.write(f"{datetime.now().strftime('%A, %d. %B %Y %I:%M%p')} - epoch: {epoch} " \
+							f"- score: {score} - loss: {loss:.2f}\n")
+		except OSError as error:
+			logging.error("Could not write logs into /logs/%s.log - error: %s", model_name, error)

@@ -29,7 +29,8 @@ from ..constants import (
 	LEARNING_RATE,
 	TAU,
 	USE_REPLAY_AFTER,
-	DQN_PARAMETER_DICT
+	DQN_PARAMETER_DICT,
+	MAX_ITERATIONS
 )
 
 
@@ -68,7 +69,7 @@ class Agent(abc.ABC):
 			num_episodes: how many iterations should be performed or zero to run infinite
 			load_model: functions that provides the model
 		'''
-
+		self.num_episodes = MAX_ITERATIONS
 		self.device = device
 		self.model_name = model_name
 
@@ -110,7 +111,7 @@ class Agent(abc.ABC):
 
 		if self.num_episodes != 0 and self.current_episode > self.num_episodes:
 			# training is over, return
-			return
+			return (None, self.eps, None)
 
 		self.update_replay_memory(state, reward, action.value, next_state)
 
@@ -191,12 +192,9 @@ class LinearAgent(Agent):
 		device: str,
 		model_name: str,
 		input_dim: int,
-		num_episodes=0,
 		episodes_per_update=1000
 	):
 		super().__init__(device, model_name, input_dim, self._load_model)
-
-		self.num_episodes = num_episodes
 		self.episodes_per_update = episodes_per_update
 
 		self.last_state = None
@@ -236,12 +234,9 @@ class LSTMAgent(Agent):
 		device: str,
 		model_name: str,
 		input_dim: int,
-		num_episodes=0,
 		episodes_per_update=1000
 	):
 		super().__init__(device, model_name, input_dim, self._load_model)
-
-		self.num_episodes = num_episodes
 		self.episodes_per_update = episodes_per_update
 
 		self.sequence_queue = deque(maxlen=LSTM_SEQUENCE_SIZE)
@@ -290,12 +285,9 @@ class CNNAgent(Agent):
 			  device: str,
 			  model_name: str,
 			  input_dim: int,
-			  num_episodes=0,
 			  episodes_per_update=1000
 			  ):
 		super().__init__(device, model_name, input_dim, self._load_model)
-
-		self.num_episodes = num_episodes
 		self.episodes_per_update = episodes_per_update
 
 		self.last_state = None

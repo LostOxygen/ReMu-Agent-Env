@@ -42,6 +42,7 @@ NUM_PLAYERS = 8
 MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 
 # DQN agent constants
+MAX_ITERATIONS = 1000000 # maximum number of training steps
 MEMORY_SIZE = int(1e5)
 BATCH_SIZE = 64
 
