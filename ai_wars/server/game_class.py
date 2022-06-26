@@ -18,7 +18,7 @@ from .serializer import serialize_game_state
 from .deserializer import deserialize_action
 from ..maps.map_loader import load_map
 
-from ..utils import get_random_position, load_sprite
+from ..utils import load_sprite
 from ..constants import (
 	SERVER_TIMEOUT,
 	WIDTH,
@@ -61,7 +61,7 @@ class GameClass:
 
 	def update_game(self, deltatime):
 		self._handle_events()
-		self._process_game_logic(deltatime)
+		self._process_game_logic()
 		self._apply_actions(deltatime)
 		self._publish_gamestate()
 
@@ -83,7 +83,6 @@ class GameClass:
 
 				# spawn spaceship at random position if necessary
 				if name not in self.spaceships:
-					spawn = get_random_position(self.screen)
 					self.spawn_spaceship(self.map.spawn_point.x, self.map.spawn_point.y, name)
 
 				# store actions in buffer
@@ -116,7 +115,7 @@ class GameClass:
 		self.action_buffer.clear()
 
 
-	def _process_game_logic(self, delta_time) -> None:
+	def _process_game_logic(self) -> None:
 		for spaceship in self.spaceships.values():
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
 

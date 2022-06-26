@@ -135,7 +135,7 @@ class GameGUI(Behavior):
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 
-	def _isColorTooDark(self, color: list):
+	def _is_color_too_dark(self, color: list):
 		# calc the brightness of the color
 		luma = 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]
 		return luma < 128
