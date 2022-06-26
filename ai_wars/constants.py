@@ -15,7 +15,7 @@ POINTS_LOST_PER_SECOND = 0
 RELATIVE_COORDINATES_MODE = False
 
 # Server constants
-MAP = "straight"
+MAP = "corner"
 SERVER_TICK_RATE = 30
 SERVER_TIMEOUT = 1.0
 CLIENT_TIMEOUT = 1.0
@@ -45,7 +45,7 @@ MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 # DQN agent constants
 MEMORY_SIZE = int(1e5)
 BATCH_SIZE = 64
-MAX_ITERATIONS = 100000
+MAX_ITERATIONS = 1000000
 
 # constant DQN hyperparameters
 HIDDEN_NEURONS = (32, 64)

@@ -10,6 +10,7 @@ class Map(abc.ABC):
     '''
     def __init__(self, screen: pygame.surface):
         self.bound_rects: list[pygame.rect] = []
+        self.checkpoints: list[pygame.rect] = []
         self.screen = screen
         pass
 

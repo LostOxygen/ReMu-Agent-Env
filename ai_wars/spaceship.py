@@ -29,6 +29,7 @@ class Spaceship():
 		screen: pygame.Surface,
 		name: str,
 		color: list,
+		direction: Vector2,
 		game_time: GameTime = PygameGameTime()
 	):
 		self.x = x
@@ -38,7 +39,7 @@ class Spaceship():
 		self.height = spaceship_sprite.get_rect().height
 		self.width = spaceship_sprite.get_rect().width
 		self.bullet_append = bullet_append_func
-		self.direction = Vector2(1,0)
+		self.direction = direction.copy()
 		self.screen = screen # the screen where everything gets drawn on
 		self.name = name # name is equivalent to an player ID
 		self.color = color

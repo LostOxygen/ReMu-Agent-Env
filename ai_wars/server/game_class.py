@@ -164,7 +164,7 @@ class GameClass:
 		"""spawn a spaceship at the given position"""
 		color = [255,0,0]
 		spaceship = Spaceship(x, y, self.spaceship_image, self.bullet_image, self.bullets.append, \
-							  self.screen, name, color, self.modus.get_game_time())
+							  self.screen, name, color, self.map.spawn_direction, self.modus.get_game_time())
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 		logging.debug("Spawned spaceship with name: %s at X:%s Y:%s", name, x, y)
@@ -179,4 +179,5 @@ class GameClass:
 	def respawn_ship(self, spaceship: Spaceship):
 		spaceship.x = self.map.spawn_point.x
 		spaceship.y = self.map.spawn_point.y
-		spaceship.direction = Vector2(1,0)
+		spaceship.direction = self.map.spawn_direction.copy()
+

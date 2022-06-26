@@ -151,8 +151,7 @@ class GameGUI(Behavior):
 					break
 
 		spaceship = Spaceship(position.x, position.y, self.spaceship_image, self.bullet_image, \
-								self.bullets.append, self.screen, name, color)
-		spaceship.direction = direction
+								self.bullets.append, self.screen, name, color, direction)
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 

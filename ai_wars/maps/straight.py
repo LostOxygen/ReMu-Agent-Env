@@ -21,8 +21,9 @@ class Straight(Map):
         self.goal_rect = pygame.rect.Rect(780, 200, 10, 200)
         self.goal_point = Vector2(785, 300)
 
-        # Spawn point
+        # Spawn properties
         self.spawn_point = Vector2(0, 300)
+        self.spawn_direction = Vector2(1, 0)
 
         # Needed for calculation
         self.max_dist_between_spawn_and_goal = self.spawn_point.distance_squared_to(self.goal_point)
