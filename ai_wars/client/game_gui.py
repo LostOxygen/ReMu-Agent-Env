@@ -34,7 +34,6 @@ class GameGUI(Behavior):
 		self.clock = pygame.time.Clock()
 		# data structures that hold the game information
 		self.scoreboard = Scoreboard()
-		self.bullets: List[Bullet] = []  # list with all bullets in the game
 		self.spaceships: Dict[str, Spaceship] = {}  # dict with every spaceship in the game
 		self.color_array = COLOR_ARRAY.copy()
 		self.map = load_map(self.screen, MAP)
@@ -52,7 +51,6 @@ class GameGUI(Behavior):
 
 		self._update_players(players)
 		self._update_scoreboard(scoreboard)
-		self._update_bullets(projectiles)
 		self._draw()
 
 		return self._handle_inputs()

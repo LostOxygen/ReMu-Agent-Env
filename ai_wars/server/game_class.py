@@ -22,10 +22,7 @@ from ..utils import load_sprite
 from ..constants import (
 	POINTS_LOST_AFTER_GETTING_HIT,
 	POINTS_GAINED_AFTER_HITTING,
-	DECREASE_SCORE_EVENT,
 	SERVER_TIMEOUT,
-	HITSCAN_ENABLED,
-	POINTS_LOST_PER_SECOND,
 	WIDTH,
 	HEIGHT,
 	MAP,
@@ -38,7 +35,6 @@ class GameClass:
 	os.putenv("SDL_VIDEODRIVER", "dummy") # start pygame in headless mode
 	screen = pygame.display.set_mode((WIDTH, HEIGHT))
 	spaceship_image = load_sprite("ai_wars/img/spaceship.png", True)
-	bullet_image = load_sprite("ai_wars/img/bullet.png", True)
 
 
 	def __init__(self, modus: ServerModus, addr: str, port: int):
