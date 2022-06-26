@@ -107,11 +107,6 @@ class Agent(abc.ABC):
 		Returns:
 			(current loss, current epsilon, current best q value)
 		'''
-
-		if self.num_episodes != 0 and self.current_episode > self.num_episodes:
-			# training is over, return
-			return
-
 		self.update_replay_memory(state, reward, action.value, next_state)
 
 		self.t_step = (self.t_step + 1) % UPDATE_EVERY
@@ -189,14 +184,9 @@ class LinearAgent(Agent):
 	def __init__(self,
 		device: str,
 		model_name: str,
-		input_dim: int,
-		num_episodes=0,
-		episodes_per_update=1000
+		input_dim: int
 	):
 		super().__init__(device, model_name, input_dim, self._load_model)
-
-		self.num_episodes = num_episodes
-		self.episodes_per_update = episodes_per_update
 
 		self.last_state = None
 
@@ -223,7 +213,7 @@ class LinearAgent(Agent):
 
 	@override
 	def update_replay_memory(self, state, reward, action, next_state):
-		self.memory.add(state, int(action), reward, next_state)
+		self.memory.add(state, action, reward, next_state)
 
 
 class LSTMAgent(Agent):
@@ -234,14 +224,9 @@ class LSTMAgent(Agent):
 	def __init__(self,
 		device: str,
 		model_name: str,
-		input_dim: int,
-		num_episodes=0,
-		episodes_per_update=1000
+		input_dim: int
 	):
 		super().__init__(device, model_name, input_dim, self._load_model)
-
-		self.num_episodes = num_episodes
-		self.episodes_per_update = episodes_per_update
 
 		self.sequence_queue = deque(maxlen=LSTM_SEQUENCE_SIZE)
 		self.last_sequence = torch.zeros((LSTM_SEQUENCE_SIZE, input_dim)).to(self.device)
@@ -286,16 +271,11 @@ class CNNAgent(Agent):
 	'''
 
 	def __init__(self,
-			  device: str,
-			  model_name: str,
-			  input_dim: int,
-			  num_episodes=0,
-			  episodes_per_update=1000
-			  ):
+		device: str,
+		model_name: str,
+		input_dim: int,
+	):
 		super().__init__(device, model_name, input_dim, self._load_model)
-
-		self.num_episodes = num_episodes
-		self.episodes_per_update = episodes_per_update
 
 		self.last_state = None
 
@@ -322,4 +302,4 @@ class CNNAgent(Agent):
 
 	@override
 	def update_replay_memory(self, state, reward, action, next_state):
-		self.memory.add(state, action.value, reward, next_state)
+		self.memory.add(state, action, reward, next_state)

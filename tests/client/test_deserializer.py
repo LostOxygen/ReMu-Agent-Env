@@ -3,6 +3,7 @@ import unittest
 from pygame.math import Vector2
 
 from ai_wars.client import deserializer
+from ai_wars.scoreboard import ScoreboardEntry
 
 class TestDeserializerClient(unittest.TestCase):
 
@@ -32,28 +33,13 @@ class TestDeserializerClient(unittest.TestCase):
 
 		self.assertEqual(expected, actual)
 
-	def test__dict_to_projectile(self):
-		expected = {
-			"owner": "Dieter",
-			"position": Vector2(1.5, 5.2),
-			"direction": Vector2(123.5, 123.2)
-		}
-
-		projectile = {
-			"owner": "Dieter",
-			"position": {"x": 1.5, "y": 5.2},
-			"direction": {"x": 123.5, "y": 123.2}
-		}
-		actual = deserializer._dict_to_projectile(projectile)
-
-		self.assertEqual(expected, actual)
-
 	def test__dict_as_scoreboard(self):
-		expected = {"Dieter": 100}
+		expected = {"Dieter": ScoreboardEntry(100, 1)}
 
 		scoreboard = [{
 			"name": "Dieter",
-			"score": 100
+			"score": 100,
+			"finish_reached": 1
 		}]
 		actual = deserializer._dict_as_scoreboard(scoreboard)
 
@@ -66,13 +52,8 @@ class TestDeserializerClient(unittest.TestCase):
 				"position": Vector2(1.5, 5.2),
 				"direction": Vector2(123.5, 123.2)
 			}],
-			[{
-				"owner": "Dieter",
-				"position": Vector2(1.5, 5.2),
-				"direction": Vector2(123.5, 123.2)
-			}],
 			{
-				"Dieter": 100
+				"Dieter": ScoreboardEntry(100, 1)
 			}
 		)
 
@@ -83,14 +64,10 @@ class TestDeserializerClient(unittest.TestCase):
 					"position": {"x": 1.5, "y": 5.2},
 					"direction": {"x": 123.5, "y": 123.2}
 				}],
-				"projectiles": [{
-					"owner": "Dieter",
-					"position": {"x": 1.5, "y": 5.2},
-					"direction": {"x": 123.5, "y": 123.2}
-				}],
 				"scoreboard": [{
 					"name": "Dieter",
-					"score": 100
+					"score": 100,
+					"finish_reached": 1
 				}]
 			}'''
 		actual = deserializer.deserialize_game_state(json_string)

@@ -3,9 +3,11 @@ from typing import Tuple
 
 from pygame.math import Vector2
 
+from ai_wars.scoreboard import ScoreboardEntry
+
 def deserialize_game_state(
 	json_string: str
-) -> Tuple[list[dict[str, any]], list[dict[str, any]], dict[str, int]]:
+) -> Tuple[list[dict[str, any]], list[dict[str, any]], dict[str, ScoreboardEntry]]:
 	'''
 	Deserializes the current game state from a json string.
 
@@ -23,10 +25,9 @@ def deserialize_game_state(
 	obj = json.loads(json_string)
 
 	players = list(map(_dict_to_player, obj["players"]))
-	projectiles = list(map(_dict_to_projectile, obj["projectiles"]))
 	scoreboard = _dict_as_scoreboard(obj["scoreboard"])
 
-	return (players, projectiles, scoreboard)
+	return (players, scoreboard)
 
 def _dict_to_vector(value: dict[str, float]) -> Vector2:
 	x = value["x"]
@@ -45,23 +46,13 @@ def _dict_to_player(value: dict[str, any]) -> dict[str, any]:
 		"direction": direction
 	}
 
-def _dict_to_projectile(value: dict[str, any]) -> dict[str, any]:
-	owner = value["owner"]
-	position = _dict_to_vector(value["position"])
-	direction = _dict_to_vector(value["direction"])
-
-	return {
-		"owner": owner,
-		"position": position,
-		"direction": direction
-	}
-
 def _dict_as_scoreboard(value: list[dict[str, any]]) -> dict[str, int]:
 	scoreboard = {}
 	for entry in value:
 		name = entry["name"]
 		score = entry["score"]
+		finish_reached = entry["finish_reached"]
 
-		scoreboard[name] = score
+		scoreboard[name] = ScoreboardEntry(score, finish_reached)
 
 	return scoreboard

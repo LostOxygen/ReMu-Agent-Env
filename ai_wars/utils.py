@@ -1,5 +1,4 @@
 """Utils library for miscellaneous functions"""
-import random
 from typing import Tuple
 
 import torchvision
@@ -25,19 +24,6 @@ def wrap_position(position: Tuple[int, int], surface: pygame.Surface) -> Vector2
 	x, y = position
 	w, h = surface.get_size()
 	return Vector2(x % w, y % h)
-
-
-def get_random_position(surface: pygame.Surface) -> Vector2:
-	return Vector2(
-		random.randrange(surface.get_width()),
-		random.randrange(surface.get_height()),
-	)
-
-
-def get_random_velocity(min_speed: float, max_speed: float) -> Vector2:
-	speed = random.randint(min_speed, max_speed)
-	angle = random.randrange(0, 360)
-	return Vector2(speed, 0).rotate(angle)
 
 
 def clip(score: int) -> int:
@@ -83,10 +69,7 @@ def surface_to_tensor(surface: pygame.Surface, device: str) -> torch.tensor:
 	return img_tensor
 
 
-def render_to_surface(
-    players: list[dict[str, any]],
-    projectiles: list[dict[str, any]]
-	) -> pygame.Surface:
+def render_to_surface(players: list[dict[str, any]]) -> pygame.Surface:
 	"""
 	Renders the gamestate to a pygame surface
 
@@ -101,11 +84,6 @@ def render_to_surface(
 	"""
 	surface = pygame.Surface((WIDTH, HEIGHT))
 	spaceship_sprite = load_sprite("ai_wars/img/spaceship.png", True, True)
-	bullet_sprite = load_sprite("ai_wars/img/bullet.png", True, True)
-
-	# draw the bullets
-	for projectile in projectiles:
-		surface.blit(bullet_sprite, (projectile["position"].x, projectile["position"].y))
 
 	# draw the players
 	for player in players:

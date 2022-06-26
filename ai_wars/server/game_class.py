@@ -5,13 +5,12 @@ import os
 import pygame
 from pygame.math import Vector2
 import logging
-from typing import List, Dict
+from typing import Dict
 
 from .server_modus import ServerModus
 
 from ..spaceship import Spaceship
 from ..scoreboard import Scoreboard
-from ..bullet import Bullet
 
 from ..networking.server import UdpServer
 from ..networking.layers.compression import GzipCompression
@@ -19,7 +18,7 @@ from .serializer import serialize_game_state
 from .deserializer import deserialize_action
 from ..maps.map_loader import load_map
 
-from ..utils import get_random_position, load_sprite
+from ..utils import load_sprite
 from ..constants import (
 	POINTS_LOST_AFTER_GETTING_HIT,
 	POINTS_GAINED_AFTER_HITTING,
@@ -30,8 +29,7 @@ from ..constants import (
 	WIDTH,
 	HEIGHT,
 	MAP,
-	MAX_POINTS_WHEN_GOAL_REACHED,
-	MAX_ITERATIONS
+	MAX_POINTS_WHEN_GOAL_REACHED
 )
 
 class GameClass:
@@ -50,12 +48,7 @@ class GameClass:
 
 		# initialize the scoreboard and attach all players as observers
 		self.scoreboard = Scoreboard()
-		self.bullets: List[Bullet] = []  # list with all bullets in the game
 		self.spaceships: Dict[str, Spaceship] = {}  # dict with every spaceship in the game
-
-		# initialize custom event timer
-		self.decrease_score_event = pygame.event.Event(DECREASE_SCORE_EVENT,
-													   message="decrease score")
 
 		logging.debug("Initialized server")
 
@@ -74,7 +67,7 @@ class GameClass:
 
 	def update_game(self, deltatime):
 		self._handle_events()
-		self._process_game_logic(deltatime)
+		self._process_game_logic()
 		self._apply_actions(deltatime)
 		self._publish_gamestate()
 
@@ -96,7 +89,6 @@ class GameClass:
 
 				# spawn spaceship at random position if necessary
 				if name not in self.spaceships:
-					spawn = get_random_position(self.screen)
 					self.spawn_spaceship(self.map.spawn_point.x, self.map.spawn_point.y, name)
 
 				# store actions in buffer
@@ -119,11 +111,6 @@ class GameClass:
 					self.thread_handler()
 					sys.exit()
 
-				# decrease the score of the players (event gets fired every second)
-				case _ if event.type == DECREASE_SCORE_EVENT:
-					for ship in self.spaceships.values():
-						self.scoreboard.decrease_score(ship.name, POINTS_LOST_PER_SECOND)
-
 
 	def _apply_actions(self, delta_time):
 		'''private method to applies all actions in the action buffer, then clears it'''
@@ -134,22 +121,23 @@ class GameClass:
 		self.action_buffer.clear()
 
 
-	def _process_game_logic(self, delta_time) -> None:
+	def _process_game_logic(self) -> None:
 		for spaceship in self.spaceships.values():
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
 
 			current_dist = spaceship_location.distance_squared_to(self.map.goal_point)
 			percent_dist = current_dist / self.map.max_dist_between_spawn_and_goal
 
-			self.scoreboard.update_score(spaceship.name, int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED))
+			new_distance = int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED)
+			self.scoreboard.update_score(spaceship.name, new_distance)
 
 		# Check if in bounds
 		for spaceship in self.spaceships.values():
 			# When hit goal respawn and give points and increment
 			if self.map.goal_rect.collidepoint(Vector2(spaceship.x, spaceship.y)):
 				self.respawn_ship(spaceship)
-				self.scoreboard.increase_score(spaceship.name, 1000000)
-				self.scoreboard.increment_goal_reached(spaceship.name)
+				self.scoreboard.update_score(spaceship.name, 1000000)
+				self.scoreboard.increment_finish_reached(spaceship.name)
 
 			# When it boundary respawn
 			if not self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):
@@ -163,7 +151,7 @@ class GameClass:
 	def spawn_spaceship(self, x: int, y: int, name: str) -> None:
 		"""spawn a spaceship at the given position"""
 		color = [255,0,0]
-		spaceship = Spaceship(x, y, self.spaceship_image, self.bullet_image, self.bullets.append, \
+		spaceship = Spaceship(x, y, self.spaceship_image, \
 							  self.screen, name, color, self.map.spawn_direction, self.modus.get_game_time())
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
@@ -172,8 +160,8 @@ class GameClass:
 
 	def _publish_gamestate(self) -> None:
 		"""private method to send the current gamestate to all clients"""
-		serialized_state = serialize_game_state(self.spaceships.values(), self.bullets,
-											   self.scoreboard.get_scoreboard_dict())
+		serialized_state = serialize_game_state(self.spaceships.values(),
+												self.scoreboard.get_scoreboard_dict())
 		self.server.send_to_all(serialized_state.encode())
 
 	def respawn_ship(self, spaceship: Spaceship):

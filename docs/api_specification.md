@@ -27,17 +27,6 @@ Representation of a player.
 }
 ```
 
-#### Projectile
-Representation of a projectile
-
-```json
-{
-	"owner": string,
-	"position": Coordinate,
-	"direction": Coordinate
-}
-```
-
 #### Coordinate
 Representation of a 2D-Vector
 
@@ -72,18 +61,6 @@ Representation of a score entry
 			"name": "dumbledore",
 			"position": { "x": 100, "y": 200 },
 			"direction": { "x": 0, "y": 50 }
-		}
-	],
-	"projectiles": [
-		{
-			"owner": "gandalf",
-			"position": { "x": 24, "y": 155 },
-			"direction": { "x": -10, "y": -50 }
-		},
-		{
-			"owner": "dumbledore",
-			"position": { "x": 11, "y": 155 },
-			"direction": { "x": 100, "y": -10 }
 		}
 	],
 	"scoreboard": [

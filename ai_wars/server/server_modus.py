@@ -64,9 +64,6 @@ class Realtime:
 		# Register handler for SIGINT (Ctrl-C) interrupt
 		signal.signal(signal.SIGINT, self.thread_handler)
 
-		# Register timer for decrease score event
-		pygame.time.set_timer(self.game.decrease_score_event, 1000)
-
 		# start the update loop of the game
 		threading.Thread(target=self.update_loop).start()
 		logging.debug("Game tick thread started")
@@ -107,12 +104,6 @@ class TrainingMode:
 	@override
 	def received_input(self, hit_timeout: bool):
 		self.game_time.increase_game_time(1/SERVER_TICK_RATE * 1000)
-
-		# fire decrease score event if one game second has passed
-		time = self.game_time.get_time()
-		if time - self.last_decrease > 1000:
-			pygame.event.post(self.game.decrease_score_event)
-			self.last_decrease = time
 
 		# update game state if all clients submitted their action
 		if hit_timeout or self.game.spaceships.keys() == self.game.action_buffer.keys():
