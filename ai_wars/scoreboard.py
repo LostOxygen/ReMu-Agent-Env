@@ -51,7 +51,8 @@ class Scoreboard:
 
 	def update_score(self, player_name: str, new_score: int) -> None:
 		self._scoreboard_dict[player_name].score = new_score
-		self._sort_entries()
+		# function dosent work currently. no idea why
+		#self._sort_entries()
 
 	def decrease_score(self, player_name: str, decrease: int) -> None:
 		self._scoreboard_dict[player_name].score = clip(self._scoreboard_dict[player_name].score - decrease)
