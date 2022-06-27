@@ -19,10 +19,10 @@ class Corner(Map):
         self.bound_rects.append(Rect(0, 500, 800, 100))
 
         # Create checkpoints
-        self.checkpoints.append(Checkpoint(Rect(390, 350, 10, 150), 'orange'))
+        self.checkpoints.append(Checkpoint(Rect(390, 350, 10, 150), 'orange', 'checkpoint1'))
 
         # Create Goal
-        self.goal = Checkpoint(Rect(0, 350, 10, 150), 'white')
+        self.goal = Checkpoint(Rect(0, 350, 10, 150), 'white', 'goal1')
         # Goal is also a checkpoint
         self.checkpoints.append(self.goal)
 

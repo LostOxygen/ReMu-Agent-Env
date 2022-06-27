@@ -3,12 +3,15 @@ import abc
 import pygame
 from pygame.math import Vector2
 
+
 class Checkpoint:
-    def __init__(self, checkpoint_rect: pygame.rect, color: (int,int,int)):
+    def __init__(self, checkpoint_rect: pygame.rect, color: (int, int, int), name: str):
         self.rect = checkpoint_rect
         self.middle_point = Vector2(checkpoint_rect.x + checkpoint_rect.width / 2,
                                     checkpoint_rect.y + checkpoint_rect.height / 2)
         self.color = color
+        # for debugging purposes
+        self.name = name
 
 class Map(abc.ABC):
     '''
@@ -46,6 +49,6 @@ class Map(abc.ABC):
     def is_point_on_checkpoints(self, point: Vector2) -> bool:
         for checkpoint in self.checkpoints:
             if checkpoint.rect.collidepoint(point):
-                return True
+                return checkpoint
 
-        return False
+        return None

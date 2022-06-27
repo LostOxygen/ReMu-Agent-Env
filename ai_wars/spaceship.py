@@ -40,9 +40,10 @@ class Spaceship():
 		self.color = color
 		self.game_time = game_time
 
-		# Checkpoints prop
+		# Checkpoints and score stuff
 		self.visited_checkpoints: list[Checkpoint] = []
 		self.target_checkpoint: Checkpoint = None
+		self.current_max_dist = 0
 
 		# hitbox stuff
 		self.hitbox = self.spaceship_sprite.get_rect()

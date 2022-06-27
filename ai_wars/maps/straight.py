@@ -18,7 +18,7 @@ class Straight(Map):
         self.bound_rects.append(Rect(0, 400, 800, 200))
 
         # Goal properties
-        self.goal = Checkpoint(Rect(790, 200, 10, 200), 'white')
+        self.goal = Checkpoint(Rect(790, 200, 10, 200), 'white', 'goal1')
 
         # Spawn properties
         self.spawn_point = Vector2(0, 300)
