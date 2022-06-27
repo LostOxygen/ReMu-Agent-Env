@@ -1,6 +1,7 @@
 """Main GameClass"""
 import sys
 import os
+import math
 
 import pygame
 from pygame.math import Vector2
@@ -10,6 +11,7 @@ from typing import Dict
 from .server_modus import ServerModus
 
 from ..spaceship import Spaceship
+from ..maps.map import Checkpoint
 from ..scoreboard import Scoreboard
 
 from ..networking.server import UdpServer
@@ -121,33 +123,34 @@ class GameClass:
 	def _process_game_logic(self) -> None:
 		# update scores
 		for spaceship in self.spaceships.values():
-			spaceship_location = Vector2(spaceship.x, spaceship.y)
+			"""spaceship_location = Vector2(spaceship.x, spaceship.y)
 
 			current_dist = spaceship_location.distance_squared_to(self.map.goal.middle_point)
 			percent_dist = current_dist / self.map.max_dist_between_spawn_and_goal
 
-			new_score = int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED) + self.checkpoint_score
-			self.scoreboard.update_score(spaceship.name, new_score)
+			new_score = int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED)
+			self.scoreboard.update_score(spaceship.name, new_score)"""
+			#next_target = spaceship.
+			pass
+
 
 		# Check if in bounds or on checkpoint
 		for spaceship in self.spaceships.values():
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
 
 			# When hit goal respawn and give points and increment
-			if self.map.goal.goal_rect.collidepoint(spaceship_location):
+			if self.map.goal.rect.collidepoint(spaceship_location):
 				self.respawn_ship(spaceship)
 				self.scoreboard.update_score(spaceship.name, 1000000)
 				self.scoreboard.increment_finish_reached(spaceship.name)
-				self.checkpoint_score = 0
 
 			# When it boundary respawn
 			if not self.map.is_point_in_bounds(spaceship_location):
 				self.respawn_ship(spaceship)
-				self.checkpoint_score = 0
 
 			# If hit checkpoint get 10000 points
-			if self.map.is_point_on_checkpoints(spaceship_location):
-				self.checkpoint_score = 10000
+			#if self.map.is_point_on_checkpoints(spaceship_location):
+
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
@@ -159,9 +162,11 @@ class GameClass:
 		color = [255,0,0]
 		spaceship = Spaceship(x, y, self.spaceship_image, \
 							  self.screen, name, color, self.map.spawn_direction, self.modus.get_game_time())
+		spaceship.target_checkpoint = self.get_next_checkpoint(spaceship)
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 		logging.debug("Spawned spaceship with name: %s at X:%s Y:%s", name, x, y)
+
 
 
 	def _publish_gamestate(self) -> None:
@@ -174,4 +179,19 @@ class GameClass:
 		spaceship.x = self.map.spawn_point.x
 		spaceship.y = self.map.spawn_point.y
 		spaceship.direction = self.map.spawn_direction.copy()
+
+	# Goal is also a checkpoint
+	def get_next_checkpoint(self, spaceship: Spaceship) -> Checkpoint:
+		best_checkpoint_distance = math.inf
+		best_checkpoint = None
+
+		for checkpoint in self.map.checkpoints:
+			if not checkpoint in spaceship.visited_checkpoints:
+				spaceship_location = Vector2(spaceship.x, spaceship.y)
+				distance = spaceship_location.distance_squared_to(checkpoint.middle_point)
+
+				if distance <= best_checkpoint_distance:
+					best_checkpoint = checkpoint
+
+		return best_checkpoint
 

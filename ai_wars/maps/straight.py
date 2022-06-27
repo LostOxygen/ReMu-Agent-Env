@@ -1,6 +1,6 @@
 import pygame
 
-from .map import Map, Goal
+from .map import Map, Checkpoint
 from ..utils import override
 from pygame import Rect
 from pygame import Vector2
@@ -18,7 +18,7 @@ class Straight(Map):
         self.bound_rects.append(Rect(0, 400, 800, 200))
 
         # Goal properties
-        self.goal = Goal(Rect(790, 200, 10, 200))
+        self.goal = Checkpoint(Rect(790, 200, 10, 200), 'white')
 
         # Spawn properties
         self.spawn_point = Vector2(0, 300)

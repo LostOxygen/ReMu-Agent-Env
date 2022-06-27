@@ -1,6 +1,6 @@
 import pygame
 
-from .map import Map,Checkpoint,Goal
+from .map import Map,Checkpoint
 from ..utils import override
 from pygame import Rect
 from pygame import Vector2
@@ -19,10 +19,12 @@ class Corner(Map):
         self.bound_rects.append(Rect(0, 500, 800, 100))
 
         # Create checkpoints
-        self.checkpoints.append(Checkpoint(Rect(390, 350, 10, 150)))
+        self.checkpoints.append(Checkpoint(Rect(390, 350, 10, 150), 'orange'))
 
         # Create Goal
-        self.goal = Goal(Rect(0, 350, 10, 150))
+        self.goal = Checkpoint(Rect(0, 350, 10, 150), 'white')
+        # Goal is also a checkpoint
+        self.checkpoints.append(self.goal)
 
         # Spawn
         self.spawn_point = Vector2(475, 0)

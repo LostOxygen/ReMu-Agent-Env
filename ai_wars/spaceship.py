@@ -1,7 +1,9 @@
 """spacehip class file"""
 import pygame
+import math
 from pygame.math import Vector2
 
+from .maps.map import Checkpoint
 from ai_wars.enums import EnumAction
 from ai_wars.game_time import GameTime, PygameGameTime
 from ai_wars.utils import clip_pos
@@ -37,6 +39,10 @@ class Spaceship():
 		self.name = name # name is equivalent to an player ID
 		self.color = color
 		self.game_time = game_time
+
+		# Checkpoints prop
+		self.visited_checkpoints: list[Checkpoint] = []
+		self.target_checkpoint: Checkpoint = None
 
 		# hitbox stuff
 		self.hitbox = self.spaceship_sprite.get_rect()
