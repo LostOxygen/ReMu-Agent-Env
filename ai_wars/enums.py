@@ -6,7 +6,7 @@ class MoveSet(Enum):
 	Base enum for a movement set.
 	"""
 
-	def to_enum_action(self):
+	def to_action_set(self) -> set:
 		"""
 		Maps itself to an EnumAction that contains all possible actions.
 
@@ -23,21 +23,24 @@ class EnumAction(MoveSet):
 	FORWARD = 2
 	BACKWARD = 3
 
-	def to_enum_action(self):
-		return self
+	def to_action_set(self):
+		return {self}
 
 	def __int__(self):
 		return self.value
 
-class RotationOnlyActions(MoveSet):
+class AlwaysForwardsActions(MoveSet):
 	"""Movement set that contains only rotating and shooting."""
 
-	LEFT = 0
-	RIGHT = 1
+	FORWARD = 0
+	RIGHT_FORWARD = 1
+	LEFT_FORWARD = 2
 
-	def to_enum_action(self):
+	def to_action_set(self):
 		match self:
-			case RotationOnlyActions.LEFT:
-				return EnumAction.LEFT
-			case RotationOnlyActions.RIGHT:
-				return EnumAction.RIGHT
+			case AlwaysForwardsActions.LEFT_FORWARD:
+				return {EnumAction.FORWARD, EnumAction.LEFT}
+			case AlwaysForwardsActions.RIGHT_FORWARD:
+				return {EnumAction.FORWARD, EnumAction.RIGHT}
+			case AlwaysForwardsActions.FORWARD:
+				return {EnumAction.FORWARD}

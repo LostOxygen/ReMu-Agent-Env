@@ -33,7 +33,7 @@ class DqnBehaviorTest(Behavior):
 		predicted_action = self.agent.select_action(gamestate_tensor)
 		if predicted_action is None:
 			return {}
-		return {predicted_action.to_enum_action()}
+		return predicted_action.to_action_set()
 
 class DqnBehavior(Behavior):
 	"""DQN Behavior"""
@@ -97,4 +97,4 @@ class DqnBehavior(Behavior):
 		self.last_gamestate_tensor = gamestate_tensor
 
 		# return the action enum with the highest q value as a set
-		return {predicted_action.to_enum_action()}
+		return predicted_action.to_action_set()
