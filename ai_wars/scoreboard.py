@@ -4,6 +4,9 @@ from typing import List, Dict
 from ai_wars.constants import START_SCORE
 import pygame
 
+from ai_wars.utils import clip
+
+
 class ScoreboardEntry:
 	"""Objects stored inside the scoreboard."""
 
@@ -50,6 +53,19 @@ class Scoreboard:
 		self._scoreboard_dict[player_name].score = new_score
 		self._sort_entries()
 
+	def decrease_score(self, player_name: str, decrease: int) -> None:
+		self._scoreboard_dict[player_name].score = clip(self._scoreboard_dict[player_name].score - decrease)
+
+		# re-sort the scoreboard
+		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
+											key=lambda x: x[1], reverse=True))
+
+	def increase_score(self, player_name: str, increase: int) -> None:
+		self._scoreboard_dict[player_name].score = clip(self._scoreboard_dict[player_name].score + increase)
+
+		# re-sort the scoreboard
+		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
+											key=lambda x: x[1], reverse=True))
 	def increment_finish_reached(self, player_name: str):
 		self._scoreboard_dict[player_name].finish_reached += 1
 
