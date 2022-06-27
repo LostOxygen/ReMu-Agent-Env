@@ -123,7 +123,7 @@ class GameClass:
 		for spaceship in self.spaceships.values():
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
 
-			current_dist = spaceship_location.distance_squared_to(self.map.goal_point)
+			current_dist = spaceship_location.distance_squared_to(self.map.goal.middle_point)
 			percent_dist = current_dist / self.map.max_dist_between_spawn_and_goal
 
 			new_score = int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED) + self.checkpoint_score
@@ -134,7 +134,7 @@ class GameClass:
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
 
 			# When hit goal respawn and give points and increment
-			if self.map.goal_rect.collidepoint(spaceship_location):
+			if self.map.goal.goal_rect.collidepoint(spaceship_location):
 				self.respawn_ship(spaceship)
 				self.scoreboard.update_score(spaceship.name, 1000000)
 				self.scoreboard.increment_finish_reached(spaceship.name)

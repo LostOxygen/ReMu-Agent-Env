@@ -1,6 +1,6 @@
 import pygame
 
-from .map import Map
+from .map import Map, Goal
 from ..utils import override
 from pygame import Rect
 from pygame import Vector2
@@ -18,12 +18,11 @@ class Straight(Map):
         self.bound_rects.append(Rect(0, 400, 800, 200))
 
         # Goal properties
-        self.goal_rect = pygame.rect.Rect(780, 200, 10, 200)
-        self.goal_point = Vector2(785, 300)
+        self.goal = Goal(Rect(790, 200, 10, 200))
 
         # Spawn properties
         self.spawn_point = Vector2(0, 300)
         self.spawn_direction = Vector2(1, 0)
 
         # Needed for calculation
-        self.max_dist_between_spawn_and_goal = self.spawn_point.distance_squared_to(self.goal_point)
+        self.max_dist_between_spawn_and_goal = self.spawn_point.distance_squared_to(self.goal.middle_point)
