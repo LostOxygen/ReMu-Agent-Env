@@ -69,7 +69,7 @@ class DqnBehavior(Behavior):
 			gamestate_tensor = gamestate_tensor.flatten()
 
 		# obtain the new score and calculate the reward and subtract the distance and the angle
-		reward = scoreboard[self.player_name][0]
+		reward = scoreboard[self.player_name].score
 
 		# check if the model is already loaded, if not load it
 		if self.optimizer is None:
