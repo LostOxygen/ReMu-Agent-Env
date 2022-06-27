@@ -143,6 +143,7 @@ class GameClass:
 			# When it boundary respawn
 			if not self.map.is_point_in_bounds(spaceship_location):
 				self.respawn_ship(spaceship)
+				self.checkpoint_score = 0
 
 			# If hit checkpoint get 10000 points
 			if self.map.is_point_on_checkpoints(spaceship_location):
