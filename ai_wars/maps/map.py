@@ -19,6 +19,10 @@ class Map(abc.ABC):
         for rect in self.bound_rects:
             pygame.draw.rect(self.screen, 'gray', rect)
 
+        # draw checkpoints
+        for checkpoint in self.checkpoints:
+            pygame.draw.rect(self.screen, 'orange', checkpoint)
+
         # draw goal
         pygame.draw.rect(self.screen, 'white', self.goal_rect)
 
@@ -28,3 +32,10 @@ class Map(abc.ABC):
                 return False
 
         return True
+
+    def is_point_on_checkpoints(self, point: Vector2) -> bool:
+        for checkpoint in self.checkpoints:
+            if checkpoint.collidepoint(point):
+                return True
+
+        return False

@@ -19,7 +19,7 @@ class Corner(Map):
         self.bound_rects.append(Rect(0, 500, 800, 100))
 
         # Create checkpoints
-        self.checkpoints.append(Rect(400,350,10,150))
+        self.checkpoints.append(Rect(390,350,10,150))
 
         # Goal properties
         self.goal_rect = pygame.rect.Rect(0, 350, 10, 150)

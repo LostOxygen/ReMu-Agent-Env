@@ -60,6 +60,7 @@ class GameClass:
 		self.running = True
 
 		self.map = load_map(self.screen, MAP)
+		self.checkpoint_score = 0
 
 	def update_game(self, deltatime):
 		self._handle_events()
@@ -118,26 +119,34 @@ class GameClass:
 
 
 	def _process_game_logic(self) -> None:
+		# update scores
 		for spaceship in self.spaceships.values():
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
 
 			current_dist = spaceship_location.distance_squared_to(self.map.goal_point)
 			percent_dist = current_dist / self.map.max_dist_between_spawn_and_goal
 
-			new_distance = int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED)
-			self.scoreboard.update_score(spaceship.name, new_distance)
+			new_score = int((1-percent_dist)*MAX_POINTS_WHEN_GOAL_REACHED) + self.checkpoint_score
+			self.scoreboard.update_score(spaceship.name, new_score)
 
-		# Check if in bounds
+		# Check if in bounds or on checkpoint
 		for spaceship in self.spaceships.values():
+			spaceship_location = Vector2(spaceship.x, spaceship.y)
+
 			# When hit goal respawn and give points and increment
-			if self.map.goal_rect.collidepoint(Vector2(spaceship.x, spaceship.y)):
+			if self.map.goal_rect.collidepoint(spaceship_location):
 				self.respawn_ship(spaceship)
 				self.scoreboard.update_score(spaceship.name, 1000000)
 				self.scoreboard.increment_finish_reached(spaceship.name)
+				self.checkpoint_score = 0
 
 			# When it boundary respawn
-			if not self.map.is_point_in_bounds(Vector2(spaceship.x, spaceship.y)):
+			if not self.map.is_point_in_bounds(spaceship_location):
 				self.respawn_ship(spaceship)
+
+			# If hit checkpoint get 10000 points
+			if self.map.is_point_on_checkpoints(spaceship_location):
+				self.checkpoint_score = 10000
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
