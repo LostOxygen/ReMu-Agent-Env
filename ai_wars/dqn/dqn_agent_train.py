@@ -30,7 +30,7 @@ from ..constants import (
 	TAU,
 	USE_REPLAY_AFTER,
 	DQN_PARAMETER_DICT,
-	MAX_ITERATIONS
+	MAX_ITERS
 )
 
 
@@ -69,7 +69,7 @@ class Agent(abc.ABC):
 			num_episodes: how many iterations should be performed or zero to run infinite
 			load_model: functions that provides the model
 		'''
-		self.num_episodes = MAX_ITERATIONS
+		self.num_episodes = MAX_ITERS
 		self.device = device
 		self.model_name = model_name
 
