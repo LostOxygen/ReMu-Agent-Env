@@ -21,7 +21,7 @@ POINTS_LOST_AFTER_GETTING_HIT = 100
 POINTS_GAINED_AFTER_HITTING = 200
 
 # Client constants
-LOG_EVERY = 100 # log every N steps
+LOG_EVERY = 100000 # log every N steps
 HEIGHT = 600
 WIDTH = 800
 CLIENT_BUFFER_SIZE = 10 * 1024
@@ -42,7 +42,7 @@ NUM_PLAYERS = 8
 MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 
 # DQN agent constants
-MAX_ITERATIONS = 1000000 # maximum number of training steps
+MAX_ITERS = 1000000 # maximum number of training steps
 MEMORY_SIZE = int(1e5)
 BATCH_SIZE = 64
 

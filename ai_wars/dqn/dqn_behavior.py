@@ -7,7 +7,8 @@ from ..constants import (
 	HEIGHT,
 	WIDTH,
 	LOG_EVERY,
-	USE_REPLAY_AFTER
+	USE_REPLAY_AFTER,
+	MAX_ITERS
 )
 
 from .dqn_utils import (
@@ -152,7 +153,8 @@ class DqnBehavior(Behavior):
 		self.last_max_q_value = max_q_value
 
 		# plot and log the metrics every LOG_EVERY steps
-		if self.steps_done % LOG_EVERY == 0 and self.steps_done >= USE_REPLAY_AFTER:
+		assert USE_REPLAY_AFTER < MAX_ITERS, "USE_REPLAY_AFTER has to be smaller than MAX_ITERS"
+		if self.steps_done % LOG_EVERY == 0 and self.steps_done in range(USE_REPLAY_AFTER, MAX_ITERS):
 			self.metrics_losses.append(loss)
 			self.metrics_scores.append(scoreboard[self.player_name])
 			log_metrics(new_score, loss, self.steps_done, self.player_name)
