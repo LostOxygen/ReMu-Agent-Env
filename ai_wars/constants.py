@@ -38,7 +38,7 @@ DECREASE_SCORE_EVENT = pygame.USEREVENT + 0  # event code 24
 # DQN gamestate constants
 MODEL_PATH = "models/"
 MAX_NUM_PROJECTILES = 128 # the number of projectiles in the gamestate tensor
-NUM_PLAYERS = 8
+NUM_PLAYERS = 12
 MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 
 # DQN agent constants
