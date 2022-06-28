@@ -78,7 +78,9 @@ if __name__ == "__main__":
        	    torch.get_num_threads(), os.cpu_count(), torch.cuda.device_count(), socket.gethostname()
 	)
 	logging.info("Using device: %s", device)
-
+	logging.info("Model type: %s", args.model_type)
+	logging.info("Parameter search: %s", args.param_search)
+	logging.info("Testing mode: %s", args.test)
 	logging.info("Spawning model with name: %s", args.name)
 
 	player = Player(args.name, args.addr, args.port, behavior)
