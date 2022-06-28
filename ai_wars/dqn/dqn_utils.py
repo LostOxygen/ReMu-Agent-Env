@@ -4,6 +4,7 @@ import math
 from typing import Tuple
 from datetime import datetime
 import logging
+import numpy as np
 import torch
 from torch import nn
 from torchsummary import summary
@@ -17,7 +18,8 @@ from ..constants import (
 	NUM_PLAYERS,
 	DQN_PARAMETER_DICT,
     HIDDEN_NEURONS,
-	MAX_ITERATIONS
+	MAX_ITERATIONS,
+	LOG_EVERY
 )
 from .dqn_models import DQNModelLinear, DQNModelLSTM, DQNModelCNN
 
@@ -433,7 +435,8 @@ def plot_metrics(scores: torch.Tensor, losses: torch.Tensor, model_name: str) ->
 		os.mkdir("plots/")
 
 	# plot the scores
-	plt.plot(scores)
+	x_labels = np.arange(0, len(scores), step=LOG_EVERY)
+	plt.plot(x_labels, scores)
 	plt.title(f"{model_name} Score Metrics")
 	plt.ylabel("Score")
 	plt.xlabel("Epochs")
@@ -441,7 +444,7 @@ def plot_metrics(scores: torch.Tensor, losses: torch.Tensor, model_name: str) ->
 	plt.close()
 
 	# plot the losses
-	plt.plot(losses)
+	plt.plot(x_labels, losses)
 	plt.title(f"{model_name} Loss Metrics")
 	plt.ylabel("Loss")
 	plt.xlabel("Epochs")
