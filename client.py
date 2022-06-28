@@ -37,6 +37,7 @@ if __name__ == "__main__":
 		logging.basicConfig(level=logging.CRITICAL,
 						format="%(asctime)-8s %(levelname)-8s %(message)s",
 						datefmt="%H:%M:%S")
+	logging.getLogger("matplotlib.font_manager").disabled = True
 
 	player = Player(player_name, args.addr, args.port, GameGUI())
 	player.loop(lambda: True)

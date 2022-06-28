@@ -55,6 +55,7 @@ if __name__ == "__main__":
 		logging.basicConfig(level=logging.CRITICAL,
 						format="%(asctime)-8s %(levelname)-8s %(message)s",
 						datefmt="%H:%M:%S")
+	logging.getLogger("matplotlib.font_manager").disabled = True
 
 	if args.param_search:
 		ai_wars.constants.PARAM_SEARCH = True
