@@ -435,7 +435,7 @@ def plot_metrics(scores: torch.Tensor, losses: torch.Tensor, model_name: str) ->
 		os.mkdir("plots/")
 
 	# plot the scores
-	x_labels = np.arange(0, len(scores), step=LOG_EVERY)
+	x_labels = np.arange(0, len(scores)*LOG_EVERY, step=LOG_EVERY)
 	plt.plot(x_labels, scores)
 	plt.title(f"{model_name} Score Metrics")
 	plt.ylabel("Score")
