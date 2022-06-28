@@ -18,7 +18,7 @@ from ..constants import (
 	NUM_PLAYERS,
 	DQN_PARAMETER_DICT,
     HIDDEN_NEURONS,
-	MAX_ITERATIONS,
+	MAX_ITERS,
 	LOG_EVERY
 )
 from .dqn_models import DQNModelLinear, DQNModelLSTM, DQNModelCNN
@@ -465,7 +465,7 @@ def log_metrics(score: torch.Tensor, loss: torch.Tensor, epoch: int, model_name:
 	Returns:
 		None
 	"""
-	if epoch <= MAX_ITERATIONS:
+	if epoch <= MAX_ITERS:
 		if not os.path.exists("logs/"):
 			os.mkdir("logs/")
 
