@@ -25,6 +25,7 @@ if __name__ == "__main__":
 		logging.basicConfig(level=logging.CRITICAL,
 						format="%(asctime)-8s %(levelname)-8s %(message)s",
 						datefmt="%H:%M:%S")
+	logging.getLogger("matplotlib.font_manager").disabled = True
 
 	mode = TrainingMode() if args.training_mode else Realtime()
 	server = GameClass(mode, addr=args.addr, port=args.port)
