@@ -1,5 +1,5 @@
 """library file to provide constants to get rid of magic numbers"""
-from ai_wars.enums import EnumAction, RotationOnlyActions  # pylint: disable=unused-import
+from ai_wars.enums import EnumAction, AlwaysForwardsActions  # pylint: disable=unused-import
 
 # Game constants
 MAX_POINTS_WHEN_GOAL_REACHED = 1000
@@ -29,7 +29,7 @@ COLOR_ARRAY = [[255, 0, 0], [237, 185, 185], [143, 35, 35], [255, 255, 0], [185,
 
 # DQN gamestate constants
 MODEL_PATH = "models/"
-MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
+MOVEMENT_SET = AlwaysForwardsActions  # pylint: disable=invalid-name
 
 # DQN agent constants
 MEMORY_SIZE = int(1e5)
