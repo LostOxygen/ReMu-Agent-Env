@@ -23,8 +23,6 @@ from ..maps.map_loader import load_map
 
 from ..utils import load_sprite
 from ..constants import (
-	POINTS_LOST_AFTER_GETTING_HIT,
-	POINTS_GAINED_AFTER_HITTING,
 	SERVER_TIMEOUT,
 	WIDTH,
 	HEIGHT,
