@@ -123,12 +123,15 @@ class GameClass:
 			# When hit goal respawn and give points and increment
 			if self.map.goal.rect.collidepoint(spaceship_location):
 				self.respawn_ship(spaceship)
+				self.scoreboard.update_score(spaceship.name, 1000000)
 				self.scoreboard.increment_finish_reached(spaceship.name)
+				continue
 
 			# When hit boundary respawn
 			if not self.map.is_point_in_bounds(spaceship_location):
-				self.scoreboard.update_score(spaceship.name, -1000000)
 				self.respawn_ship(spaceship)
+				self.scoreboard.update_score(spaceship.name, -1000000)
+				continue
 
 			# If on checkpoint, add to visited checkpoints and search for next checkpoint to travel to
 			checkpoint = self.map.is_point_on_checkpoints(spaceship_location)
