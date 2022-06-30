@@ -41,7 +41,9 @@ class Map(abc.ABC):
 
 	def is_point_in_bounds(self, point: Vector2) -> bool:
 		for rect in self.bound_rects:
-			if rect.collidepoint(point):
+			# rect.collidepoint is weird, so do the check manually
+			if point.x >= rect.left and point.x <= rect.right \
+				and point.y >= rect.top and point.y <= rect.bottom:
 				return False
 
 		return True

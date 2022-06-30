@@ -6,11 +6,15 @@ from torch import nn
 from torchsummary import summary
 from pygame.math import Vector2
 
+from ai_wars.maps.map import Map
+
 import ai_wars.constants
 from ..constants import (
+	HEIGHT,
 	MODEL_PATH,
 	DQN_PARAMETER_DICT,
-    HIDDEN_NEURONS
+    HIDDEN_NEURONS,
+	WIDTH
 )
 from .dqn_models import DQNModelLinear, DQNModelLSTM, DQNModelCNN
 
@@ -54,6 +58,28 @@ def gamestate_to_tensor(
 			break
 	#return torch.round(gamestate_tensor, decimals=-1)
 	return gamestate_tensor
+
+def raycast_scan(
+	origin: Vector2,
+	game_map: Map,
+	num_rays=8, step_size=1, device="cpu"
+) -> torch.tensor:
+	def is_in_game_area(pos: Vector2) -> bool:
+		return pos.x > 0 and pos.x < WIDTH and pos.y > 0 and pos.y < HEIGHT
+
+	def cast_ray(angle: float):
+		ray_pos = origin.copy()
+		step = Vector2(0, -step_size).rotate(angle)
+
+		while is_in_game_area(ray_pos) and game_map.is_point_in_bounds(ray_pos):
+			ray_pos += step
+
+		return origin.distance_to(ray_pos)
+
+	angles = [360 / num_rays * i for i in range(num_rays)]
+	values = list(map(cast_ray, angles))
+
+	return torch.tensor(values, dtype=torch.float32).to(device)
 
 def save_model(model: nn.Sequential, name: str) -> None:
 	"""
