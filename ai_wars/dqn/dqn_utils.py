@@ -62,7 +62,7 @@ def gamestate_to_tensor(
 def raycast_scan(
 	origin: Vector2,
 	game_map: Map,
-	num_rays=8, step_size=1, device="cpu"
+	num_rays=8, step_size=1
 ) -> torch.tensor:
 	def is_in_game_area(pos: Vector2) -> bool:
 		return pos.x > 0 and pos.x < WIDTH and pos.y > 0 and pos.y < HEIGHT
@@ -79,7 +79,7 @@ def raycast_scan(
 	angles = [360 / num_rays * i for i in range(num_rays)]
 	values = list(map(cast_ray, angles))
 
-	return torch.tensor(values, dtype=torch.float32).to(device)
+	return torch.tensor(values, dtype=torch.float32)
 
 def save_model(model: nn.Sequential, name: str) -> None:
 	"""

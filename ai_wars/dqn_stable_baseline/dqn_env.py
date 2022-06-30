@@ -1,6 +1,5 @@
 import logging
 import time
-import numpy as np
 import gym
 from gym import spaces
 
@@ -10,26 +9,23 @@ from ai_wars.networking.layers.compression import GzipCompression
 from ai_wars.client.serializer import serialize_action
 from ai_wars.client.deserializer import deserialize_game_state
 
-from ai_wars.dqn.dqn_utils import gamestate_to_tensor
+from ai_wars.maps.map import Map
+
+from ai_wars.dqn.dqn_utils import raycast_scan
 
 from ai_wars.constants import (
 	CLIENT_BUFFER_SIZE,
 	CLIENT_TIMEOUT,
-	WIDTH,
-	HEIGHT,
 	MOVEMENT_SET
 )
 
 class ClientEnvironment(gym.Env):
 
-	def __init__(self, name: str, addr="127.0.0.1", port=1337):
+	def __init__(self, name: str, game_map: Map, addr="127.0.0.1", port=1337):
 		self.name = name
+		self.map = game_map
 
-		self.observation_space = spaces.Box(
-			np.array([0, 0, -1.0, -1.0]),
-			np.array([WIDTH, HEIGHT, 1.0, 1.0]),
-			shape=(4,), dtype=float
-		)
+		self.observation_space = spaces.Box(0, 1000, shape=(8,), dtype=float)
 		self.action_space = spaces.Discrete(len(MOVEMENT_SET))
 
 		self.client = UdpClient.builder() \
@@ -49,19 +45,27 @@ class ClientEnvironment(gym.Env):
 		players, scoreboard = self._read_next_gamestate()
 		score = scoreboard[self.name].score
 		if score > self.last_score:
-			reward = 1
+			reward = 1000
 		elif score < self.last_score:
-			reward = -1
+			reward = -1000
 		else:
 			reward = 0
-		gamestate_tensor = gamestate_to_tensor(self.name, players)
 
-		return gamestate_tensor, reward, abs(score) > 10000, {}
+		player_pos = list(filter(lambda p: p["player_name"] == self.name, players))[0]["position"]
+		scan = raycast_scan(player_pos, self.map)
+
+		min_val = scan.min()
+		if min_val > 0:
+			reward += int(min_val)
+
+		return scan, reward, abs(score) > 10000, {}
 
 	def reset(self):
 		self.client.send(serialize_action(self.name, []).encode())
 		players, _ = self._read_next_gamestate()
-		return gamestate_to_tensor(self.name, players)
+
+		player_pos = list(filter(lambda p: p["player_name"] == self.name, players))[0]["position"]
+		return raycast_scan(player_pos, self.map)
 
 	def render(self, mode="human"):
 		pass

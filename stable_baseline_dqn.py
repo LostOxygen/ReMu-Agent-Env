@@ -3,7 +3,11 @@ from gym.envs.registration import register
 
 from stable_baselines3 import DQN
 
-from ai_wars.constants import MAX_ITERATIONS
+from ai_wars.maps.map_loader import load_map
+from ai_wars.constants import (
+	MAX_ITERATIONS,
+	MAP
+)
 
 register(
 	id="ai_wars/race-v0",
@@ -11,7 +15,8 @@ register(
 	reward_threshold=10000
 )
 
-env = gym.make("ai_wars/race-v0", name="Peter")
+game_map = load_map(None, MAP)
+env = gym.make("ai_wars/race-v0", name="Peter", game_map=game_map)
 
 model = DQN("MlpPolicy", env, verbose=2)
 model.learn(total_timesteps=MAX_ITERATIONS)
