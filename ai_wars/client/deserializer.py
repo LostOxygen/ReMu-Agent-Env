@@ -7,7 +7,7 @@ from ai_wars.scoreboard import ScoreboardEntry
 
 def deserialize_game_state(
 	json_string: str
-) -> Tuple[list[dict[str, any]], list[dict[str, any]], dict[str, ScoreboardEntry]]:
+) -> Tuple[list[dict[str, any]], dict[str, ScoreboardEntry]]:
 	'''
 	Deserializes the current game state from a json string.
 
