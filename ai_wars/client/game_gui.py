@@ -19,7 +19,8 @@ from ..constants import (
 	COLOR_ARRAY,
 	WIDTH,
 	HEIGHT,
-	MAP
+	MAP,
+	ENABLE_TRACING
 )
 
 
@@ -37,6 +38,7 @@ class GameGUI(Behavior):
 		self.spaceships: Dict[str, Spaceship] = {}  # dict with every spaceship in the game
 		self.color_array = COLOR_ARRAY.copy()
 		self.map = load_map(self.screen, MAP)
+		self.trace_points = []
 
 		pygame.init()
 		logging.debug("Initialized client")
@@ -93,6 +95,12 @@ class GameGUI(Behavior):
 				self.spaceships[player_name].x = player["position"].x
 				self.spaceships[player_name].y = player["position"].y
 				self.spaceships[player_name].direction = player["direction"]
+				# save the coordinates to trace the player and draw curves
+				if ENABLE_TRACING:
+					self.spaceships[player_name].trace_points.append((
+						player["position"].x,
+                        player["position"].y
+					))
 			else:
 				# create new player
 				self._spawn_spaceship(player["position"], player["direction"], player_name)
@@ -113,6 +121,8 @@ class GameGUI(Behavior):
 		# draw the spaceship
 		for spaceship in self.spaceships.values():
 			spaceship.draw(self.screen)
+			if ENABLE_TRACING:
+				spaceship.draw_trace(self.screen)
 
 		# draw scoreboard
 		self.scoreboard.draw_scoreboard(self.screen)

@@ -2,6 +2,7 @@
 import sys
 import os
 import math
+from copy import copy
 
 import pygame
 from pygame.math import Vector2
@@ -171,7 +172,7 @@ class GameClass:
 	def respawn_ship(self, spaceship: Spaceship):
 		spaceship.x = self.map.spawn_point.x
 		spaceship.y = self.map.spawn_point.y
-		spaceship.direction = self.map.spawn_direction.copy()
+		spaceship.direction = copy(self.map.spawn_direction)
 
 		spaceship.visited_checkpoints.clear()
 		self.set_next_target_checkpoint_and_max_dist(spaceship)

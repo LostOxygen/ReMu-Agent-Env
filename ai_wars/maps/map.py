@@ -5,7 +5,7 @@ from pygame.math import Vector2
 
 
 class Checkpoint:
-    def __init__(self, checkpoint_rect: pygame.rect, color: (int, int, int), name: str):
+    def __init__(self, checkpoint_rect: pygame.rect, color: tuple[int, int, int], name: str):
         self.rect = checkpoint_rect
         self.middle_point = Vector2(checkpoint_rect.x + checkpoint_rect.width / 2,
                                     checkpoint_rect.y + checkpoint_rect.height / 2)
@@ -20,7 +20,7 @@ class Map(abc.ABC):
 
     def __init__(self, screen: pygame.surface):
         # Define and add to these properties in the subclasses of map (Actual maps)
-        self.bound_rects: list[pygame.rect] = []
+        self.bound_rects: list = []
         self.checkpoints: list[Checkpoint] = []
         self.goal: Checkpoint = None
         self.spawn_point = None

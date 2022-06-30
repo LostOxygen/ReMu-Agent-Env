@@ -1,6 +1,6 @@
 """spacehip class file"""
 import pygame
-import math
+from copy import copy
 from pygame.math import Vector2
 
 from .maps.map import Checkpoint
@@ -31,14 +31,15 @@ class Spaceship():
 	):
 		self.x = x
 		self.y = y
-		self.spaceship_sprite = spaceship_sprite.copy()
+		self.spaceship_sprite = copy(spaceship_sprite)
 		self.height = spaceship_sprite.get_rect().height
 		self.width = spaceship_sprite.get_rect().width
-		self.direction = direction.copy()
+		self.direction = copy(direction)
 		self.screen = screen # the screen where everything gets drawn on
 		self.name = name # name is equivalent to an player ID
 		self.color = color
 		self.game_time = game_time
+		self.trace_points = [] # save points to draw the traces
 
 		# Checkpoints and score stuff
 		self.visited_checkpoints: list[Checkpoint] = []
@@ -120,3 +121,8 @@ class Spaceship():
 		# the center of the sprite. Therefore assigning the hitbox center the coordinates, the
 		# hitbox aligns with the sprite
 		self.hitbox.center = self.x, self.y
+
+	def draw_trace(self, screen: pygame.Surface) -> None:
+		"""helper method to draw the trace of a give player"""
+		for trace_point in self.trace_points:
+			pygame.draw.line(screen, self.color, trace_point, trace_point)
