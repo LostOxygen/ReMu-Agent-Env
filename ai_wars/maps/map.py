@@ -20,7 +20,7 @@ class Map(abc.ABC):
 
     def __init__(self, screen: pygame.surface):
         # Define and add to these properties in the subclasses of map (Actual maps)
-        self.bound_rects: list = []
+        self.bound_rects: list[pygame.rect.Rect] = []
         self.checkpoints: list[Checkpoint] = []
         self.goal: Checkpoint = None
         self.spawn_point = None
