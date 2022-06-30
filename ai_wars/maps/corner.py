@@ -1,7 +1,6 @@
 import pygame
 
 from .map import Map,Checkpoint
-from ..utils import override
 from pygame import Rect
 from pygame import Vector2
 
