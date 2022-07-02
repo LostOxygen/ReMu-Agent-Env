@@ -57,7 +57,7 @@ printf "\n## Spawning $NUM_MODELS $MODEL_TYPE networks on device $DEVICE and add
 printf "\n##########################################################\n"
 
 for i in $(seq "$NUM_MODELS"); do
-	if [[$MODEL_TYPE = "heuristic"]]; then
+	if [[ "$MODEL_TYPE" = "heuristic" ]]; then
 		name="heuristic_$((i-1))"
 	else
 		name="model_$((i-1))"
