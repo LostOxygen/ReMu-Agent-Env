@@ -60,7 +60,7 @@ TAU = 1e-3
 LSTM_SEQUENCE_SIZE = 32
 
 # heuristic parameters
-CHANGE_TARGET_PROB = 0.1 # prob. to change the target
+CHANGE_TARGET_PROB = 0.3 # prob. to change the target
 ANGLE_TRESH_RIGHT = 2 # angle threshold for right rotation
 ANGLE_TRESH_LEFT = -2  # angle threshold for left rotation
 DIST_THRESH = 150 # distance threshold before shooting
