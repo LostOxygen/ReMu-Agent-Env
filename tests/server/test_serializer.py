@@ -41,8 +41,7 @@ class TestSerializer(unittest.TestCase):
 			"direction": {"x": 1.5, "y": 0.1}
 		}
 
-		ship = Spaceship(5.0, 6.0, DummySprite(), None, "Dieter", COLOR_ARRAY[0])
-		ship.direction = Vector2(1.5, 0.1)
+		ship = Spaceship(5.0, 6.0, DummySprite(), None, "Dieter", COLOR_ARRAY[0], Vector2(1.5, 0.1))
 		actual = serializer._spaceship_as_dict(ship)
 
 		self.assertEqual(expected, actual)
@@ -97,10 +96,8 @@ class TestSerializer(unittest.TestCase):
 			]
 		})
 
-		ship_dieter = Spaceship(5.0, 6.0, DummySprite(), None, "Dieter", COLOR_ARRAY[0])
-		ship_dieter.direction = Vector2(1.5, 0.1)
-		ship_bernd = Spaceship(2.0, 8.0, DummySprite(), None, "Bernd", COLOR_ARRAY[0])
-		ship_bernd.direction = Vector2(0.5, 12.0)
+		ship_dieter = Spaceship(5.0, 6.0, DummySprite(), None, "Dieter", COLOR_ARRAY[0], Vector2(1.5, 0.1))
+		ship_bernd = Spaceship(2.0, 8.0, DummySprite(), None, "Bernd", COLOR_ARRAY[0], Vector2(0.5, 12.0))
 		spaceships = [ship_dieter, ship_bernd]
 		scoreboard = {
 			"Dieter": ScoreboardEntry(100, 1),

@@ -1,11 +1,13 @@
 import unittest
 
-from ai_wars.enums import EnumAction, RotationOnlyActions
+from ai_wars.enums import EnumAction, AlwaysForwardsActions
 
 class TestRotationOnlyActions(unittest.TestCase):
 
 	def test_to_enum_action_left(self):
-		self.assertEqual(EnumAction.LEFT, RotationOnlyActions.LEFT.to_enum_action())
+		expected = {EnumAction.FORWARD, EnumAction.LEFT}
+		self.assertEqual(expected, AlwaysForwardsActions.LEFT_FORWARD.to_action_set())
 
 	def test_to_enum_action_right(self):
-		self.assertEqual(EnumAction.RIGHT, RotationOnlyActions.RIGHT.to_enum_action())
+		expected = {EnumAction.FORWARD, EnumAction.RIGHT}
+		self.assertEqual(expected, AlwaysForwardsActions.RIGHT_FORWARD.to_action_set())
