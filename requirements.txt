@@ -3,5 +3,3 @@ pygame
 torch
 torchsummary
 torchvision
-gym
-stable-baselines3
