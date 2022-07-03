@@ -26,6 +26,8 @@ from ..constants import (
 )
 
 
+UP = Vector2(0, -1)
+
 class GameGUI(Behavior):
 	"""Simple game GUI with user inputs representing a player behavior"""
 	# images
@@ -127,7 +129,9 @@ class GameGUI(Behavior):
 			if ENABLE_TRACING:
 				spaceship.draw_trace(self.screen)
 
-			raycast_scan(Vector2(spaceship.x, spaceship.y), self.map,
+			pos = Vector2(spaceship.x, spaceship.y)
+			angle = spaceship.direction.angle_to(UP)
+			raycast_scan(pos, angle, self.map,
 				draw_ray=lambda start, end: pygame.draw.line(self.screen, "red", start, end))
 
 

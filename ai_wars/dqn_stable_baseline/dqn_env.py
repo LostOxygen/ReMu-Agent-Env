@@ -2,6 +2,7 @@ import logging
 import time
 import gym
 from gym import spaces
+from pygame import Vector2
 
 from ai_wars.networking.client import UdpClient
 from ai_wars.networking.layers.compression import GzipCompression
@@ -18,6 +19,9 @@ from ai_wars.constants import (
 	CLIENT_TIMEOUT,
 	MOVEMENT_SET
 )
+
+
+UP = Vector2(0, -1)
 
 class ClientEnvironment(gym.Env):
 
@@ -51,8 +55,10 @@ class ClientEnvironment(gym.Env):
 		else:
 			reward = 0
 
-		player_pos = list(filter(lambda p: p["player_name"] == self.name, players))[0]["position"]
-		scan = raycast_scan(player_pos, self.map)
+		player = list(filter(lambda p: p["player_name"] == self.name, players))[0]
+		player_pos = player["position"]
+		player_angle = player["direction"].angle_to(UP)
+		scan = raycast_scan(player_pos, player_angle, self.map)
 
 		min_val = scan.min()
 		if min_val > 0:
@@ -64,8 +70,10 @@ class ClientEnvironment(gym.Env):
 		self.client.send(serialize_action(self.name, []).encode())
 		players, _ = self._read_next_gamestate()
 
-		player_pos = list(filter(lambda p: p["player_name"] == self.name, players))[0]["position"]
-		return raycast_scan(player_pos, self.map)
+		player = list(filter(lambda p: p["player_name"] == self.name, players))[0]
+		player_pos = player["position"]
+		player_angle = player["direction"].angle_to(UP)
+		return raycast_scan(player_pos, player_angle, self.map)
 
 	def render(self, mode="human"):
 		pass

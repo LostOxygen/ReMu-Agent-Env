@@ -55,7 +55,7 @@ class TestDqnUtils(unittest.TestCase):
 		expected = torch.tensor([30], dtype=torch.float32)
 
 		origin = Vector2(50, 50)
-		actual = raycast_scan(origin, self.game_map, num_rays=1, step_size=1)
+		actual = raycast_scan(origin, 0, self.game_map, num_rays=1, step_size=1)
 
 		self.assertEqual(expected, actual)
 
@@ -63,7 +63,7 @@ class TestDqnUtils(unittest.TestCase):
 		expected = torch.tensor([30, 30, 30, 30], dtype=torch.float32)
 
 		origin = Vector2(50, 50)
-		actual = raycast_scan(origin, self.game_map, num_rays=4, step_size=1)
+		actual = raycast_scan(origin, 0, self.game_map, num_rays=4, step_size=1)
 
 		self.assertTrue(expected.equal(actual))
 
@@ -71,6 +71,14 @@ class TestDqnUtils(unittest.TestCase):
 		expected = torch.tensor([30, 43, 30, 43, 30, 43, 30, 43], dtype=torch.float32)
 
 		origin = Vector2(50, 50)
-		actual = raycast_scan(origin, self.game_map, num_rays=8, step_size=1)
+		actual = raycast_scan(origin, 0, self.game_map, num_rays=8, step_size=1)
+
+		self.assertTrue(expected.equal(actual))
+
+	def test_raycast_scan_eight_rotated(self):
+		expected = torch.tensor([43, 30, 43, 30, 43, 30, 43, 30], dtype=torch.float32)
+
+		origin = Vector2(50, 50)
+		actual = raycast_scan(origin, 45, self.game_map, num_rays=8, step_size=1)
 
 		self.assertTrue(expected.equal(actual))
