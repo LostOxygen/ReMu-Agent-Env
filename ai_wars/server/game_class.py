@@ -91,7 +91,7 @@ class GameClass:
 				# spawn spaceship at random position if necessary
 				if name not in self.spaceships:
 					spawn = get_random_position(self.screen)
-					self.spawn_spaceship(spawn.x, spawn.y, name)
+					self._spawn_spaceship(spawn.x, spawn.y, name)
 
 				# store actions in buffer
 				if name not in self.action_buffer:
@@ -172,7 +172,7 @@ class GameClass:
 				break
 			# since every shot bullet "turn into" a ray, delete all spawned bullets
 			for bullet in self.bullets:
-				self.delete_bullet(bullet)
+				self._delete_bullet(bullet)
 
 		else:
 			for bullet in self.bullets:
@@ -182,7 +182,7 @@ class GameClass:
 				bullet.x < 0 or \
 				bullet.y > self.screen.get_height() or \
 				bullet.y < 0:
-					self.delete_bullet(bullet)
+					self._delete_bullet(bullet)
 
 			# check for collisions of ships and bullets
 			# self.scoreboard.decrease_score(ship.name, 100)
@@ -194,7 +194,7 @@ class GameClass:
 						if bullet.shooter == ship:
 							continue
 						# destroy bullet
-						self.delete_bullet(bullet)
+						self._delete_bullet(bullet)
 						# remove points from ship that got hit
 						shooter_name = bullet.shooter.name
 						shot_name = ship.name
@@ -204,12 +204,12 @@ class GameClass:
 							shooter_name, POINTS_GAINED_AFTER_HITTING)
 
 
-	def delete_bullet(self, bullet) -> None:
+	def _delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
 		del bullet
 
 
-	def spawn_spaceship(self, x: int, y: int, name: str) -> None:
+	def _spawn_spaceship(self, x: int, y: int, name: str) -> None:
 		"""spawn a spaceship at the given position"""
 		color = [255,0,0]
 		spaceship = Spaceship(x, y, self.spaceship_image, self.bullet_image, self.bullets.append, \
