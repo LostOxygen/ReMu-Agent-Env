@@ -178,7 +178,7 @@ class GameClass:
 	# Goal is also a checkpoint
 	def get_next_checkpoint(self, spaceship: Spaceship) -> Checkpoint:
 		best_checkpoint_distance = math.inf
-		best_checkpoint = None
+		best_checkpoint = self.map.goal
 
 		for checkpoint in self.map.checkpoints:
 			if not checkpoint in spaceship.visited_checkpoints:

@@ -9,7 +9,7 @@ ROTATION_SPEED = 100.0
 START_SCORE = 0  # start score of every player
 
 # Server constants
-MAP = "corner"
+MAP = "straight"
 SERVER_TICK_RATE = 30
 SERVER_TIMEOUT = 1.0
 CLIENT_TIMEOUT = 1.0
@@ -30,7 +30,7 @@ COLOR_ARRAY = [[255, 0, 0], [237, 185, 185], [143, 35, 35], [255, 255, 0], [185,
 
 # DQN gamestate constants
 MODEL_PATH = "models/"
-MOVEMENT_SET = AlwaysForwardsActions  # pylint: disable=invalid-name
+MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
 
 # DQN agent constants
 MEMORY_SIZE = int(1e5)
