@@ -9,21 +9,41 @@ from pygame.math import Vector2
 
 from ai_wars.maps.map import Map
 
-import ai_wars.constants
+from ai_wars.utils import convert_to_greyscale, render_to_surface, surface_to_tensor
+from ai_wars import constants
 from ..constants import (
 	HEIGHT,
 	MODEL_PATH,
 	DQN_PARAMETER_DICT,
-    HIDDEN_NEURONS,
-	WIDTH
+	HIDDEN_NEURONS,
+	WIDTH,
+	GAMESTATE_TO_INPUT
 )
 from .dqn_models import DQNModelLinear, DQNModelLSTM, DQNModelCNN
 
 UP = Vector2(0, -1)
 
 def gamestate_to_tensor(
-	own_name: str,
-	players: list[dict[str, any]],
+	player_name: str,
+	game_map: Map,
+	players: dict[str, any],
+	device="cpu"
+) -> torch.tensor:
+	match GAMESTATE_TO_INPUT:
+		case "absolute_coordinates":
+			player = list(filter(lambda p: p["player_name"] == player_name, players))[0]
+			return absolute_coordinates(player, device)
+		case "raycast_scan":
+			player = list(filter(lambda p: p["player_name"] == player_name, players))[0]
+			player_pos = player["position"]
+			player_angle = player["direction"].angle_to(UP)
+			return raycast_scan(player_pos, player_angle, game_map)
+		case "cnn":
+			return pygame_image(players, device)
+	return None
+
+def absolute_coordinates(
+	player: dict[str, any],
 	device: str = "cpu"
 ) -> torch.Tensor:
 	"""
@@ -31,34 +51,34 @@ def gamestate_to_tensor(
 	of the form (x, y, x_direction, y_direction) for every entity (like ships and bullets).
 
 	Parameters:
-		players: The players with their coordinates and directions
-		projectiles: The projectiles with their coordinates and directions
-		scoreboard: The scoreboard dictionary with the scores of the players
+		player: Information about the player
 		device: The device the tensor should be stored on (cpu or cuda:0)
 
 	Return:
 		gamestate_tensor: the gamestate, converted to a torch.Tensor
 	"""
-	gamestate_tensor = torch.zeros(
-		size=(1, 4),
-		dtype=torch.float32,
-		device=device
-	)
 
-	# iterate over all players and save their position as well as their direction as 4-tuples
-	# the own player is always at index 0
-	players_copy = players.copy()
-	for i, player in enumerate(players_copy):
-		if player["player_name"] == own_name:
-			gamestate_tensor[0, 0] = player["position"].x
-			gamestate_tensor[0, 1] = player["position"].y
-			gamestate_tensor[0, 2] = player["direction"].x
-			gamestate_tensor[0, 3] = player["direction"].y
-			# remove the own player from the list
-			del players_copy[i]
-			break
-	#return torch.round(gamestate_tensor, decimals=-1)
-	return gamestate_tensor
+	return torch.tensor([
+		player["position"].x,
+		player["position"].y,
+		player["direction"].x,
+		player["direction"].y
+	], device=device)
+
+def pygame_image(players: list[dict[str, any]], device="cpu"):
+	"""
+	Provides a screenshot of the current game state.
+
+	Parameters:
+		players: information about all players
+
+	Returns:
+		image as a tensor
+	"""
+
+	gamestate_surface = render_to_surface(players)
+	gamestate_tensor = surface_to_tensor(gamestate_surface, device)
+	return convert_to_greyscale(gamestate_tensor)
 
 def raycast_scan(
 	origin: Vector2,
@@ -68,6 +88,22 @@ def raycast_scan(
 	step_size=1,
 	draw_ray: Callable[[int, int], None] = lambda s, e: None
 ) -> torch.tensor:
+	"""
+	Casts rays in call direction starting from a given point and rotation. Measures the distance to
+	wall or border of the game field.
+
+	Parameters:
+		origin: Start point of the rays
+		angle: Rotation of the origin
+		game_map: Current game map
+		num_rays: Number of rays that should be cast
+		step_size: Smaller number is more accurate but slower to compute
+		draw_ray: Callback for drawing the casted rays
+
+	Returns:
+		all measured distances as an 1d tensor
+	"""
+
 	def is_in_game_area(pos: Vector2) -> bool:
 		return pos.x > 0 and pos.x < WIDTH and pos.y > 0 and pos.y < HEIGHT
 
@@ -128,7 +164,7 @@ def get_model_linear(device: str, input_dim: int, output_dim: int, player_name: 
 		model: Pytorch Sequential Model
 	"""
 	loading_path = MODEL_PATH+player_name
-	if ai_wars.constants.PARAM_SEARCH:
+	if constants.PARAM_SEARCH:
 		hidden_neurons = DQN_PARAMETER_DICT[player_name]["hidden_neurons"]
 	else:
 		hidden_neurons = HIDDEN_NEURONS

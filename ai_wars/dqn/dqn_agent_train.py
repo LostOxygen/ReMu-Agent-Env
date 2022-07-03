@@ -9,13 +9,12 @@ from torch.nn import functional as F
 from . import AgentNotFoundException
 
 from ..enums import MoveSet
-
 from ..utils import override
 
 from .dqn_utils import get_model_linear, get_model_lstm, get_model_cnn, save_model
 from .replay_memory import ReplayMemory
 
-import ai_wars.constants
+from ai_wars import constants
 from ..constants import (
 	MOVEMENT_SET,
 	MEMORY_SIZE,
@@ -76,9 +75,9 @@ class Agent(abc.ABC):
 		self.target_network = deepcopy(self.policy_network)
 
 		self.memory = ReplayMemory(MEMORY_SIZE, BATCH_SIZE, self.device)
-		if ai_wars.constants.PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
+		if constants.PARAM_SEARCH and self.model_name in DQN_PARAMETER_DICT:
 			self.optimizer = torch.optim.Adam(self.policy_network.parameters(),
-                                    		  lr=DQN_PARAMETER_DICT[self.model_name]["learning_rate"])
+											  lr=DQN_PARAMETER_DICT[self.model_name]["learning_rate"])
 			self.tau = DQN_PARAMETER_DICT[self.model_name]["tau"]
 			self.decay_factor = DQN_PARAMETER_DICT[self.model_name]["decay_factor"]
 		else:
@@ -93,8 +92,7 @@ class Agent(abc.ABC):
 	def apply_training_step(self,
 		state: torch.tensor,
 		reward: int,
-		action: MoveSet,
-		next_state: torch.tensor
+		action: MoveSet
 	) -> Tuple[float, float, float]:
 		'''
 		Applies a training step to the model.
@@ -107,7 +105,7 @@ class Agent(abc.ABC):
 		Returns:
 			(current loss, current epsilon, current best q value)
 		'''
-		self.update_replay_memory(state, reward, action.value, next_state)
+		self.update_replay_memory(state, reward, action.value)
 
 		self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
@@ -140,8 +138,7 @@ class Agent(abc.ABC):
 		return (loss, self.eps, max_q_value)
 
 	@abc.abstractmethod
-	def update_replay_memory(self, state: torch.tensor, reward: int,
-							 action: MoveSet, next_state: torch.tensor):
+	def update_replay_memory(self, state: torch.tensor, reward: int, action: MoveSet):
 		'''
 		Replay memory should be updated here.
 
@@ -212,8 +209,10 @@ class LinearAgent(Agent):
 		return MOVEMENT_SET(pred)
 
 	@override
-	def update_replay_memory(self, state, reward, action, next_state):
-		self.memory.add(state, action, reward, next_state)
+	def update_replay_memory(self, state, reward, action):
+		if self.last_state != None:
+			self.memory.add(self.last_state, action, reward, state)
+		self.last_state = state
 
 
 class LSTMAgent(Agent):
@@ -254,10 +253,12 @@ class LSTMAgent(Agent):
 		return MOVEMENT_SET(pred)
 
 	@override
-	def update_replay_memory(self, state, reward, action, next_state): # pylint: disable=unused-argument
+	def update_replay_memory(self, state, reward, action): # pylint: disable=unused-argument
+		self.sequence_queue.append(state)
+
 		if len(self.sequence_queue) >= LSTM_SEQUENCE_SIZE:
 			sequence = torch.stack(list(self.sequence_queue))
-			self.memory.add(self.last_sequence, action.value, sequence, reward)
+			self.memory.add(self.last_sequence, action, reward, sequence)
 			self.last_sequence = sequence
 
 	@override
@@ -301,5 +302,7 @@ class CNNAgent(Agent):
 		return MOVEMENT_SET(pred)
 
 	@override
-	def update_replay_memory(self, state, reward, action, next_state):
-		self.memory.add(state, action, reward, next_state)
+	def update_replay_memory(self, state, reward, action):
+		if self.last_state == None:
+			self.memory.add(self.last_state, action, reward, state)
+		self.last_state = state

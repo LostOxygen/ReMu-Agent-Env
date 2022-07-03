@@ -7,10 +7,10 @@ import logging
 import signal
 import torch
 
-import ai_wars.constants
+from ai_wars import constants
+from ai_wars.maps.map_loader import load_map
 from ai_wars.client.player import Player
 from ai_wars.dqn.dqn_behavior import DqnBehavior, DqnBehaviorTest
-
 
 RUNNING = True
 
@@ -56,17 +56,19 @@ if __name__ == "__main__":
 						datefmt="%H:%M:%S")
 
 	if args.param_search:
-		ai_wars.constants.PARAM_SEARCH = True
+		constants.PARAM_SEARCH = True
 
 	device = args.device
 	if not torch.cuda.is_available():
 		# overwrite the device if no GPU is available
 		device = "cpu"
 
+	game_map = load_map(None, constants.MAP)
+
 	if args.test:
-		behavior = DqnBehaviorTest(args.name, args.model_type, device)
+		behavior = DqnBehaviorTest(args.name, args.model_type, game_map, device)
 	else:
-		behavior = DqnBehavior(args.name, args.model_type, device)
+		behavior = DqnBehavior(args.name, args.model_type, game_map, device)
 
 	logging.info("Time: %s", datetime.datetime.now().strftime("%A, %d. %B %Y %I:%M%p"))
 	logging.info(

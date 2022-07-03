@@ -31,6 +31,7 @@ COLOR_ARRAY = [[255, 0, 0], [237, 185, 185], [143, 35, 35], [255, 255, 0], [185,
 # DQN gamestate constants
 MODEL_PATH = "models/"
 MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
+GAMESTATE_TO_INPUT = "raycast_scan" # "absolute_coordinates", "raycast_scan" or "cnn"
 
 # DQN agent constants
 MEMORY_SIZE = int(1e5)
