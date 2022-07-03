@@ -143,7 +143,7 @@ class GameGUI(Behavior):
 		else:
 			while True:
 				color = list(np.random.choice(range(256), size=3))
-				if not self._isColorTooDark(color):
+				if not self._is_color_too_dark(color):
 					break
 
 		spaceship = Spaceship(position.x, position.y, self.spaceship_image, self.bullet_image, \
@@ -152,7 +152,7 @@ class GameGUI(Behavior):
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
 
-	def _isColorTooDark(self, color: list):
+	def _is_color_too_dark(self, color: list):
 		# calc the brightness of the color
 		luma = 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]
 		return luma < 128
