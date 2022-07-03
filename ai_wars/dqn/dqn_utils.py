@@ -1,6 +1,7 @@
 """library for DQN utilities and classes"""
 import os
 import logging
+from typing import Callable
 import torch
 from torch import nn
 from torchsummary import summary
@@ -62,7 +63,9 @@ def gamestate_to_tensor(
 def raycast_scan(
 	origin: Vector2,
 	game_map: Map,
-	num_rays=8, step_size=1
+	num_rays=8,
+	step_size=1,
+	draw_ray: Callable[[int, int], None] = lambda s, e: None
 ) -> torch.tensor:
 	def is_in_game_area(pos: Vector2) -> bool:
 		return pos.x > 0 and pos.x < WIDTH and pos.y > 0 and pos.y < HEIGHT
@@ -73,6 +76,8 @@ def raycast_scan(
 
 		while is_in_game_area(ray_pos) and game_map.is_point_in_bounds(ray_pos):
 			ray_pos += step
+
+		draw_ray(origin, ray_pos)
 
 		return origin.distance_to(ray_pos)
 

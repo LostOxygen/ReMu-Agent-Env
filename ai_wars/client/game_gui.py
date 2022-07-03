@@ -7,6 +7,8 @@ import pygame
 from pygame import Vector2
 from typing import Dict, Set
 
+from ai_wars.dqn.dqn_utils import raycast_scan
+
 from .behavior import Behavior
 
 from ..spaceship import Spaceship
@@ -121,8 +123,13 @@ class GameGUI(Behavior):
 		# draw the spaceship
 		for spaceship in self.spaceships.values():
 			spaceship.draw(self.screen)
+
 			if ENABLE_TRACING:
 				spaceship.draw_trace(self.screen)
+
+			raycast_scan(Vector2(spaceship.x, spaceship.y), self.map,
+				draw_ray=lambda start, end: pygame.draw.line(self.screen, "red", start, end))
+
 
 		# draw scoreboard
 		self.scoreboard.draw_scoreboard(self.screen)
