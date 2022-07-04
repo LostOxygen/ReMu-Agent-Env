@@ -122,6 +122,9 @@ class GameClass:
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
 			# When hit goal respawn and give points and increment
 			if self.map.goal.rect.collidepoint(spaceship_location):
+				spaceship.total_goals += 1
+				spaceship.print_attempts()
+				spaceship.log_metrics()
 				self.respawn_ship(spaceship)
 				self.scoreboard.update_score(spaceship.name, 1000000)
 				self.scoreboard.increment_finish_reached(spaceship.name)
@@ -135,8 +138,8 @@ class GameClass:
 
 			# If on checkpoint, add to visited checkpoints and search for next checkpoint to travel to
 			checkpoint = self.map.is_point_on_checkpoints(spaceship_location)
-			# check if checkpoint is none (is_point_on_checkpoint method returns None and not goal since when goal the
-			# ship should be resetted
+			# check if checkpoint is none (is_point_on_checkpoint method returns None and not goal 
+			# since when goal the ship should be resetted
 			if checkpoint is not None and checkpoint is not self.map.goal:
 				# set target checkpoint and max dist
 				if checkpoint not in spaceship.visited_checkpoints:
@@ -145,7 +148,8 @@ class GameClass:
 				self.set_next_target_checkpoint_and_max_dist(spaceship)
 
 			new_score = self.get_score_based_on_current_dist_to_target(spaceship)
-			self.scoreboard.update_score(spaceship.name, new_score + MAX_POINTS_WHEN_GOAL_REACHED*len(spaceship.visited_checkpoints))
+			self.scoreboard.update_score(spaceship.name,
+				new_score + MAX_POINTS_WHEN_GOAL_REACHED*len(spaceship.visited_checkpoints))
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
@@ -171,6 +175,7 @@ class GameClass:
 		self.server.send_to_all(serialized_state.encode())
 
 	def respawn_ship(self, spaceship: Spaceship):
+		spaceship.attempts += 1
 		spaceship.x = self.map.spawn_point.x
 		spaceship.y = self.map.spawn_point.y
 		spaceship.direction = copy(self.map.spawn_direction)
