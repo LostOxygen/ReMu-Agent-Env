@@ -1,6 +1,7 @@
 """library for DQN utilities and classes"""
 import os
 import logging
+from copy import copy
 from typing import Callable
 import torch
 from torch import nn
@@ -108,7 +109,7 @@ def raycast_scan(
 		return pos.x > 0 and pos.x < WIDTH and pos.y > 0 and pos.y < HEIGHT
 
 	def cast_ray(angle: float):
-		ray_pos = origin.copy()
+		ray_pos = copy(origin)
 		step = Vector2(0, -step_size).rotate(angle)
 
 		while is_in_game_area(ray_pos) and game_map.is_point_in_bounds(ray_pos):
