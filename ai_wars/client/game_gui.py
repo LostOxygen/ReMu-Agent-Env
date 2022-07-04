@@ -22,7 +22,8 @@ from ..constants import (
 	WIDTH,
 	HEIGHT,
 	MAP,
-	ENABLE_TRACING
+	ENABLE_TRACING,
+	GAMESTATE_TO_INPUT
 )
 
 
@@ -131,8 +132,9 @@ class GameGUI(Behavior):
 
 			pos = Vector2(spaceship.x, spaceship.y)
 			angle = spaceship.direction.angle_to(UP)
-			raycast_scan(pos, angle, self.map,
-				draw_ray=lambda start, end: pygame.draw.line(self.screen, "red", start, end))
+			if GAMESTATE_TO_INPUT == "raycast_scan":
+				raycast_scan(pos, angle, self.map,
+					draw_ray=lambda start, end: pygame.draw.line(self.screen, "red", start, end))
 
 
 		# draw scoreboard
