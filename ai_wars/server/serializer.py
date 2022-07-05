@@ -50,6 +50,7 @@ def _scoreboard_as_dict(scoreboard: dict[str, ScoreboardEntry]) -> list[dict[str
 		return {
 			"name": name,
 			"score": entry.score,
+			"attempts": entry.attempts,
 			"finish_reached": entry.finish_reached
 		}
 

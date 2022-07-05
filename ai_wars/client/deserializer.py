@@ -51,8 +51,9 @@ def _dict_as_scoreboard(value: list[dict[str, any]]) -> dict[str, int]:
 	for entry in value:
 		name = entry["name"]
 		score = entry["score"]
+		attempts = entry["attempts"]
 		finish_reached = entry["finish_reached"]
 
-		scoreboard[name] = ScoreboardEntry(score, finish_reached)
+		scoreboard[name] = ScoreboardEntry(score, attempts, finish_reached)
 
 	return scoreboard

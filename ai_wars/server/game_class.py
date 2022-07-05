@@ -1,7 +1,7 @@
 """Main GameClass"""
-import sys
 import os
-import math
+import sys
+from datetime import datetime
 from copy import copy
 
 import pygame
@@ -27,7 +27,7 @@ from ..constants import (
 	WIDTH,
 	HEIGHT,
 	MAP,
-	MAX_POINTS_WHEN_GOAL_REACHED
+	POINT_PER_CHECKPOINT
 )
 
 
@@ -61,13 +61,16 @@ class GameClass:
 		self.running = True
 
 		self.map = load_map(self.screen, MAP)
-		self.checkpoint_score = 0
+		self.checkpoint_by_player: dict[str, int] = {}
 
 	def update_game(self, deltatime):
 		self._handle_events()
 		self._process_game_logic()
 		self._apply_actions(deltatime)
 		self._publish_gamestate()
+
+		for ship in self.spaceships.keys():
+			self.log_metrics(ship)
 
 	def loop(self) -> None:
 		"""server loop to handle receive modularity"""
@@ -120,15 +123,6 @@ class GameClass:
 		# Check if in bounds or on checkpoint
 		for spaceship in self.spaceships.values():
 			spaceship_location = Vector2(spaceship.x, spaceship.y)
-			# When hit goal respawn and give points and increment
-			if self.map.goal.rect.collidepoint(spaceship_location):
-				spaceship.total_goals += 1
-				spaceship.print_attempts()
-				spaceship.log_metrics()
-				self.respawn_ship(spaceship)
-				self.scoreboard.update_score(spaceship.name, 1000000)
-				self.scoreboard.increment_finish_reached(spaceship.name)
-				continue
 
 			# When hit boundary respawn
 			if not self.map.is_point_in_bounds(spaceship_location):
@@ -136,20 +130,25 @@ class GameClass:
 				self.scoreboard.update_score(spaceship.name, -1000000)
 				continue
 
-			# If on checkpoint, add to visited checkpoints and search for next checkpoint to travel to
-			checkpoint = self.map.is_point_on_checkpoints(spaceship_location)
-			# check if checkpoint is none (is_point_on_checkpoint method returns None and not goal 
-			# since when goal the ship should be resetted
-			if checkpoint is not None and checkpoint is not self.map.goal:
-				# set target checkpoint and max dist
-				if checkpoint not in spaceship.visited_checkpoints:
-					spaceship.visited_checkpoints.append(checkpoint)
+			next_checkpoint_index = self.checkpoint_by_player[spaceship.name]
 
-				self.set_next_target_checkpoint_and_max_dist(spaceship)
+			# reached next checkpoint
+			if self.map.is_point_on_checkpoint(next_checkpoint_index, spaceship_location):
+				next_checkpoint_index += 1
 
-			new_score = self.get_score_based_on_current_dist_to_target(spaceship)
-			self.scoreboard.update_score(spaceship.name,
-				new_score + MAX_POINTS_WHEN_GOAL_REACHED*len(spaceship.visited_checkpoints))
+			# we passed the last checkpoint (goal), reset
+			if next_checkpoint_index >= len(self.map.checkpoints):
+				self.respawn_ship(spaceship)
+				self.scoreboard.update_score(spaceship.name, 1000000)
+				self.scoreboard.increment_finish_reached(spaceship.name)
+				continue
+			self.checkpoint_by_player[spaceship.name] = next_checkpoint_index
+
+			distance_to_player = self.map.checkpoints[next_checkpoint_index].middle_point \
+				.distance_to(spaceship_location)
+			distance = next_checkpoint_index * POINT_PER_CHECKPOINT \
+				+ (POINT_PER_CHECKPOINT - distance_to_player)
+			self.scoreboard.update_score(spaceship.name, distance)
 
 	def delete_bullet(self, bullet) -> None:
 		self.bullets.remove(bullet)
@@ -161,11 +160,9 @@ class GameClass:
 		spaceship = Spaceship(x, y, self.spaceship_image, \
 							  self.screen, name, color, self.map.spawn_direction, self.modus.get_game_time())
 
-		# set target checkpoint and max dist
-		self.set_next_target_checkpoint_and_max_dist(spaceship)
-
 		self.spaceships[spaceship.name] = spaceship
 		self.scoreboard.attach(spaceship)
+		self.checkpoint_by_player[spaceship.name] = 0
 		logging.debug("Spawned spaceship with name: %s at X:%s Y:%s", name, x, y)
 
 	def _publish_gamestate(self) -> None:
@@ -175,40 +172,31 @@ class GameClass:
 		self.server.send_to_all(serialized_state.encode())
 
 	def respawn_ship(self, spaceship: Spaceship):
-		spaceship.attempts += 1
 		spaceship.x = self.map.spawn_point.x
 		spaceship.y = self.map.spawn_point.y
 		spaceship.direction = copy(self.map.spawn_direction)
 
-		spaceship.visited_checkpoints.clear()
-		self.set_next_target_checkpoint_and_max_dist(spaceship)
+		self.scoreboard.increase_attempts(spaceship.name)
+		self.checkpoint_by_player[spaceship.name] = 0
 
-	# Goal is also a checkpoint
-	def get_next_checkpoint(self, spaceship: Spaceship) -> Checkpoint:
-		best_checkpoint_distance = math.inf
-		best_checkpoint = self.map.goal
+	def log_metrics(self, name) -> None:
+		"""
+		Logs attempts and total goals for a model and saves the log under ./logs/model_name_racing.log
+		"""
 
-		for checkpoint in self.map.checkpoints:
-			if not checkpoint in spaceship.visited_checkpoints:
-				spaceship_location = Vector2(spaceship.x, spaceship.y)
-				distance = spaceship_location.distance_squared_to(checkpoint.middle_point)
+		if not os.path.exists("logs/"):
+			os.mkdir("logs/")
 
-				if distance <= best_checkpoint_distance:
-					best_checkpoint = checkpoint
-					best_checkpoint_distance = distance
+		attempts = self.scoreboard.get_scoreboard_dict()[name].attempts
+		finish_reached = self.scoreboard.get_scoreboard_dict()[name].finish_reached
 
-		return best_checkpoint
+		try:
+			with open(f"./logs/{name}_racing.log", encoding="utf-8", mode="a") as log_file:
+				log_file.write(f"{datetime.now().strftime('%A, %d. %B %Y %I:%M%p')} "
+							f"- attempt: {attempts} - total_goals: {finish_reached}\n")
+		except OSError as error:
+			logging.error("Could not write logs into /logs/%s_racing.log - error: %s",
+				self.name, error)
 
-	def set_next_target_checkpoint_and_max_dist(self, spaceship: Spaceship):
-		spaceship.target_checkpoint = self.get_next_checkpoint(spaceship)
-		spaceship_pos = Vector2(spaceship.x, spaceship.y)
-		spaceship.current_max_dist = spaceship_pos.distance_squared_to(spaceship.target_checkpoint.middle_point)
-
-	def get_score_based_on_current_dist_to_target(self, spaceship: Spaceship):
-		current_position = Vector2(spaceship.x, spaceship.y)
-		current_dist_to_next_target_checkpoint = current_position.distance_squared_to(
-			spaceship.target_checkpoint.middle_point)
-		percent_dist_to_next_target_checkpoint = current_dist_to_next_target_checkpoint / spaceship.current_max_dist
-
-		new_score = int((1 - percent_dist_to_next_target_checkpoint) * MAX_POINTS_WHEN_GOAL_REACHED)
-		return new_score
+def checkpoint_distance(c1: Checkpoint, c2: Checkpoint) -> float:
+	return c1.middle_point.distance_to(c2.middle_point)

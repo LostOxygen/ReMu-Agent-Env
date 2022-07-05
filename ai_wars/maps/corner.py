@@ -18,17 +18,10 @@ class Corner(Map):
 		self.bound_rects.append(Rect(0, 500, 800, 100))
 
 		# Create checkpoints
-		self.checkpoints.append(Checkpoint(Rect(400, 350, 150, 10), 'black', 'checkpoint1'))
-		self.checkpoints.append(Checkpoint(Rect(390, 350, 10, 150), 'black', 'checkpoint2'))
-
-		# Create Goal
-		self.goal = Checkpoint(Rect(0, 350, 10, 150), 'orange', 'goal1')
-		# Goal is also a checkpoint
-		self.checkpoints.append(self.goal)
+		self.checkpoints.append(Checkpoint(Rect(400, 350, 150, 10), "orange", "checkpoint1"))
+		self.checkpoints.append(Checkpoint(Rect(390, 350, 10, 150), "orange", "checkpoint2"))
+		self.checkpoints.append(Checkpoint(Rect(0, 350, 10, 150), "orange", "goal"))
 
 		# Spawn
 		self.spawn_point = Vector2(475, 0)
 		self.spawn_direction = Vector2(0, 1)
-
-		# Needed for calculation
-		self.max_dist_between_spawn_and_goal = self.spawn_point.distance_squared_to(self.goal.middle_point)

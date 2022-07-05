@@ -1,12 +1,9 @@
 """spacehip class file"""
-import os
+from collections import deque
 from copy import copy
-from datetime import datetime
 import pygame
-import logging
 from pygame.math import Vector2
 
-from .maps.map import Checkpoint
 from ai_wars.enums import EnumAction
 from ai_wars.game_time import GameTime, PygameGameTime
 from ai_wars.utils import clip_pos
@@ -42,14 +39,7 @@ class Spaceship():
 		self.name = name # name is equivalent to an player ID
 		self.color = color
 		self.game_time = game_time
-		self.trace_points = [] # save points to draw the traces
-
-		# Checkpoints and score stuff
-		self.visited_checkpoints: list[Checkpoint] = []
-		self.target_checkpoint: Checkpoint = None
-		self.current_max_dist = 0
-		self.attempts = 0
-		self.total_goals = 0
+		self.trace_points = deque(maxlen=5000) # save points to draw the traces
 
 		# hitbox stuff
 		self.hitbox = self.spaceship_sprite.get_rect()
@@ -131,24 +121,3 @@ class Spaceship():
 		"""helper method to draw the trace of a give player"""
 		for trace_point in self.trace_points:
 			pygame.draw.line(screen, self.color, trace_point, trace_point)
-
-	def print_attempts(self) -> None:
-		print(f"{self.name} | attempt number: {self.attempts}, total goals: {self.total_goals}")
-
-	def log_metrics(self) -> None:
-		"""
-		Logs attempts and total goals for a model and saves the log under ./logs/model_name_racing.log
-
-		Returns:
-			None
-		"""
-		if not os.path.exists("logs/"):
-			os.mkdir("logs/")
-
-		try:
-			with open(f"./logs/{self.name}_racing.log", encoding="utf-8", mode="a") as log_file:
-				log_file.write(f"{datetime.now().strftime('%A, %d. %B %Y %I:%M%p')} "
-							f"- attempt: {self.attempts} - total_goals: {self.total_goals}\n")
-		except OSError as error:
-			logging.error(
-				"Could not write logs into /logs/%s_racing.log - error: %s", self.name, error)

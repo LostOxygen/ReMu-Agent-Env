@@ -71,15 +71,11 @@ class DqnBehavior(Behavior):
 		# obtain the new score and calculate the reward and subtract the distance and the angle
 		score = scoreboard[self.player_name].score
 		if score > self.last_score:
-			reward = 1000
+			reward = 1
 		elif score < self.last_score:
-			reward = -1000
+			reward = -1
 		else:
 			reward = 0
-
-		min_val = gamestate_tensor.min()
-		if min_val > 0:
-			reward += int(min_val)
 
 		# check if the model is already loaded, if not load it
 		if self.optimizer is None:

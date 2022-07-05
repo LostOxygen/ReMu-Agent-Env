@@ -4,17 +4,16 @@ from typing import List, Dict
 from ai_wars.constants import START_SCORE
 import pygame
 
-from ai_wars.utils import clip
-
-
 class ScoreboardEntry:
 	"""Objects stored inside the scoreboard."""
 
 	score: int
+	attempts: int
 	finish_reached: int
 
-	def __init__(self, score=0, finish_reached=0):
+	def __init__(self, score=0, attempts=0, finish_reached=0):
 		self.score = score
+		self.attempts = attempts
 		self.finish_reached = finish_reached
 
 	def __eq__(self, other):
@@ -22,9 +21,6 @@ class ScoreboardEntry:
 			return False
 
 		return self.score == other.score and self.finish_reached == other.finish_reached
-
-	def __hash__(self):
-		return self.score and self.finish_reached
 
 	def __str__(self):
 		return f"finished {self.finish_reached} | score {self.score}"
@@ -51,29 +47,17 @@ class Scoreboard:
 
 	def update_score(self, player_name: str, new_score: int) -> None:
 		self._scoreboard_dict[player_name].score = new_score
-		# function dosent work currently. no idea why
-		#self._sort_entries()
 
-	def decrease_score(self, player_name: str, decrease: int) -> None:
-		self._scoreboard_dict[player_name].score = clip(self._scoreboard_dict[player_name].score - decrease)
+	def increase_attempts(self, player_name: str):
+		self._scoreboard_dict[player_name].attempts += 1
 
-		# re-sort the scoreboard
-		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
-											key=lambda x: x[1], reverse=True))
-
-	def increase_score(self, player_name: str, increase: int) -> None:
-		self._scoreboard_dict[player_name].score = clip(self._scoreboard_dict[player_name].score + increase)
-
-		# re-sort the scoreboard
-		self._scoreboard_dict = dict(sorted(self._scoreboard_dict.items(),
-											key=lambda x: x[1], reverse=True))
 	def increment_finish_reached(self, player_name: str):
 		self._scoreboard_dict[player_name].finish_reached += 1
 
 	def draw_scoreboard(self, screen: pygame.Surface) -> None:
 		"""public method to draw the scoreboard on the given screen"""
 		for pos, (player, entry) in enumerate(self._scoreboard_dict.items()):
-			score_string = f"{player} : finished {entry.finish_reached} | score {entry.score}"
+			score_string = f"{player}: attempts {entry.attempts}, finished {entry.finish_reached}, score {int(entry.score)}"
 			text_surface = self.font.render(score_string, False, (0, 0, 0))
 			screen.blit(text_surface, (0, self.font_height*pos))
 

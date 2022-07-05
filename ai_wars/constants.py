@@ -2,14 +2,14 @@
 from ai_wars.enums import EnumAction, AlwaysForwardsActions  # pylint: disable=unused-import
 
 # Game constants
-MAX_POINTS_WHEN_GOAL_REACHED = 1000
+POINT_PER_CHECKPOINT = 10000
 SHOOT_COOLDOWN = 1000  # specifies the cooldown for shooting in ms
 SHIP_SPEED = 150.0
 ROTATION_SPEED = 100.0
 START_SCORE = 0  # start score of every player
 
 # Server constants
-MAP = "straight"
+MAP = "corner"
 SERVER_TICK_RATE = 30
 SERVER_TIMEOUT = 1.0
 CLIENT_TIMEOUT = 1.0
@@ -18,20 +18,21 @@ POINTS_GAINED_AFTER_HITTING = 200
 
 # Client constants
 ENABLE_TRACING = True
+DRAW_RAYCAST = False
 HEIGHT = 600
 WIDTH = 800
 CLIENT_BUFFER_SIZE = 10 * 1024
 # http://phrogz.net/tmp/24colors.html
 COLOR_ARRAY = [[255, 0, 0], [237, 185, 185], [143, 35, 35], [255, 255, 0], [185, 215, 237],
-               [35, 98, 143], [115, 115, 115], [0, 234, 255], [231, 233, 185], [143, 106, 35],
-               [204, 204, 204], [170, 0, 255], [220, 185, 237], [255, 127, 0], [185, 237, 224],
-               [79, 143, 35], [191, 255, 0], [0, 149, 255], [255, 0, 170], [255, 212, 0],
-               [106, 255, 0], [0, 64, 255]]
+			   [35, 98, 143], [115, 115, 115], [0, 234, 255], [231, 233, 185], [143, 106, 35],
+			   [204, 204, 204], [170, 0, 255], [220, 185, 237], [255, 127, 0], [185, 237, 224],
+			   [79, 143, 35], [191, 255, 0], [0, 149, 255], [255, 0, 170], [255, 212, 0],
+			   [106, 255, 0], [0, 64, 255]]
 
 # DQN gamestate constants
 MODEL_PATH = "models/"
-MOVEMENT_SET = EnumAction  # pylint: disable=invalid-name
-GAMESTATE_TO_INPUT = "absolute_coordinates" # "absolute_coordinates", "raycast_scan" or "cnn"
+MOVEMENT_SET = AlwaysForwardsActions  # pylint: disable=invalid-name
+GAMESTATE_TO_INPUT = "raycast_scan" # "absolute_coordinates", "raycast_scan" or "cnn"
 
 # DQN agent constants
 MEMORY_SIZE = int(1e5)
@@ -54,76 +55,76 @@ LSTM_SEQUENCE_SIZE = 32
 # hyperparameter dictionaries, if PARAM_SEARCH is true, these will be used by the models
 PARAM_SEARCH = False
 DQN_PARAMETER_DICT = {
-    "model_0": {
-        "decay_factor": 0.999995,
-        "learning_rate": 0.001,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_1": {
-        "decay_factor": 0.99995,
-        "learning_rate": 0.001,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_2": {
-        "decay_factor": 0.9995,
-        "learning_rate": 0.001,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_3": {
-        "decay_factor": 0.999995,
-        "learning_rate": 0.01,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_4": {
-        "decay_factor": 0.99995,
-        "learning_rate": 0.01,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_5": {
-        "decay_factor": 0.9995,
-        "learning_rate": 0.01,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_6": {
-        "decay_factor": 0.999995,
-        "learning_rate": 0.1,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_7": {
-        "decay_factor": 0.99995,
-        "learning_rate": 0.1,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_8": {
-        "decay_factor": 0.9995,
-        "learning_rate": 0.1,
-        "tau": 1e-3,
-        "hidden_neurons": (128, 256),
-    },
-    "model_9": {
-        "decay_factor": 0.99995,
-        "learning_rate": 0.001,
-        "tau": 1e-3,
-        "hidden_neurons": (64, 128),
-    },
-    "model_10": {
-        "decay_factor": 0.99995,
-        "learning_rate": 0.001,
-        "tau": 1e-5,
-        "hidden_neurons": (256, 512),
-    },
-    "model_11": {
-        "decay_factor": 0.99995,
-        "learning_rate": 0.001,
-        "tau": 1e-4,
-        "hidden_neurons": (128, 256),
-    }
+	"model_0": {
+		"decay_factor": 0.999995,
+		"learning_rate": 0.001,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_1": {
+		"decay_factor": 0.99995,
+		"learning_rate": 0.001,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_2": {
+		"decay_factor": 0.9995,
+		"learning_rate": 0.001,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_3": {
+		"decay_factor": 0.999995,
+		"learning_rate": 0.01,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_4": {
+		"decay_factor": 0.99995,
+		"learning_rate": 0.01,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_5": {
+		"decay_factor": 0.9995,
+		"learning_rate": 0.01,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_6": {
+		"decay_factor": 0.999995,
+		"learning_rate": 0.1,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_7": {
+		"decay_factor": 0.99995,
+		"learning_rate": 0.1,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_8": {
+		"decay_factor": 0.9995,
+		"learning_rate": 0.1,
+		"tau": 1e-3,
+		"hidden_neurons": (128, 256),
+	},
+	"model_9": {
+		"decay_factor": 0.99995,
+		"learning_rate": 0.001,
+		"tau": 1e-3,
+		"hidden_neurons": (64, 128),
+	},
+	"model_10": {
+		"decay_factor": 0.99995,
+		"learning_rate": 0.001,
+		"tau": 1e-5,
+		"hidden_neurons": (256, 512),
+	},
+	"model_11": {
+		"decay_factor": 0.99995,
+		"learning_rate": 0.001,
+		"tau": 1e-4,
+		"hidden_neurons": (128, 256),
+	}
 }

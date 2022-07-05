@@ -5,7 +5,7 @@ from pygame import Vector2
 from pygame import Rect
 
 from ai_wars.maps.map import Map
-from ai_wars.dqn.dqn_utils import gamestate_to_tensor, raycast_scan
+from ai_wars.dqn.dqn_utils import absolute_coordinates, raycast_scan
 
 from ai_wars import constants
 constants.NUM_PLAYERS = 2
@@ -26,28 +26,16 @@ class TestDqnUtils(unittest.TestCase):
 
 	game_map = TestMap()
 
-	def test_gamestate_to_tensor(self):
-		expected = torch.tensor([
-			[1.0, 1.0, 1.0, 1.0] # own
-		])
+	def test_absolute_coordinates(self):
+		expected = torch.tensor([1.0, 1.0, 1.0, 1.0])
 
-		player = [
-			{
-				"player_name": "own",
-				"direction": Vector2(1.0, 1.0),
-				"position": Vector2(1.0, 1.0)
-			},
-			{
-				"player_name": "other1",
-				"direction": Vector2(2.0, 2.0),
-				"position": Vector2(2.0, 2.0)
-			}
-		]
+		player = {
+			"player_name": "own",
+			"direction": Vector2(1.0, 1.0),
+			"position": Vector2(1.0, 1.0)
+		}
 
-		actual = gamestate_to_tensor(
-			"own",
-			player
-		)
+		actual = absolute_coordinates(player)
 
 		self.assertTrue(expected.equal(actual))
 

@@ -51,18 +51,20 @@ class TestSerializer(unittest.TestCase):
 			{
 				"name": "Dieter",
 				"score": 100,
+				"attempts": 100,
 				"finish_reached": 1
 			},
 			{
 				"name": "Bernd",
 				"score": -50,
+				"attempts": 200,
 				"finish_reached": 4
 			}
 		]
 
 		scoreboard = {
-			"Dieter": ScoreboardEntry(100, 1),
-			"Bernd": ScoreboardEntry(-50, 4)
+			"Dieter": ScoreboardEntry(100, 100, 1),
+			"Bernd": ScoreboardEntry(-50, 200, 4)
 		}
 		actual = serializer._scoreboard_as_dict(scoreboard)
 
@@ -86,11 +88,13 @@ class TestSerializer(unittest.TestCase):
 				{
 					"name": "Dieter",
 					"score": 100,
+					"attempts": 100,
 					"finish_reached": 1
 				},
 				{
 					"name": "Bernd",
 					"score": -50,
+					"attempts": 200,
 					"finish_reached": 4
 				}
 			]
@@ -100,8 +104,8 @@ class TestSerializer(unittest.TestCase):
 		ship_bernd = Spaceship(2.0, 8.0, DummySprite(), None, "Bernd", COLOR_ARRAY[0], Vector2(0.5, 12.0))
 		spaceships = [ship_dieter, ship_bernd]
 		scoreboard = {
-			"Dieter": ScoreboardEntry(100, 1),
-			"Bernd": ScoreboardEntry(-50, 4)
+			"Dieter": ScoreboardEntry(100, 100, 1),
+			"Bernd": ScoreboardEntry(-50, 200, 4)
 		}
 		actual = serializer.serialize_game_state(spaceships, scoreboard)
 

@@ -5,6 +5,7 @@ from pygame.math import Vector2
 
 
 class Checkpoint:
+
 	def __init__(self, checkpoint_rect: pygame.rect, color: tuple[int, int, int], name: str):
 		self.rect = checkpoint_rect
 		self.middle_point = Vector2(checkpoint_rect.x + checkpoint_rect.width / 2,
@@ -36,9 +37,6 @@ class Map(abc.ABC):
 		for checkpoint in self.checkpoints:
 			pygame.draw.rect(self.screen, checkpoint.color, checkpoint.rect)
 
-		# draw goal
-		pygame.draw.rect(self.screen, self.goal.color, self.goal.rect)
-
 	def is_point_in_bounds(self, point: Vector2) -> bool:
 		for rect in self.bound_rects:
 			# rect.collidepoint is weird, so do the check manually
@@ -48,9 +46,5 @@ class Map(abc.ABC):
 
 		return True
 
-	def is_point_on_checkpoints(self, point: Vector2) -> bool:
-		for checkpoint in self.checkpoints:
-			if checkpoint.rect.collidepoint(point):
-				return checkpoint
-
-		return None
+	def is_point_on_checkpoint(self, index: int, point: Vector2) -> bool:
+		return self.checkpoints[index].rect.collidepoint(point)

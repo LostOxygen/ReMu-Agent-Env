@@ -34,11 +34,12 @@ class TestDeserializerClient(unittest.TestCase):
 		self.assertEqual(expected, actual)
 
 	def test__dict_as_scoreboard(self):
-		expected = {"Dieter": ScoreboardEntry(100, 1)}
+		expected = {"Dieter": ScoreboardEntry(100, 200, 1)}
 
 		scoreboard = [{
 			"name": "Dieter",
 			"score": 100,
+			"attempts": 200,
 			"finish_reached": 1
 		}]
 		actual = deserializer._dict_as_scoreboard(scoreboard)
@@ -53,7 +54,7 @@ class TestDeserializerClient(unittest.TestCase):
 				"direction": Vector2(123.5, 123.2)
 			}],
 			{
-				"Dieter": ScoreboardEntry(100, 1)
+				"Dieter": ScoreboardEntry(100, 200, 1)
 			}
 		)
 
@@ -67,6 +68,7 @@ class TestDeserializerClient(unittest.TestCase):
 				"scoreboard": [{
 					"name": "Dieter",
 					"score": 100,
+					"attempts": 200,
 					"finish_reached": 1
 				}]
 			}'''
