@@ -38,7 +38,7 @@ def gamestate_to_tensor(
 			player = list(filter(lambda p: p["player_name"] == player_name, players))[0]
 			player_pos = player["position"]
 			player_angle = player["direction"].angle_to(UP)
-			return raycast_scan(player_pos, player_angle, game_map)
+			return raycast_scan(player_pos, player_angle, game_map, device=device)
 		case "cnn":
 			return pygame_image(players, device)
 	return None
@@ -87,7 +87,8 @@ def raycast_scan(
 	game_map: Map,
 	num_rays=8,
 	step_size=1,
-	draw_ray: Callable[[int, int], None] = lambda s, e: None
+	draw_ray: Callable[[int, int], None] = lambda s, e: None,
+	device="cpu"
 ) -> torch.tensor:
 	"""
 	Casts rays in call direction starting from a given point and rotation. Measures the distance to
@@ -122,7 +123,7 @@ def raycast_scan(
 	angles = [360 / num_rays * i - angle for i in range(num_rays)]
 	values = list(map(cast_ray, angles))
 
-	return torch.tensor(values, dtype=torch.float32)
+	return torch.tensor(values, dtype=torch.float32, device=device)
 
 def save_model(model: nn.Sequential, name: str) -> None:
 	"""
