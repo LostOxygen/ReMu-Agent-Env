@@ -69,9 +69,6 @@ class GameClass:
 		self._apply_actions(deltatime)
 		self._publish_gamestate()
 
-		for ship in self.spaceships.keys():
-			self.log_metrics(ship)
-
 	def loop(self) -> None:
 		"""server loop to handle receive modularity"""
 		self.server.start(addr=self.addr, port=self.port)
@@ -139,6 +136,7 @@ class GameClass:
 			# we passed the last checkpoint (goal), reset
 			if next_checkpoint_index >= len(self.map.checkpoints):
 				self.respawn_ship(spaceship)
+				spaceship.log_metrics(spaceship.name)
 				self.scoreboard.update_score(spaceship.name, 1000000)
 				self.scoreboard.increment_finish_reached(spaceship.name)
 				continue
@@ -196,7 +194,7 @@ class GameClass:
 							f"- attempt: {attempts} - total_goals: {finish_reached}\n")
 		except OSError as error:
 			logging.error("Could not write logs into /logs/%s_racing.log - error: %s",
-				self.name, error)
+				name, error)
 
 def checkpoint_distance(c1: Checkpoint, c2: Checkpoint) -> float:
 	return c1.middle_point.distance_to(c2.middle_point)
