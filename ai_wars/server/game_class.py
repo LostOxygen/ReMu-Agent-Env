@@ -136,7 +136,7 @@ class GameClass:
 			# we passed the last checkpoint (goal), reset
 			if next_checkpoint_index >= len(self.map.checkpoints):
 				self.respawn_ship(spaceship)
-				spaceship.log_metrics(spaceship.name)
+				self.log_metrics(spaceship.name)
 				self.scoreboard.update_score(spaceship.name, 1000000)
 				self.scoreboard.increment_finish_reached(spaceship.name)
 				continue
