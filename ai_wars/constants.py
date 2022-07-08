@@ -9,7 +9,7 @@ ROTATION_SPEED = 100.0
 START_SCORE = 0  # start score of every player
 
 # Server constants
-MAP = "corner"
+MAP = "straight"
 SERVER_TICK_RATE = 30
 SERVER_TIMEOUT = 1.0
 CLIENT_TIMEOUT = 1.0
@@ -32,7 +32,7 @@ COLOR_ARRAY = [[255, 0, 0], [237, 185, 185], [143, 35, 35], [255, 255, 0], [185,
 # DQN gamestate constants
 MODEL_PATH = "models/"
 MOVEMENT_SET = AlwaysForwardsActions  # pylint: disable=invalid-name
-GAMESTATE_TO_INPUT = "raycast_scan" # "absolute_coordinates", "raycast_scan" or "cnn"
+GAMESTATE_TO_INPUT = "absolute_coordinates" # "absolute_coordinates", "raycast_scan" or "cnn"
 
 # DQN agent constants
 MEMORY_SIZE = int(1e5)
@@ -43,7 +43,7 @@ MAX_ITERATIONS = 1000000
 HIDDEN_NEURONS = (128, 256)
 GAMMA = 0.9
 EPS_START = 1.0
-EPS_END = 0.1
+EPS_END = 0.01
 DECAY_FACTOR = 0.999995
 UPDATE_EVERY = 100
 USE_REPLAY_AFTER = 10000
