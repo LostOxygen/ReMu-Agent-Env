@@ -315,4 +315,4 @@ class CNNAgent(Agent):
 
 	@override
 	def update_replay_memory(self, state, reward, action, next_state):
-		self.memory.add(state, action.value, reward, next_state)
+		self.memory.add(state, int(action), reward, next_state)

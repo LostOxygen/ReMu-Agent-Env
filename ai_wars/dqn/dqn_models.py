@@ -38,9 +38,9 @@ class DQNModelCNN(nn.Module):
 				)
 
 		self.fc = nn.Sequential(
-                    nn.Linear(32*74*99, 512),
+                    nn.Linear(32*74*99, 128),
                		nn.ReLU(inplace=True),
-					nn.Linear(512, num_actions),
+					nn.Linear(128, num_actions),
 					nn.Softmax(dim=-1)
 				)
 
