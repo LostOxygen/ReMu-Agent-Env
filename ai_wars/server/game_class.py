@@ -125,6 +125,7 @@ class GameClass:
 			if not self.map.is_point_in_bounds(spaceship_location):
 				self.respawn_ship(spaceship)
 				self.scoreboard.update_score(spaceship.name, -1000000)
+				self.log_metrics(spaceship.name)
 				continue
 
 			next_checkpoint_index = self.checkpoint_by_player[spaceship.name]
