@@ -20,7 +20,7 @@ class Corner(Map):
 		# Create checkpoints
 		self.checkpoints.append(Checkpoint(Rect(400, 350, 150, 10), "orange", "checkpoint1"))
 		self.checkpoints.append(Checkpoint(Rect(390, 350, 10, 150), "orange", "checkpoint2"))
-		self.checkpoints.append(Checkpoint(Rect(0, 350, 10, 150), "orange", "goal"))
+		self.checkpoints.append(Checkpoint(Rect(0, 350, 10, 150), "white", "goal"))
 
 		# Spawn
 		self.spawn_point = Vector2(475, 0)
